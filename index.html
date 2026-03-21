@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tirzepatide Tracker Dashboard</title>
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.7/chart.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+    :root {
+      --bg: #0c0f1a;
+      --card: #141829;
+      --border: #1e2340;
+      --accent1: #6366f1;
+      --accent2: #f472b6;
+      --accent3: #34d399;
+      --accent4: #fbbf24;
+      --accent5: #38bdf8;
+      --text: #e2e8f0;
+      --dim: #64748b;
+      --muted: #475569;
+      --red: #ef4444;
+      --green: #22c55e;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px 24px 40px;
+      line-height: 1.5;
+    }
+
+    #loading {
+      display: flex; align-items: center; justify-content: center;
+      height: 60vh; flex-direction: column; gap: 12px;
+    }
+    #loading .spinner {
+      width: 32px; height: 32px; border: 3px solid var(--border);
+      border-top-color: var(--accent1); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading p { color: var(--dim); font-size: 13px; }
+
+    #dashboard { display: none; }
+
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+    .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .header .sub { font-size: 12px; color: var(--dim); margin-top: 3px; }
+
+    .toggle-group {
+      display: flex; gap: 4px; background: var(--card);
+      border: 1px solid var(--border); border-radius: 10px; padding: 4px;
+    }
+    .toggle-btn {
+      padding: 6px 16px; border-radius: 8px; border: none; cursor: pointer;
+      font-size: 13px; font-weight: 600; font-family: inherit;
+      background: transparent; color: var(--dim); transition: all 0.2s;
+    }
+    .toggle-btn.active { background: var(--accent1); color: #fff; }
+
+    .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; flex: 1 1 0; min-width: 130;
+    }
+    .stat-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+      color: var(--dim); margin-bottom: 5px;
+    }
+    .stat-value { font-size: 26px; font-weight: 700; line-height: 1.1; }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .section-title {
+      display: flex; align-items: center; gap: 8px;
+      margin: 28px 0 14px; font-size: 15px; font-weight: 700;
+    }
+
+    .chart-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 14px 10px;
+    }
+    .chart-card canvas { max-height: 260px; }
+
+    .two-col { display: flex; gap: 16px; flex-wrap: wrap; }
+    .two-col .col-wide { flex: 2 1 380px; }
+    .two-col .col-narrow { flex: 1 1 200px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { border-bottom: 1px solid var(--border); }
+    th {
+      padding: 10px 12px; text-align: left; font-size: 10px;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: var(--dim); font-weight: 600;
+    }
+    td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+    .mono { font-family: 'DM Mono', monospace; }
+    .color-dot {
+      display: inline-block; width: 8px; height: 8px;
+      border-radius: 2px; margin-right: 6px; vertical-align: middle;
+    }
+    tfoot td { background: #111528; font-weight: 600; }
+
+    .legend { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--dim); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+    .footer {
+      margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; font-size: 11px; color: var(--muted);
+    }
+
+    .vial-summary { display: flex; gap: 16px; justify-content: center; margin-top: 8px; }
+    .vial-item { font-size: 11px; color: var(--dim); }
+    .vial-note {
+      font-size: 12px; color: var(--muted); margin-top: 10px;
+      padding-top: 8px; border-top: 1px solid var(--border); text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Connecting to Grist document…</p>
+</div>
+
+<div id="dashboard">
+  <div class="header">
+    <div>
+      <h1>Tirzepatide Tracker</h1>
+      <div class="sub" id="header-sub">Loading…</div>
+    </div>
+    <div class="toggle-group" id="person-toggle"></div>
+  </div>
+
+  <div class="stats" id="stats-row"></div>
+
+  <div id="weight-section" style="display:none">
+    <div class="section-title">⚖️ Weight Over Time</div>
+    <div class="chart-card"><canvas id="weightChart"></canvas></div>
+  </div>
+
+  <div class="section-title">💉 Dose Escalation</div>
+  <div class="chart-card">
+    <canvas id="doseChart"></canvas>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent1)"></div> Effective Weekly Dose</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div> Per-Injection Dose</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="col-wide">
+      <div class="section-title">💰 Cost Per mg by Order</div>
+      <div class="chart-card">
+        <canvas id="costChart"></canvas>
+        <div class="legend" id="pharmacy-legend"></div>
+      </div>
+    </div>
+    <div class="col-narrow">
+      <div class="section-title">🧪 Vial Inventory</div>
+      <div class="chart-card" style="text-align:center">
+        <canvas id="vialChart" style="max-height:180px"></canvas>
+        <div class="vial-summary" id="vial-summary"></div>
+        <div class="vial-note" id="vial-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">📦 Order History</div>
+  <div class="chart-card" style="padding:0; overflow:hidden">
+    <div style="overflow-x:auto">
+      <table id="order-table">
+        <thead><tr>
+          <th>Order</th><th>Vendor</th><th>Pharmacy</th>
+          <th>Vials</th><th>mg</th><th>Cost</th><th>$/mg</th><th>Date</th>
+        </tr></thead>
+        <tbody></tbody>
+        <tfoot><tr id="order-totals"></tr></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>Grist Custom Widget • Live data from document</div>
+    <div id="footer-right"></div>
+  </div>
+</div>
+
+<script>
+// ── Globals ──────────────────────────────────────────────────────
+let DATA = {};
+let activePerson = null;
+let charts = {};
+
+const pharmacyColors = {
+  Hallandale: '#6366f1', BPI: '#f472b6',
+  Southend: '#34d399', Olympia: '#fbbf24'
+};
+
+// ── Grist Init ───────────────────────────────────────────────────
+grist.ready({ requiredAccess: 'full' });
+
+async function loadData() {
+  try {
+    const [people, pharmacies, orders, vials, injections] = await Promise.all([
+      grist.docApi.fetchTable('People'),
+      grist.docApi.fetchTable('Pharmacies'),
+      grist.docApi.fetchTable('Orders'),
+      grist.docApi.fetchTable('Vials'),
+      grist.docApi.fetchTable('Injections'),
+    ]);
+    DATA = { people, pharmacies, orders, vials, injections };
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    buildPersonToggle();
+    render();
+  } catch (e) {
+    document.querySelector('#loading p').textContent =
+      'Error loading data: ' + e.message;
+  }
+}
+
+// Load on init, and reload when data changes
+loadData();
+grist.onRecords(() => loadData());
+
+// ── Helpers ──────────────────────────────────────────────────────
+function colToRows(table) {
+  const keys = Object.keys(table).filter(k => k !== 'id' && k !== 'manualSort');
+  const len = table.id ? table.id.length : 0;
+  const rows = [];
+  for (let i = 0; i < len; i++) {
+    const row = { _id: table.id[i] };
+    for (const k of keys) row[k] = table[k][i];
+    rows.push(row);
+  }
+  return rows;
+}
+
+function epochToDate(ts) {
+  if (!ts) return null;
+  const d = new Date(ts * 1000);
+  return d.toISOString().slice(0, 10);
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const [y, m, d] = iso.split('-');
+  const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[+m]} ${+d}, ${y}`;
+}
+
+function fmtShort(iso) {
+  if (!iso) return '';
+  const [, m, d] = iso.split('-');
+  const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[+m]} ${+d}`;
+}
+
+function usd(n) { return n != null ? '$' + n.toLocaleString() : '—'; }
+
+// ── Person Toggle ────────────────────────────────────────────────
+function buildPersonToggle() {
+  const people = colToRows(DATA.people);
+  const container = document.getElementById('person-toggle');
+  container.innerHTML = '';
+  people.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'toggle-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = p.Name;
+    btn.onclick = () => {
+      activePerson = p._id;
+      container.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    };
+    container.appendChild(btn);
+  });
+  activePerson = people[0]?._id;
+}
+
+// ── Main Render ──────────────────────────────────────────────────
+function render() {
+  const people = colToRows(DATA.people);
+  const pharmacies = colToRows(DATA.pharmacies);
+  const allOrders = colToRows(DATA.orders);
+  const allVials = colToRows(DATA.vials);
+  const allInjections = colToRows(DATA.injections);
+
+  const person = people.find(p => p._id === activePerson);
+  if (!person) return;
+
+  const personOrders = allOrders.filter(o => o.Person === activePerson);
+  const personInjections = allInjections.filter(i => i.Person === activePerson)
+    .sort((a, b) => (a.Date || 0) - (b.Date || 0));
+
+  // Pharmacy lookup
+  const pharmMap = {};
+  pharmacies.forEach(p => { pharmMap[p._id] = p; });
+
+  // ── Header sub ─────────────────────────────────────────────
+  const lastInj = personInjections[personInjections.length - 1];
+  const lastDate = lastInj ? epochToDate(lastInj.Date) : null;
+  document.getElementById('header-sub').textContent =
+    `Grist Custom Widget • Data through ${lastDate ? fmtDate(lastDate) : 'N/A'}`;
+
+  // ── Stats ──────────────────────────────────────────────────
+  const totalInj = personInjections.length;
+  const totalMg = personInjections.reduce((s, i) => s + (i.Amount_mg || 0), 0);
+  const totalSpent = personOrders.reduce((s, o) => s + (o.Cost || 0), 0);
+  const startDate = person.Start_Date ? fmtDate(epochToDate(person.Start_Date)) : '—';
+
+  const weightsWithData = personInjections.filter(i => i.Weight && i.Weight > 0);
+  const currentWeight = weightsWithData.length > 0
+    ? weightsWithData[weightsWithData.length - 1].Weight : null;
+  const startWeight = person.Starting_Weight || null;
+  const weightLoss = (startWeight && currentWeight) ? startWeight - currentWeight : null;
+  const weightLossPct = (startWeight && weightLoss) ? (weightLoss / startWeight * 100) : null;
+
+  const statsHtml = [];
+  statsHtml.push(statCard('Injections', totalInj, `Since ${startDate}`, 'var(--accent1)'));
+  statsHtml.push(statCard('Total mg Used', totalMg.toFixed(1), `${personOrders.length} orders`, 'var(--accent2)'));
+  statsHtml.push(statCard('Total Spent', usd(totalSpent),
+    totalMg > 0 ? `${usd(Math.round(totalSpent / totalMg * 100) / 100)}/mg used` : '', 'var(--accent4)'));
+
+  if (weightLoss != null) {
+    statsHtml.push(statCard('Weight Loss', `${weightLoss.toFixed(1)} lbs`,
+      `${weightLossPct.toFixed(0)}% of starting weight`, 'var(--accent3)'));
+    statsHtml.push(statCard('Current Weight', currentWeight.toFixed(1),
+      `Started at ${startWeight}`, 'var(--accent5)'));
+  } else {
+    const lastDose = lastInj ? lastInj.Amount_mg : null;
+    const lastFreq = lastInj ? lastInj.Dosing_Frequency_Days : null;
+    statsHtml.push(statCard('Current Dose', lastDose ? `${lastDose}mg` : '—',
+      lastFreq ? `Every ${lastFreq} days` : '', 'var(--accent5)'));
+  }
+  document.getElementById('stats-row').innerHTML = statsHtml.join('');
+
+  // ── Weight Chart ───────────────────────────────────────────
+  const weightSection = document.getElementById('weight-section');
+  if (weightsWithData.length > 2) {
+    weightSection.style.display = 'block';
+    renderWeightChart(weightsWithData, startWeight);
+  } else {
+    weightSection.style.display = 'none';
+  }
+
+  // ── Dose Chart ─────────────────────────────────────────────
+  renderDoseChart(personInjections);
+
+  // ── Cost Chart ─────────────────────────────────────────────
+  renderCostChart(personOrders, pharmMap);
+
+  // ── Vial Chart ─────────────────────────────────────────────
+  renderVialChart(allVials);
+
+  // ── Order Table ────────────────────────────────────────────
+  renderOrderTable(personOrders, pharmMap);
+
+  // ── Footer ─────────────────────────────────────────────────
+  document.getElementById('footer-right').textContent =
+    `${people.length} people • ${allOrders.length} orders • ${allVials.length} vials • ${allInjections.length} injections`;
+}
+
+function statCard(label, value, sub, color) {
+  return `<div class="stat-card">
+    <div class="stat-label">${label}</div>
+    <div class="stat-value" style="color:${color}">${value}</div>
+    ${sub ? `<div class="stat-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+// ── Chart Renderers ──────────────────────────────────────────────
+function destroyChart(name) {
+  if (charts[name]) { charts[name].destroy(); charts[name] = null; }
+}
+
+const chartDefaults = {
+  color: '#64748b',
+  borderColor: '#1e2340',
+  font: { family: "'DM Sans', sans-serif" },
+};
+
+function renderWeightChart(data, startWeight) {
+  destroyChart('weight');
+  const labels = data.map(d => fmtShort(epochToDate(d.Date)));
+  const values = data.map(d => d.Weight);
+
+  charts.weight = new Chart(document.getElementById('weightChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Weight',
+        data: values,
+        borderColor: '#34d399',
+        backgroundColor: 'rgba(52, 211, 153, 0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 0,
+        pointHitRadius: 8,
+        borderWidth: 2.5,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e2340', titleColor: '#64748b',
+          bodyColor: '#e2e8f0', borderColor: '#2e3456', borderWidth: 1,
+          callbacks: { label: ctx => `${ctx.parsed.y} lbs` }
+        },
+        annotation: startWeight ? {
+          annotations: {
+            start: {
+              type: 'line', yMin: startWeight, yMax: startWeight,
+              borderColor: '#475569', borderDash: [6, 4], borderWidth: 1,
+              label: { display: true, content: `Start: ${startWeight}`, position: 'end',
+                color: '#475569', font: { size: 10 } }
+            }
+          }
+        } : undefined
+      },
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 10 }, maxTicksLimit: 10 }, grid: { color: '#1e2340' } },
+        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e2340' },
+          suggestedMin: Math.min(...values) - 5, suggestedMax: Math.max(...values) + 5 }
+      }
+    }
+  });
+}
+
+function renderDoseChart(injections) {
+  destroyChart('dose');
+  const doseData = injections.filter(i => i.Effective_Weekly_Dose && i.Effective_Weekly_Dose > 0);
+  if (doseData.length === 0) {
+    // Just show per-injection dose
+    const labels = injections.map(d => fmtShort(epochToDate(d.Date)));
+    charts.dose = new Chart(document.getElementById('doseChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Per-Injection Dose',
+          data: injections.map(d => d.Amount_mg),
+          borderColor: '#f472b6', borderWidth: 1.5,
+          pointRadius: 0, tension: 0.2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false },
+          tooltip: { backgroundColor: '#1e2340', titleColor: '#64748b',
+            bodyColor: '#e2e8f0', borderColor: '#2e3456', borderWidth: 1,
+            callbacks: { label: ctx => `${ctx.parsed.y} mg` } }
+        },
+        scales: {
+          x: { ticks: { color: '#64748b', font: { size: 10 }, maxTicksLimit: 10 }, grid: { color: '#1e2340' } },
+          y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e2340' } }
+        }
+      }
+    });
+    return;
+  }
+
+  const labels = doseData.map(d => fmtShort(epochToDate(d.Date)));
+  charts.dose = new Chart(document.getElementById('doseChart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Effective Weekly Dose',
+          data: doseData.map(d => d.Effective_Weekly_Dose),
+          borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          fill: true, stepped: 'after', borderWidth: 2, pointRadius: 0,
+        },
+        {
+          label: 'Per-Injection Dose',
+          data: doseData.map(d => d.Amount_mg),
+          borderColor: '#f472b6', borderWidth: 1.5,
+          borderDash: [4, 3], pointRadius: 0, tension: 0.2, fill: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false },
+        tooltip: { backgroundColor: '#1e2340', titleColor: '#64748b',
+          bodyColor: '#e2e8f0', borderColor: '#2e3456', borderWidth: 1,
+          callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y} mg` } }
+      },
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 10 }, maxTicksLimit: 10 }, grid: { color: '#1e2340' } },
+        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e2340' } }
+      }
+    }
+  });
+}
+
+function renderCostChart(orders, pharmMap) {
+  destroyChart('cost');
+  const labels = orders.map(o => o.Order_Label ? o.Order_Label.split(' ')[1] : `#${o.Order_Num}`);
+  const ppms = orders.map(o => o.Total_mg ? Math.round(o.Cost / o.Total_mg * 100) / 100 : 0);
+  const colors = orders.map(o => {
+    const ph = pharmMap[o.Pharmacy];
+    return ph ? (pharmacyColors[ph.Compounding_Pharmacy] || '#6366f1') : '#6366f1';
+  });
+
+  charts.cost = new Chart(document.getElementById('costChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Price/mg',
+        data: ppms,
+        backgroundColor: colors,
+        borderRadius: 6, maxBarThickness: 48,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false },
+        tooltip: { backgroundColor: '#1e2340', titleColor: '#64748b',
+          bodyColor: '#e2e8f0', borderColor: '#2e3456', borderWidth: 1,
+          callbacks: { label: ctx => `$${ctx.parsed.y}/mg` } }
+      },
+      scales: {
+        x: { ticks: { color: '#64748b', font: { size: 11 } }, grid: { display: false } },
+        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: '#1e2340' } }
+      }
+    }
+  });
+
+  // Pharmacy legend
+  const seen = new Set();
+  const legendHtml = orders.map(o => {
+    const ph = pharmMap[o.Pharmacy];
+    if (!ph || seen.has(ph.Compounding_Pharmacy)) return '';
+    seen.add(ph.Compounding_Pharmacy);
+    const c = pharmacyColors[ph.Compounding_Pharmacy] || '#6366f1';
+    return `<div class="legend-item"><div class="legend-dot" style="background:${c}"></div> ${ph.Compounding_Pharmacy}</div>`;
+  }).join('');
+  document.getElementById('pharmacy-legend').innerHTML = legendHtml;
+}
+
+function renderVialChart(allVials) {
+  destroyChart('vial');
+  const counts = { Finished: 0, 'In Use': 0, Unopened: 0 };
+  const vialColors = { Finished: '#34d399', 'In Use': '#38bdf8', Unopened: '#475569' };
+  allVials.forEach(v => { if (counts.hasOwnProperty(v.Status)) counts[v.Status]++; });
+
+  const expiredCount = allVials.filter(v => {
+    if (!v.BUD) return false;
+    return v.BUD < Date.now() / 1000;
+  }).length;
+
+  charts.vial = new Chart(document.getElementById('vialChart'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(counts),
+      datasets: [{
+        data: Object.values(counts),
+        backgroundColor: Object.keys(counts).map(k => vialColors[k]),
+        borderWidth: 0, spacing: 3,
+      }]
+    },
+    options: {
+      responsive: true, cutout: '62%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#1e2340', titleColor: '#64748b',
+          bodyColor: '#e2e8f0', borderColor: '#2e3456', borderWidth: 1 }
+      }
+    }
+  });
+
+  document.getElementById('vial-summary').innerHTML = Object.entries(counts).map(([k, v]) =>
+    `<div class="vial-item"><span class="color-dot" style="background:${vialColors[k]}"></span>${k} (${v})</div>`
+  ).join('');
+
+  document.getElementById('vial-note').textContent =
+    expiredCount > 0 ? `⚠️ ${expiredCount} of ${allVials.length} vials past BUD` : `${allVials.length} total vials`;
+}
+
+function renderOrderTable(orders, pharmMap) {
+  const tbody = document.querySelector('#order-table tbody');
+  tbody.innerHTML = '';
+
+  orders.forEach(o => {
+    const ph = pharmMap[o.Pharmacy];
+    const phName = ph ? ph.Compounding_Pharmacy : '—';
+    const vendor = ph ? ph.Vendor : '—';
+    const color = pharmacyColors[phName] || '#6366f1';
+    const ppm = o.Total_mg ? (o.Cost / o.Total_mg) : 0;
+    const ppmColor = ppm > 8 ? 'var(--red)' : ppm < 4 ? 'var(--green)' : 'var(--accent4)';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight:600">${o.Order_Label || ''}</td>
+      <td style="color:var(--dim)">${vendor}</td>
+      <td><span class="color-dot" style="background:${color}"></span>${phName}</td>
+      <td class="mono">${o.Num_Vials || ''}</td>
+      <td class="mono">${o.Total_mg || ''}</td>
+      <td class="mono">${usd(o.Cost)}</td>
+      <td class="mono" style="color:${ppmColor}">$${ppm.toFixed(2)}</td>
+      <td style="color:var(--dim)">${fmtDate(epochToDate(o.Date_Ordered))}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const totVials = orders.reduce((s, o) => s + (o.Num_Vials || 0), 0);
+  const totMg = orders.reduce((s, o) => s + (o.Total_mg || 0), 0);
+  const totCost = orders.reduce((s, o) => s + (o.Cost || 0), 0);
+  const avgPpm = totMg > 0 ? totCost / totMg : 0;
+
+  document.getElementById('order-totals').innerHTML = `
+    <td colspan="3" style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim)">Totals</td>
+    <td class="mono">${totVials}</td>
+    <td class="mono">${totMg}</td>
+    <td class="mono">${usd(totCost)}</td>
+    <td class="mono" style="color:var(--accent4)">$${avgPpm.toFixed(2)}</td>
+    <td></td>
+  `;
+}
+</script>
+</body>
+</html>
