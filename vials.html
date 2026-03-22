@@ -193,10 +193,28 @@ function showConfirm(html){
 }
 function hideConfirm(){document.getElementById('confirmOverlay').style.display='none'}
 
-async function openVial(id){
+function openVial(id){
+  const v=allVials.find(vv=>vv._id===id);
+  const info=getVialInfo(v);
+  showConfirm(`
+    <h3>Open vial</h3>
+    <p>Open <strong>${v?.Vial_Label||'this vial'}</strong>? (${info.pharmacy}, ${v?.Total_mg||0}mg)</p>
+    <label>Date opened</label>
+    <input type="date" id="cfDate" value="${new Date().toISOString().slice(0,10)}">
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="hideConfirm()">Cancel</button>
+      <button class="btn btn-open" onclick="doOpen(${id})">Open vial</button>
+    </div>
+  `);
+}
+
+async function doOpen(id){
   try{
+    const dt=document.getElementById('cfDate').value;
+    const epoch=dt?Math.floor(new Date(dt+'T12:00:00').getTime()/1000):today();
     const table=grist.getTable('Vials');
-    await table.update({id,fields:{Status:'In Use',Date_Opened:today()}});
+    await table.update({id,fields:{Status:'In Use',Date_Opened:epoch}});
+    hideConfirm();
     showToast('Vial opened!',true);
     await load();
   }catch(e){showToast('Error: '+e.message,false)}
