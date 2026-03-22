@@ -18,38 +18,41 @@ h1{font-size:20px;font-weight:700;letter-spacing:-.3px}.sub{font-size:12px;color
 .theme-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--dim);font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px}.theme-btn:hover{border-color:var(--pri);color:var(--text)}
 .stitle{display:flex;align-items:center;gap:8px;margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
 .stitle:first-of-type{margin-top:0}
-.vial-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;transition:background .3s,border-color .3s}
-.vial-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.vial-name{font-size:15px;font-weight:700}
+.grid-1{display:flex;flex-direction:column;gap:10px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr}}
+.vial-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;transition:background .3s,border-color .3s}
+.vial-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.vial-name{font-size:14px;font-weight:700;color:var(--text)}
 .vial-badge{font-size:9px;font-weight:600;text-transform:uppercase;padding:2px 7px;border-radius:4px}
-.b-active{background:rgba(74,111,165,.15);color:var(--pri)}
-.b-unopened{background:rgba(122,132,148,.1);color:var(--dim)}
-.b-finished{background:rgba(107,199,143,.12);color:var(--pos)}
-.vial-meta{font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:10px}
-.vial-meta span{margin-right:12px}
+.b-active{background:rgba(74,111,165,.12);color:var(--pri)}
+.b-unopened{background:rgba(122,132,148,.08);color:var(--dim)}
+.b-finished{background:rgba(107,199,143,.1);color:var(--sec)}
+.vial-meta{font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:8px}
+.vial-meta span{margin-right:10px}
 .mono{font-family:'DM Mono',monospace}
-.bar-track{background:var(--border);border-radius:5px;height:6px;overflow:hidden;margin:8px 0 4px}
-.bar-fill{height:100%;border-radius:5px;transition:width .3s}
+.bar-track{background:var(--border);border-radius:4px;height:5px;overflow:hidden;margin:6px 0 4px}
+.bar-fill{height:100%;border-radius:4px;transition:width .3s}
 .bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--dim)}
-.vial-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.btn{padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;transition:all .2s}
+.vial-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.btn{padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;transition:all .2s}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.btn-finish{background:rgba(107,199,143,.15);color:var(--pos);border:1px solid rgba(107,199,143,.25)}
-.btn-finish:hover:not(:disabled){background:rgba(107,199,143,.25)}
-.btn-open{background:rgba(74,111,165,.15);color:var(--pri);border:1px solid rgba(74,111,165,.25)}
-.btn-open:hover:not(:disabled){background:rgba(74,111,165,.25)}
-.btn-toss{background:rgba(209,123,106,.1);color:var(--neg);border:1px solid rgba(209,123,106,.2)}
-.btn-toss:hover:not(:disabled){background:rgba(209,123,106,.2)}
+.btn-finish{background:rgba(122,158,126,.12);color:var(--sec);border:1px solid rgba(122,158,126,.2)}
+.btn-finish:hover:not(:disabled){background:rgba(122,158,126,.22)}
+.btn-open{background:rgba(74,111,165,.12);color:var(--pri);border:1px solid rgba(74,111,165,.2)}
+.btn-open:hover:not(:disabled){background:rgba(74,111,165,.22)}
+.btn-discard{background:rgba(122,132,148,.08);color:var(--dim);border:1px solid rgba(122,132,148,.15)}
+.btn-discard:hover:not(:disabled){background:rgba(122,132,148,.18);color:var(--text)}
 .toast{position:fixed;top:16px;right:16px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none;z-index:100}
 .toast.show{opacity:1;transform:translateY(0)}
-.t-ok{background:#0a3022;color:#6bc78f;border:1px solid #2a5a40}
-.t-err{background:#3a1a18;color:#d17b6a;border:1px solid #5a3030}
-.empty-msg{font-size:13px;color:var(--muted);padding:12px 0}
+.t-ok{background:#0a3022;color:var(--pos);border:1px solid #2a5a40}
+.t-err{background:#3a1a18;color:var(--neg);border:1px solid #5a3030}
+.empty-msg{font-size:12px;color:var(--muted);padding:10px 0}
 .footer{margin-top:24px;padding-top:12px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);display:flex;justify-content:space-between}
 .confirm-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200}
 .confirm-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;max-width:360px;width:90%}
 .confirm-box h3{font-size:15px;font-weight:700;margin-bottom:8px}
-.confirm-box p{font-size:13px;color:var(--dim);margin-bottom:14px;line-height:1.5}
+.confirm-box p{font-size:12px;color:var(--dim);margin-bottom:14px;line-height:1.5}
 .confirm-box .btn-row{display:flex;gap:8px;justify-content:flex-end}
 .confirm-box input,.confirm-box textarea{background:var(--input-bg);border:1px solid var(--input-border);border-radius:6px;padding:8px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;width:100%;margin-bottom:10px;transition:border-color .2s}
 .confirm-box input:focus,.confirm-box textarea:focus{outline:none;border-color:var(--pri)}
@@ -57,10 +60,11 @@ h1{font-size:20px;font-weight:700;letter-spacing:-.3px}.sub{font-size:12px;color
 .confirm-box label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600;display:block;margin-bottom:4px}
 .btn-cancel{background:transparent;border:1px solid var(--border);color:var(--dim)}.btn-cancel:hover{border-color:var(--pri);color:var(--text)}
 .section-count{font-size:12px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;margin-left:4px}
+.pharm-dot{display:inline-block;width:6px;height:6px;border-radius:2px;margin-right:5px;vertical-align:middle}
 </style></head><body>
 <div id="loading"><div class="spinner"></div><p>Connecting to Grist…</p></div>
 <div id="dash">
-<div class="hdr"><div><h1>Vial management</h1><div class="sub">Open, finish, and toss vials. Multiple vials can be in use simultaneously.</div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
+<div class="hdr"><div><h1>Vial management</h1><div class="sub">Open, finish, and discard vials</div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
 <div id="activeSection"></div>
 <div id="unopenedSection"></div>
 <div id="finishedSection"></div>
@@ -71,7 +75,7 @@ h1{font-size:20px;font-weight:700;letter-spacing:-.3px}.sub{font-size:12px;color
 
 <script>
 let allVials=[],allOrders=[],allPharms=[],allPeople=[];
-const PC={Hallandale:'#4a6fa5',BPI:'#7a9e7e',Southend:'#d17b6a',Olympia:'#c4985a'};
+const PC={Hallandale:'#4a6fa5',BPI:'#6b8fb5',Southend:'#7a9e7e',Olympia:'#9ab8a1'};
 
 function getThemePref(){return localStorage.getItem('tirz-theme')||'auto'}
 function resolveTheme(p){if(p==='light'||p==='dark')return p;return matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
@@ -83,10 +87,8 @@ grist.ready({requiredAccess:'full'});
 async function load(){
   try{
     const[ph,or,vi,pe]=await Promise.all([
-      grist.docApi.fetchTable('Pharmacies'),
-      grist.docApi.fetchTable('Orders'),
-      grist.docApi.fetchTable('Vials'),
-      grist.docApi.fetchTable('People')]);
+      grist.docApi.fetchTable('Pharmacies'),grist.docApi.fetchTable('Orders'),
+      grist.docApi.fetchTable('Vials'),grist.docApi.fetchTable('People')]);
     allPharms=toRows(ph);allOrders=toRows(or);allVials=toRows(vi);allPeople=toRows(pe);
     document.getElementById('loading').style.display='none';
     document.getElementById('dash').style.display='block';
@@ -109,88 +111,80 @@ function getVialInfo(v){
 
 function renderAll(){
   const active=allVials.filter(v=>v.Status==='In Use').sort((a,b)=>(a.Date_Opened||0)-(b.Date_Opened||0));
-  const unopened=allVials.filter(v=>v.Status==='Unopened').sort((a,b)=>(a._id)-(b._id));
+  const unopened=allVials.filter(v=>v.Status==='Unopened').sort((a,b)=>a._id-b._id);
   const finished=allVials.filter(v=>v.Status==='Finished').sort((a,b)=>(b.Date_Completed||0)-(a.Date_Completed||0));
 
-  // Active vials
   let html=`<div class="stitle">In use<span class="section-count">(${active.length})</span></div>`;
-  if(active.length===0)html+=`<div class="empty-msg">No vials currently in use. Open one from the list below.</div>`;
-  active.forEach(v=>{html+=renderVialCard(v,'active')});
+  if(!active.length)html+=`<div class="empty-msg">No vials currently in use. Open one below.</div>`;
+  html+=`<div class="grid-1">`;
+  active.forEach(v=>{html+=renderCard(v,'active')});
+  html+=`</div>`;
   document.getElementById('activeSection').innerHTML=html;
 
-  // Unopened vials
   html=`<div class="stitle">Unopened<span class="section-count">(${unopened.length})</span></div>`;
-  if(unopened.length===0)html+=`<div class="empty-msg">No unopened vials remaining.</div>`;
-  unopened.forEach(v=>{html+=renderVialCard(v,'unopened')});
+  if(!unopened.length)html+=`<div class="empty-msg">No unopened vials remaining.</div>`;
+  html+=`<div class="grid-2">`;
+  unopened.forEach(v=>{html+=renderCard(v,'unopened')});
+  html+=`</div>`;
   document.getElementById('unopenedSection').innerHTML=html;
 
-  // Recently finished (last 5)
-  const showFinished=finished.slice(0,5);
+  const showFinished=finished.slice(0,6);
   html=`<div class="stitle">Recently finished<span class="section-count">(${finished.length} total)</span></div>`;
-  showFinished.forEach(v=>{html+=renderVialCard(v,'finished')});
+  html+=`<div class="grid-2">`;
+  showFinished.forEach(v=>{html+=renderCard(v,'finished')});
+  html+=`</div>`;
   document.getElementById('finishedSection').innerHTML=html;
 
   document.getElementById('ftr').textContent=`${active.length} in use \u2022 ${unopened.length} unopened \u2022 ${finished.length} finished`;
 }
 
-function renderVialCard(v,section){
+function renderCard(v,section){
   const info=getVialInfo(v);
   const pct=v.Total_mg?Math.round((v.mg_Used||0)/v.Total_mg*100):0;
-  const budStr=v.BUD?fmtD(ep2d(v.BUD)):'Unknown';
-  const openedStr=v.Date_Opened?fmtD(ep2d(v.Date_Opened)):'\u2014';
-  const completedStr=v.Date_Completed?fmtD(ep2d(v.Date_Completed)):'\u2014';
 
   let badge='',actions='';
   if(section==='active'){
     badge=`<span class="vial-badge b-active">In use</span>`;
     actions=`<div class="vial-actions">
-      <button class="btn btn-finish" onclick="confirmFinish(${v._id})">Finish vial</button>
-      <button class="btn btn-toss" onclick="confirmToss(${v._id})">Toss vial</button>
-    </div>`;
+      <button class="btn btn-finish" onclick="confirmFinish(${v._id})">Finish</button>
+      <button class="btn btn-discard" onclick="confirmDiscard(${v._id})">Discard</button></div>`;
   }else if(section==='unopened'){
     badge=`<span class="vial-badge b-unopened">Unopened</span>`;
     actions=`<div class="vial-actions">
-      <button class="btn btn-open" onclick="openVial(${v._id})">Open vial</button>
-      <button class="btn btn-toss" onclick="confirmToss(${v._id})">Toss (expired/damaged)</button>
-    </div>`;
+      <button class="btn btn-open" onclick="openVial(${v._id})">Open</button>
+      <button class="btn btn-discard" onclick="confirmDiscard(${v._id})">Discard</button></div>`;
   }else{
     badge=`<span class="vial-badge b-finished">Finished</span>`;
-    actions='';
   }
 
-  let metaHtml=`<span style="color:${info.color}">\u25CF</span> <span>${info.pharmacy}</span>`;
-  metaHtml+=`<span>${v.Concentration||''}</span>`;
-  metaHtml+=`<span>${v.Composition||''}</span>`;
-  if(section==='active')metaHtml+=`<span>Opened: ${openedStr}</span>`;
-  if(section==='finished'){metaHtml+=`<span>Opened: ${openedStr}</span><span>Completed: ${completedStr}</span>`}
-  metaHtml+=`<span>BUD: ${budStr}</span>`;
-  if(info.person)metaHtml+=`<span>Owner: ${info.person}</span>`;
+  let meta=`<span class="pharm-dot" style="background:${info.color}"></span>${info.pharmacy}`;
+  meta+=`<span>${v.Concentration||''}</span>`;
+  if(section==='active'&&v.Date_Opened)meta+=`<span>Opened ${fmtD(ep2d(v.Date_Opened))}</span>`;
+  if(section==='finished'){
+    if(v.Date_Opened)meta+=`<span>Opened ${fmtD(ep2d(v.Date_Opened))}</span>`;
+    if(v.Date_Completed)meta+=`<span>Completed ${fmtD(ep2d(v.Date_Completed))}</span>`;
+  }
 
-  let barHtml='';
+  let body='';
   if(section==='active'||section==='finished'){
-    barHtml=`<div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${info.color}"></div></div>
-      <div class="bar-labels"><span class="mono">${v.mg_Used||0}mg used</span><span class="mono">${v.mg_Remaining||0}mg left of ${v.Total_mg}mg</span></div>`;
+    body=`<div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--pri)"></div></div>
+      <div class="bar-labels"><span class="mono">${v.mg_Used||0}mg used</span><span class="mono">${v.mg_Remaining||0}mg of ${v.Total_mg}mg</span></div>`;
   }else{
-    barHtml=`<div style="font-size:11px;color:var(--dim)">${v.Total_mg}mg \u2022 ${v.Total_ml}ml \u2022 ${v.Vial_Size}</div>`;
+    body=`<div style="font-size:11px;color:var(--dim)">${v.Total_mg}mg \u2022 ${v.Total_ml}ml \u2022 ${v.Vial_Size}</div>`;
   }
 
-  let notesHtml='';
-  if(v.Notes)notesHtml=`<div style="font-size:11px;color:var(--muted);margin-top:6px;font-style:italic">${v.Notes}</div>`;
+  let notes='';
+  if(v.Notes)notes=`<div style="font-size:10px;color:var(--muted);margin-top:4px;font-style:italic">${v.Notes}</div>`;
 
   return`<div class="vial-card">
     <div class="vial-header"><div class="vial-name">${v.Vial_Label||'Unlabeled'}</div>${badge}</div>
-    <div class="vial-meta">${metaHtml}</div>
-    ${barHtml}${notesHtml}${actions}
+    <div class="vial-meta">${meta}</div>
+    ${body}${notes}${actions}
   </div>`;
 }
 
 function showToast(m,ok){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+(ok?'t-ok':'t-err');setTimeout(()=>{t.className='toast'},3000)}
-
-function showConfirm(html){
-  const el=document.getElementById('confirmOverlay');
-  el.style.display='flex';
-  el.innerHTML=`<div class="confirm-box">${html}</div>`;
-}
+function showConfirm(html){const el=document.getElementById('confirmOverlay');el.style.display='flex';el.innerHTML=`<div class="confirm-box">${html}</div>`}
 function hideConfirm(){document.getElementById('confirmOverlay').style.display='none'}
 
 function openVial(id){
@@ -203,20 +197,16 @@ function openVial(id){
     <input type="date" id="cfDate" value="${new Date().toISOString().slice(0,10)}">
     <div class="btn-row">
       <button class="btn btn-cancel" onclick="hideConfirm()">Cancel</button>
-      <button class="btn btn-open" onclick="doOpen(${id})">Open vial</button>
-    </div>
-  `);
+      <button class="btn btn-open" onclick="doOpen(${id})">Open</button>
+    </div>`);
 }
-
 async function doOpen(id){
   try{
     const dt=document.getElementById('cfDate').value;
     const epoch=dt?Math.floor(new Date(dt+'T12:00:00').getTime()/1000):today();
     const table=grist.getTable('Vials');
     await table.update({id,fields:{Status:'In Use',Date_Opened:epoch}});
-    hideConfirm();
-    showToast('Vial opened!',true);
-    await load();
+    hideConfirm();showToast('Vial opened',true);await load();
   }catch(e){showToast('Error: '+e.message,false)}
 }
 
@@ -224,68 +214,55 @@ function confirmFinish(id){
   const v=allVials.find(vv=>vv._id===id);
   showConfirm(`
     <h3>Finish vial</h3>
-    <p>Mark <strong>${v?.Vial_Label||'this vial'}</strong> as finished? It has ${v?.mg_Remaining||0}mg remaining.</p>
+    <p>Mark <strong>${v?.Vial_Label||'this vial'}</strong> as finished? ${v?.mg_Remaining||0}mg remaining.</p>
     <label>Completion date</label>
     <input type="date" id="cfDate" value="${new Date().toISOString().slice(0,10)}">
     <label>Notes (optional)</label>
-    <textarea id="cfNotes" placeholder="e.g. Empty, or reason for finishing"></textarea>
+    <textarea id="cfNotes" placeholder="e.g. Empty, switched to new vial"></textarea>
     <div class="btn-row">
       <button class="btn btn-cancel" onclick="hideConfirm()">Cancel</button>
-      <button class="btn btn-finish" onclick="doFinish(${id})">Finish vial</button>
-    </div>
-  `);
+      <button class="btn btn-finish" onclick="doFinish(${id})">Finish</button>
+    </div>`);
 }
-
 async function doFinish(id){
   try{
     const dt=document.getElementById('cfDate').value;
     const notes=document.getElementById('cfNotes').value.trim();
     const epoch=dt?Math.floor(new Date(dt+'T12:00:00').getTime()/1000):today();
     const fields={Status:'Finished',Date_Completed:epoch};
-    if(notes){
-      const v=allVials.find(vv=>vv._id===id);
-      fields.Notes=v?.Notes?(v.Notes+'; '+notes):notes;
-    }
+    if(notes){const v=allVials.find(vv=>vv._id===id);fields.Notes=v?.Notes?(v.Notes+'; '+notes):notes}
     const table=grist.getTable('Vials');
     await table.update({id,fields});
-    hideConfirm();
-    showToast('Vial finished!',true);
-    await load();
+    hideConfirm();showToast('Vial finished',true);await load();
   }catch(e){showToast('Error: '+e.message,false)}
 }
 
-function confirmToss(id){
+function confirmDiscard(id){
   const v=allVials.find(vv=>vv._id===id);
   showConfirm(`
-    <h3>Toss vial</h3>
-    <p>Mark <strong>${v?.Vial_Label||'this vial'}</strong> as finished and record it as tossed? It has ${v?.mg_Remaining||0}mg remaining.</p>
+    <h3>Discard vial</h3>
+    <p>Discard <strong>${v?.Vial_Label||'this vial'}</strong>? ${v?.mg_Remaining||0}mg will be recorded as waste.</p>
     <label>Date</label>
     <input type="date" id="cfDate" value="${new Date().toISOString().slice(0,10)}">
-    <label>Reason</label>
+    <label>Reason (optional)</label>
     <textarea id="cfNotes" placeholder="e.g. Past BUD, contamination concern"></textarea>
     <div class="btn-row">
       <button class="btn btn-cancel" onclick="hideConfirm()">Cancel</button>
-      <button class="btn btn-toss" onclick="doToss(${id})">Toss vial</button>
-    </div>
-  `);
+      <button class="btn btn-discard" onclick="doDiscard(${id})">Discard</button>
+    </div>`);
 }
-
-async function doToss(id){
+async function doDiscard(id){
   try{
     const dt=document.getElementById('cfDate').value;
-    const reason=document.getElementById('cfNotes').value.trim()||'Tossed';
+    const reason=document.getElementById('cfNotes').value.trim()||'Discarded';
     const epoch=dt?Math.floor(new Date(dt+'T12:00:00').getTime()/1000):today();
     const v=allVials.find(vv=>vv._id===id);
-    const existingNotes=v?.Notes||'';
-    const newNotes=existingNotes?(existingNotes+'; '+reason):reason;
+    const newNotes=v?.Notes?(v.Notes+'; '+reason):reason;
     const fields={Status:'Finished',Date_Completed:epoch,Notes:newNotes};
-    // If it was unopened, also set Date_Opened to the same date
     if(v&&v.Status==='Unopened')fields.Date_Opened=epoch;
     const table=grist.getTable('Vials');
     await table.update({id,fields});
-    hideConfirm();
-    showToast('Vial tossed and recorded.',true);
-    await load();
+    hideConfirm();showToast('Vial discarded',true);await load();
   }catch(e){showToast('Error: '+e.message,false)}
 }
 </script></body></html>
