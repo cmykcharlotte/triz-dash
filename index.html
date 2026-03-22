@@ -64,7 +64,7 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
 <div class="half"><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Monthly Usage</div><div class="cc"><div class="cw"><canvas id="monthChart"></canvas></div></div></div>
 </div>
 <div class="three">
-<div><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Stock by Pharmacy</div><div class="cc"><div class="cw"><canvas id="stockChart"></canvas></div></div></div>
+<div><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Stock by Pharmacy</div><div id="pharmBars"></div></div>
 <div><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v6.5L4.8 18.3a2 2 0 001.7 2.7h11a2 2 0 001.7-2.7L14 8.5V2"/><path d="M7 15h10"/></svg> Vial Status</div><div class="cc" style="text-align:center"><div class="cw"><canvas id="vialChart"></canvas></div><div class="legend" id="vialLeg"></div></div></div>
 <div><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Supply Runway</div><div class="cc" id="runwayBox"></div></div>
 </div>
@@ -109,9 +109,14 @@ document.getElementById('personCards').innerHTML=ch;
 destroy('usage');charts.usage=new Chart(document.getElementById('usageChart'),{type:'bar',data:{labels:people.map(p=>p.Name),datasets:[{data:people.map(p=>Math.round(injs.filter(i=>i.Person===p._id).reduce((s,i)=>s+(i.Amount_mg||0),0)*10)/10),backgroundColor:PCOL.map(c=>c+'cc'),borderColor:PCOL,borderWidth:1,borderRadius:6,maxBarThickness:70}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>c.parsed.x+'mg'}}},scales:{x:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}},y:{ticks:{color:gt(),font:{size:14,weight:600}},grid:{display:false}}}}});
 
 // Stock by pharmacy
-const byPh={};vials.forEach(v=>{const ord=orderMap[v.Order];if(!ord)return;const ph=pharmMap[ord.Pharmacy];if(!ph)return;const pn=ph.Compounding_Pharmacy;if(!byPh[pn])byPh[pn]={used:0,rem:0};byPh[pn].used+=(v.mg_Used||0);byPh[pn].rem+=(v.mg_Remaining||0)});
-destroy('stock');const phn=Object.keys(byPh).sort();
-charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:[{label:'Used',data:phn.map(p=>Math.round(byPh[p].used*10)/10),backgroundColor:phn.map(p=>PCD[p]||'#555'),borderRadius:4},{label:'Remaining',data:phn.map(p=>Math.round(byPh[p].rem*10)/10),backgroundColor:phn.map(p=>PC[p]||'#888'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
+const byPh={};vials.forEach(v=>{const ord=orderMap[v.Order];if(!ord)return;const ph=pharmMap[ord.Pharmacy];if(!ph)return;const pn=ph.Compounding_Pharmacy;if(!byPh[pn])byPh[pn]={used:0,rem:0,total:0};byPh[pn].used+=(v.mg_Used||0);byPh[pn].rem+=(v.mg_Remaining||0);byPh[pn].total+=(v.Total_mg||0)});
+const phn=Object.keys(byPh).sort((a,b)=>byPh[b].total-byPh[a].total);
+let pbh='';phn.forEach(p=>{const d=byPh[p];const pct=d.total>0?Math.round(d.used/d.total*100):0;
+pbh+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px"><span style="font-size:14px;font-weight:600;color:var(--text)">${p}</span><span style="font-size:11px;color:var(--dim)">${Math.round(d.rem*10)/10}mg of ${Math.round(d.total)}mg</span></div>
+<div style="background:rgba(90,130,181,.15);border-radius:4px;height:8px;overflow:hidden"><div style="width:${pct}%;height:100%;background:#c45a5a;border-radius:4px"></div></div>
+</div>`});
+document.getElementById('pharmBars').innerHTML=pbh;
 
 // Vial status
 const sc2={Finished:0,'In Use':0,Unopened:0};vials.forEach(v=>{if(sc2.hasOwnProperty(v.Status))sc2[v.Status]++});
