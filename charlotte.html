@@ -46,7 +46,7 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 <div class="legend"><div class="leg-i"><div class="leg-d" style="background:var(--pri)"></div>Effective Weekly Dose</div><div class="leg-i"><div class="leg-d" style="background:var(--sec)"></div>Per-Injection Dose</div></div></div>
 <div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Intended vs. Actual Weekly Dose</div><div class="cc"><div class="cw"><canvas id="gapChart"></canvas></div>
 <div class="legend"><div class="leg-i"><div class="leg-d" style="background:var(--pri)"></div>EWD (intended)</div><div class="leg-i"><div class="leg-d" style="background:var(--sec)"></div>AWD (actual)</div><div class="leg-i"><div class="leg-d" style="background:rgba(196,90,90,.3)"></div>Gap (under-dosing)</div></div></div>
-<div class="three"><div><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Monthly mg Used</div><div class="cc"><div class="cw-sm"><canvas id="monthMgChart"></canvas></div></div></div><div><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Monthly Weight Change</div><div class="cc"><div class="cw-sm"><canvas id="monthWtChart"></canvas></div></div></div><div><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 1.5l-8 8a5.66 5.66 0 008 8l8-8a5.66 5.66 0 00-8-8z"/><line x1="6" y1="14" x2="14" y2="6"/></svg> Use by Pharmacy</div><div class="cc" style="text-align:center"><div class="cw-sm"><canvas id="pharmChart"></canvas></div><div class="legend" id="pharmLeg"></div></div></div></div>
+<div class="three"><div><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Monthly Weight Change</div><div class="cc"><div class="cw-sm"><canvas id="monthWtChart"></canvas></div></div></div><div><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Dosing Adherence</div><div class="cc" id="adherenceBox"></div></div><div><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Data Freshness</div><div class="cc" id="freshnessBox"></div></div></div>
 <div class="footer"><div>Charlotte's Dashboard</div><div id="ftr"></div></div>
 </div>
 <script>
@@ -125,18 +125,51 @@ const gmk=Object.keys(gm).sort(),gml=gmk.map(k=>{const[y,m]=k.split('-');const M
 const ewdLine=gmk.map(k=>Math.round(gm[k].ewdSum/gm[k].n*10)/10),awdLine=gmk.map(k=>Math.round(gm[k].awdSum/gm[k].n*10)/10);
 destroy('gap');charts.gap=new Chart(document.getElementById('gapChart'),{type:'line',data:{labels:gml,datasets:[{label:'EWD (intended)',data:ewdLine,borderColor:'#5a82b5',backgroundColor:'transparent',borderWidth:2,pointRadius:3,pointBackgroundColor:'#5a82b5',tension:.2,fill:false},{label:'AWD (actual)',data:awdLine,borderColor:'#c4785a',backgroundColor:'rgba(196,90,90,.12)',borderWidth:2,pointRadius:3,pointBackgroundColor:'#c4785a',tension:.2,fill:'-1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>{const idx=c.dataIndex;const gap=Math.round((ewdLine[idx]-awdLine[idx])*10)/10;return c.dataset.label+': '+c.parsed.y+'mg'+(c.datasetIndex===1&&gap>0?' (gap: '+gap+'mg)':'')}}}},scales:{x:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
 
-destroy('monthMg');charts.monthMg=new Chart(document.getElementById('monthMgChart'),{type:'bar',data:{labels:mls,datasets:[{data:mks.map(k=>Math.round(mo[k].mg*10)/10),backgroundColor:'rgba(90,130,181,.5)',borderColor:'#5a82b5',borderWidth:1,borderRadius:5,maxBarThickness:36}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>c.parsed.y+'mg'}}},scales:{x:{ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
-
 // Monthly weight change
 const mwc=mks.map((k,i)=>{if(i===0)return mo[k].wLast&&mo[k].wFirst?Math.round((mo[k].wLast-mo[k].wFirst)*10)/10:null;const prev=mo[mks[i-1]];const curr=mo[k];if(prev?.wLast&&curr?.wLast)return Math.round((curr.wLast-prev.wLast)*10)/10;return null});
 destroy('monthWt');charts.monthWt=new Chart(document.getElementById('monthWtChart'),{type:'bar',data:{labels:mls,datasets:[{data:mwc,backgroundColor:mwc.map(v=>v!=null&&v<=0?'rgba(90,159,196,.5)':'rgba(196,90,90,.5)'),borderColor:mwc.map(v=>v!=null&&v<=0?'#5a9fc4':'#c45a5a'),borderWidth:1,borderRadius:4,maxBarThickness:36}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>(c.parsed.y>0?'+':'')+c.parsed.y+' lbs'}}},scales:{x:{ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
 
-// Pharmacy use
-const pu={};injs.forEach(i=>{if(!i.Vial)return;const v=allVi.find(v2=>v2._id===i.Vial);if(!v)return;const o=allOrd.find(o2=>o2._id===v.Order);if(!o)return;const ph=pharmMap[o.Pharmacy];if(!ph)return;pu[ph.Compounding_Pharmacy]=(pu[ph.Compounding_Pharmacy]||0)+(i.Amount_mg||0)});
-const lm=Object.values(pu).reduce((s,v)=>s+v,0);if(tm-lm>0.5)pu['Unlinked']=Math.round((tm-lm)*10)/10;
-destroy('pharm');const pns=Object.keys(pu);
-charts.pharm=new Chart(document.getElementById('pharmChart'),{type:'doughnut',data:{labels:pns,datasets:[{data:pns.map(p=>Math.round(pu[p]*10)/10),backgroundColor:pns.map(p=>PC[p]||'#6b7585'),borderWidth:0,spacing:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>{const t=pns.reduce((s,p)=>s+pu[p],0);return c.label+': '+c.parsed+'mg ('+Math.round(c.parsed/t*100)+'%)'}}}}}});
-document.getElementById('pharmLeg').innerHTML=pns.map(p=>`<div class="leg-i"><div class="leg-d" style="background:${PC[p]||'#6b7585'}"></div>${p} (${Math.round(pu[p]*10)/10}mg)</div>`).join('');
+// Dosing adherence
+const withVar=injs.filter(i=>i.Timing_Variance!=null);
+const onTime=withVar.filter(i=>Math.abs(i.Timing_Variance)<=1).length;
+const late=withVar.filter(i=>i.Timing_Variance>1).length;
+const early=withVar.filter(i=>i.Timing_Variance<-1).length;
+const onPct=withVar.length?Math.round(onTime/withVar.length*100):0;
+const avgVar=withVar.length?Math.round(withVar.reduce((s,i)=>s+i.Timing_Variance,0)/withVar.length*10)/10:0;
+const recent10=withVar.slice(-10);
+const r10onTime=recent10.filter(i=>Math.abs(i.Timing_Variance)<=1).length;
+const r10pct=recent10.length?Math.round(r10onTime/recent10.length*100):0;
+const r10color=r10pct>=70?'var(--pos)':r10pct>=40?'var(--sec)':'var(--neg)';
+let ah=`<div style="display:flex;flex-direction:column;gap:12px">`;
+ah+=`<div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:28px;font-weight:700;color:var(--pri)">${onPct}%</span><span style="font-size:12px;color:var(--dim)">on schedule (±1 day)</span></div>`;
+ah+=`<div style="display:flex;gap:12px;flex-wrap:wrap">`;
+ah+=`<div style="font-size:12px;color:var(--dim)"><span style="color:var(--pos);font-weight:600">${onTime}</span> on time</div>`;
+ah+=`<div style="font-size:12px;color:var(--dim)"><span style="color:var(--neg);font-weight:600">${late}</span> late</div>`;
+ah+=`<div style="font-size:12px;color:var(--dim)"><span style="color:var(--pri);font-weight:600">${early}</span> early</div>`;
+ah+=`</div>`;
+ah+=`<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px"><div style="font-size:11px;color:var(--dim);margin-bottom:4px">Last 10 injections</div>`;
+ah+=`<div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:20px;font-weight:700;color:${r10color}">${r10pct}%</span><span style="font-size:11px;color:var(--dim)">on time</span></div>`;
+ah+=`<div style="font-size:11px;color:var(--dim);margin-top:2px">Avg variance: ${avgVar>0?'+':''}${avgVar} days</div>`;
+ah+=`</div></div>`;
+document.getElementById('adherenceBox').innerHTML=ah;
+
+// Data freshness
+const ww2=injs.filter(i=>i.Weight&&i.Weight>0);
+const lastWt=ww2.length?ww2[ww2.length-1]:null;
+const lastWtDate=lastWt?ep2d(lastWt.Date):null;
+const lastWtDaysAgo=lastWt?Math.round((Date.now()/1000-lastWt.Date)/86400):null;
+const lastInj=injs.length?injs[injs.length-1]:null;
+const lastInjDate=lastInj?ep2d(lastInj.Date):null;
+const lastInjDaysAgo=lastInj?Math.round((Date.now()/1000-lastInj.Date)/86400):null;
+const wtCount=ww2.length;const injCount=injs.length;const wtPct=Math.round(wtCount/injCount*100);
+const wtGapColor=lastWtDaysAgo>30?'var(--neg)':lastWtDaysAgo>14?'var(--sec)':'var(--pos)';
+const injGapColor=lastInjDaysAgo>14?'var(--neg)':lastInjDaysAgo>7?'var(--sec)':'var(--pos)';
+let fh=`<div style="display:flex;flex-direction:column;gap:14px">`;
+fh+=`<div><div style="font-size:11px;color:var(--dim);margin-bottom:3px">Last injection</div><div style="font-size:16px;font-weight:600;color:${injGapColor}">${lastInjDaysAgo} days ago</div><div style="font-size:11px;color:var(--dim)">${lastInjDate?fmtD(lastInjDate):'\u2014'}</div></div>`;
+fh+=`<div><div style="font-size:11px;color:var(--dim);margin-bottom:3px">Last weigh-in</div><div style="font-size:16px;font-weight:600;color:${wtGapColor}">${lastWtDaysAgo!=null?lastWtDaysAgo+' days ago':'\u2014'}</div><div style="font-size:11px;color:var(--dim)">${lastWtDate?fmtD(lastWtDate)+' \u2022 '+lastWt.Weight+' lbs':'\u2014'}</div></div>`;
+fh+=`<div style="border-top:1px solid var(--border);padding-top:10px"><div style="font-size:11px;color:var(--dim);margin-bottom:3px">Weight coverage</div><div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:20px;font-weight:700;color:${wtPct>=70?'var(--pos)':wtPct>=40?'var(--sec)':'var(--neg)'}">${wtPct}%</span><span style="font-size:11px;color:var(--dim)">${wtCount} of ${injCount} injections</span></div></div>`;
+fh+=`</div>`;
+document.getElementById('freshnessBox').innerHTML=fh;
 document.getElementById('ftr').textContent=`${ti} injections \u2022 ${tm.toFixed(1)}mg`;
 }
 </script></body></html>
