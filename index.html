@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tirzepatide Tracker Dashboard</title>
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
@@ -85,7 +85,8 @@
       background: var(--card); border: 1px solid var(--border);
       border-radius: 12px; padding: 16px 14px 10px;
     }
-    .chart-card canvas { max-height: 260px; }
+    .chart-wrap { position: relative; width: 100%; height: 260px; }
+    .chart-wrap-sm { position: relative; width: 100%; height: 180px; }
 
     .two-col { display: flex; gap: 16px; flex-wrap: wrap; }
     .two-col .col-wide { flex: 2 1 380px; }
@@ -143,12 +144,12 @@
 
   <div id="weight-section" style="display:none">
     <div class="section-title">⚖️ Weight Over Time</div>
-    <div class="chart-card"><canvas id="weightChart"></canvas></div>
+    <div class="chart-card"><div class="chart-wrap"><canvas id="weightChart"></canvas></div></div>
   </div>
 
   <div class="section-title">💉 Dose Escalation</div>
   <div class="chart-card">
-    <canvas id="doseChart"></canvas>
+    <div class="chart-wrap"><canvas id="doseChart"></canvas></div>
     <div class="legend">
       <div class="legend-item"><div class="legend-dot" style="background:var(--accent1)"></div> Effective Weekly Dose</div>
       <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div> Per-Injection Dose</div>
@@ -159,14 +160,14 @@
     <div class="col-wide">
       <div class="section-title">💰 Cost Per mg by Order</div>
       <div class="chart-card">
-        <canvas id="costChart"></canvas>
+        <div class="chart-wrap"><canvas id="costChart"></canvas></div>
         <div class="legend" id="pharmacy-legend"></div>
       </div>
     </div>
     <div class="col-narrow">
       <div class="section-title">🧪 Vial Inventory</div>
       <div class="chart-card" style="text-align:center">
-        <canvas id="vialChart" style="max-height:180px"></canvas>
+        <div class="chart-wrap-sm"><canvas id="vialChart"></canvas></div>
         <div class="vial-summary" id="vial-summary"></div>
         <div class="vial-note" id="vial-note"></div>
       </div>
@@ -424,7 +425,7 @@ function renderWeightChart(data, startWeight) {
     type: 'line',
     data: { labels, datasets },
     options: {
-      responsive: true,
+      responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -461,7 +462,7 @@ function renderDoseChart(injections) {
         }]
       },
       options: {
-        responsive: true,
+        responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false },
           tooltip: { backgroundColor: '#1e2340', titleColor: '#64748b',
             bodyColor: '#e2e8f0', borderColor: '#2e3456', borderWidth: 1,
@@ -497,7 +498,7 @@ function renderDoseChart(injections) {
       ]
     },
     options: {
-      responsive: true,
+      responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false },
         tooltip: { backgroundColor: '#1e2340', titleColor: '#64748b',
           bodyColor: '#e2e8f0', borderColor: '#2e3456', borderWidth: 1,
@@ -532,7 +533,7 @@ function renderCostChart(orders, pharmMap) {
       }]
     },
     options: {
-      responsive: true,
+      responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false },
         tooltip: { backgroundColor: '#1e2340', titleColor: '#64748b',
           bodyColor: '#e2e8f0', borderColor: '#2e3456', borderWidth: 1,
@@ -579,7 +580,7 @@ function renderVialChart(allVials) {
       }]
     },
     options: {
-      responsive: true, cutout: '62%',
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
       plugins: {
         legend: { display: false },
         tooltip: { backgroundColor: '#1e2340', titleColor: '#64748b',
