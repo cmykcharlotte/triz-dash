@@ -2,288 +2,81 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Add Injection</title>
+<title>Add injection</title>
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#0c0f1a;--card:#141829;--border:#1e2340;--a1:#6366f1;--a2:#f472b6;--a3:#34d399;--a4:#fbbf24;--a5:#38bdf8;--text:#e2e8f0;--dim:#64748b;--muted:#475569;--red:#ef4444;--green:#22c55e;--input-bg:#1e2340;--input-border:#2e3456}
-[data-theme="light"]{--bg:#f8fafc;--card:#ffffff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--input-bg:#f1f5f9;--input-border:#cbd5e1}
+:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#4a6fa5;--sec:#7a9e7e;--pos:#6bc78f;--neg:#d17b6a;--text:#e2e8f0;--dim:#7a8494;--muted:#5a6474;--input-bg:#1e2a3a;--input-border:#2a3448}
+[data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1e293b;--dim:#7a8494;--muted:#9ca3af;--input-bg:#f0f2f5;--input-border:#c5cdd8}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px 24px 40px;transition:background .3s,color .3s}
 #loading{display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:12px}
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--a3);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#loading p{color:var(--dim);font-size:13px}
-#dash{display:none}
-.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
-h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
-.sub{font-size:12px;color:var(--dim);margin-top:3px}
-.theme-toggle{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s;display:flex;align-items:center;gap:4px}
-.theme-toggle:hover{border-color:var(--a1)}
-.theme-toggle span{font-size:11px;color:var(--dim);font-family:'DM Sans',sans-serif}
-
-.form-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;transition:background .3s,border-color .3s}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.spinner{width:28px;height:28px;border:2.5px solid var(--border);border-top-color:var(--sec);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}#loading p{color:var(--dim);font-size:13px}#dash{display:none}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+h1{font-size:20px;font-weight:700;letter-spacing:-.3px}.sub{font-size:12px;color:var(--dim);margin-top:3px}
+.theme-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--dim);font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px}.theme-btn:hover{border-color:var(--pri);color:var(--text)}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:background .3s,border-color .3s}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:600px){.form-grid{grid-template-columns:1fr}}
-.form-group{display:flex;flex-direction:column;gap:4px}
-.form-group.full{grid-column:1/-1}
-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600}
-input,select,textarea{background:var(--input-bg);border:1px solid var(--input-border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;transition:border-color .2s,background .3s}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--a1)}
-input::placeholder{color:var(--muted)}
-textarea{resize:vertical;min-height:60px}
-select{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-.required::after{content:' *';color:var(--red)}
-
-.btn-row{display:flex;gap:12px;margin-top:20px;align-items:center}
-.btn{padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;transition:all .2s}
-.btn-primary{background:var(--a1);color:#fff}.btn-primary:hover{background:#5558e6}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
-.btn-secondary{background:transparent;border:1px solid var(--border);color:var(--dim)}.btn-secondary:hover{border-color:var(--a1);color:var(--text)}
-
-.toast{position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transform:translateY(-10px);transition:all .3s;pointer-events:none;z-index:100}
+.fg{display:flex;flex-direction:column;gap:4px}
+label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600}
+input,select{background:var(--input-bg);border:1px solid var(--input-border);border-radius:7px;padding:9px 11px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;transition:border-color .2s,background .3s}
+input:focus,select:focus{outline:none;border-color:var(--pri)}input::placeholder{color:var(--muted)}
+select{cursor:pointer;-webkit-appearance:none;appearance:none}
+.req::after{content:' *';color:var(--neg)}
+.btn-row{display:flex;gap:10px;margin-top:16px;align-items:center}
+.btn{padding:9px 20px;border-radius:7px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
+.btn-p{background:var(--pri);color:#fff}.btn-p:hover{filter:brightness(1.1)}.btn-p:disabled{opacity:.5;cursor:not-allowed}
+.btn-s{background:transparent;border:1px solid var(--border);color:var(--dim)}.btn-s:hover{border-color:var(--pri);color:var(--text)}
+.toast{position:fixed;top:16px;right:16px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none;z-index:100}
 .toast.show{opacity:1;transform:translateY(0)}
-.toast-ok{background:#065f46;color:#a7f3d0;border:1px solid #34d399}
-.toast-err{background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444}
-
-.stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:700}
-.recent{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:background .3s,border-color .3s}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead tr{border-bottom:1px solid var(--border)}
-th{padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600}
-td{padding:9px 12px;border-bottom:1px solid var(--border)}
+.t-ok{background:#0a3022;color:#6bc78f;border:1px solid #2a5a40}
+.t-err{background:#3a1a18;color:#d17b6a;border:1px solid #5a3030}
+.stitle{display:flex;align-items:center;gap:8px;margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.recent{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:background .3s,border-color .3s}
+table{width:100%;border-collapse:collapse;font-size:12px}thead tr{border-bottom:1px solid var(--border)}th{padding:8px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600}td{padding:7px 10px;border-bottom:1px solid var(--border)}
 .mono{font-family:'DM Mono',monospace}
-.footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
-
-.last-entry{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;transition:background .3s,border-color .3s}
-.last-entry strong{color:var(--a5)}
-</style>
-</head>
-<body>
+.footer{margin-top:24px;padding-top:12px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);display:flex;justify-content:space-between}
+.last-e{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--dim);transition:background .3s,border-color .3s}
+.last-e strong{color:var(--pri)}
+</style></head><body>
 <div id="loading"><div class="spinner"></div><p>Connecting to Grist…</p></div>
 <div id="dash">
-<div class="hdr">
-  <div><h1>💉 Add Injection</h1><div class="sub">Enter new injection data directly into Grist</div></div>
-  <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️<span>Light</span></button>
-</div>
-
-<div id="lastEntry" class="last-entry" style="display:none"></div>
-
-<div class="form-card">
-  <div class="form-grid">
-    <div class="form-group">
-      <label class="required">Person</label>
-      <select id="fPerson"><option value="">Select…</option></select>
-    </div>
-    <div class="form-group">
-      <label class="required">Date</label>
-      <input type="date" id="fDate">
-    </div>
-    <div class="form-group">
-      <label class="required">Amount (mg)</label>
-      <input type="number" id="fAmount" step="0.1" min="0" placeholder="e.g. 4.6">
-    </div>
-    <div class="form-group">
-      <label>Dosing Frequency (days)</label>
-      <input type="number" id="fFreq" step="0.5" min="0" placeholder="e.g. 5">
-    </div>
-    <div class="form-group">
-      <label>Effective Weekly Dose (mg)</label>
-      <input type="number" id="fEWD" step="0.1" min="0" placeholder="e.g. 6.5">
-    </div>
-    <div class="form-group">
-      <label>Weight (lbs)</label>
-      <input type="number" id="fWeight" step="0.1" min="0" placeholder="e.g. 205.8">
-    </div>
-    <div class="form-group">
-      <label>Vial</label>
-      <select id="fVial"><option value="">None / Unknown</option></select>
-    </div>
-    <div class="form-group">
-      <label>Notes</label>
-      <input type="text" id="fNotes" placeholder="Optional notes">
-    </div>
-  </div>
-  <div class="btn-row">
-    <button class="btn btn-primary" id="submitBtn" onclick="submit()">Add Injection</button>
-    <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
-    <span id="status" style="font-size:12px;color:var(--dim)"></span>
-  </div>
-</div>
-
-<div class="stitle">📋 Recent Injections</div>
-<div class="recent"><table><thead><tr>
-<th>Date</th><th>Person</th><th>Dose</th><th>Freq</th><th>EWD</th><th>Weight</th><th>Vial</th>
-</tr></thead><tbody id="recentBody"></tbody></table></div>
-
-<div class="footer"><div>Data Entry • Grist Custom Widget</div><div id="ftr"></div></div>
+<div class="hdr"><div><h1>Add injection</h1><div class="sub">Enter new injection data into Grist</div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
+<div id="lastEntry" class="last-e" style="display:none"></div>
+<div class="form-card"><div class="form-grid">
+<div class="fg"><label class="req">Person</label><select id="fPerson"><option value="">Select…</option></select></div>
+<div class="fg"><label class="req">Date</label><input type="date" id="fDate"></div>
+<div class="fg"><label class="req">Amount (mg)</label><input type="number" id="fAmount" step="0.1" min="0" placeholder="e.g. 4.6"></div>
+<div class="fg"><label>Dosing frequency (days)</label><input type="number" id="fFreq" step="0.5" min="0" placeholder="e.g. 5"></div>
+<div class="fg"><label>Effective weekly dose (mg)</label><input type="number" id="fEWD" step="0.1" min="0" placeholder="e.g. 6.5"></div>
+<div class="fg"><label>Weight (lbs)</label><input type="number" id="fWeight" step="0.1" min="0" placeholder="e.g. 205.8"></div>
+<div class="fg"><label>Vial</label><select id="fVial"><option value="">None / unknown</option></select></div>
+<div class="fg"><label>Notes</label><input type="text" id="fNotes" placeholder="Optional"></div>
+</div><div class="btn-row"><button class="btn btn-p" id="submitBtn" onclick="submit()">Add injection</button><button class="btn btn-s" onclick="clearForm()">Clear</button><span id="status" style="font-size:11px;color:var(--dim)"></span></div></div>
+<div class="stitle">Recent injections</div>
+<div class="recent"><table><thead><tr><th>Date</th><th>Person</th><th>Dose</th><th>Freq</th><th>EWD</th><th>Weight</th><th>Vial</th></tr></thead><tbody id="recentBody"></tbody></table></div>
+<div class="footer"><div>Data entry • Grist custom widget</div><div id="ftr"></div></div>
 </div>
 <div class="toast" id="toast"></div>
-
 <script>
-let peopleData=[], vialsData=[], allInjs=[], allVials=[];
-function isDark(){return document.documentElement.getAttribute('data-theme')!=='light'}
-function toggleTheme(){document.documentElement.setAttribute('data-theme',isDark()?'light':'dark');document.getElementById('themeBtn').innerHTML=isDark()?'☀️<span>Light</span>':'🌙<span>Dark</span>'}
-
+let peopleData=[],allVials=[],allInjs=[];
+function getThemePref(){return localStorage.getItem('tirz-theme')||'auto'}
+function resolveTheme(p){if(p==='light'||p==='dark')return p;return matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
+function applyTheme(){const p=getThemePref(),r=resolveTheme(p);document.documentElement.setAttribute('data-theme',r);const L={auto:'Auto',light:'Light',dark:'Dark'},I={auto:'\u2728',light:'\u2600\uFE0F',dark:'\uD83C\uDF19'};document.getElementById('themeBtn').textContent=I[p]+' '+L[p]}
+function cycleTheme(){const o=['auto','light','dark'],c=getThemePref();localStorage.setItem('tirz-theme',o[(o.indexOf(c)+1)%3]);applyTheme()}
+applyTheme();
 grist.ready({requiredAccess:'full'});
-
-async function load(){
-  try{
-    const[pe,or,vi,inj]=await Promise.all([
-      grist.docApi.fetchTable('People'),
-      grist.docApi.fetchTable('Orders'),
-      grist.docApi.fetchTable('Vials'),
-      grist.docApi.fetchTable('Injections')]);
-    peopleData=toRows(pe);
-    allVials=toRows(vi);
-    allInjs=toRows(inj);
-    const orderRows=toRows(or);
-    const orderMap={};orderRows.forEach(o=>orderMap[o._id]=o);
-    document.getElementById('loading').style.display='none';
-    document.getElementById('dash').style.display='block';
-    populateDropdowns(orderMap);
-    showRecent();
-    showLastEntry();
-    // Default date to today
-    if(!document.getElementById('fDate').value){
-      document.getElementById('fDate').value=new Date().toISOString().slice(0,10);
-    }
-  }catch(e){document.querySelector('#loading p').textContent='Error: '+e.message}
-}
+async function load(){try{const[pe,or,vi,inj]=await Promise.all([grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Orders'),grist.docApi.fetchTable('Vials'),grist.docApi.fetchTable('Injections')]);peopleData=toRows(pe);allVials=toRows(vi);allInjs=toRows(inj);document.getElementById('loading').style.display='none';document.getElementById('dash').style.display='block';populateDropdowns();showRecent();showLastEntry();if(!document.getElementById('fDate').value)document.getElementById('fDate').value=new Date().toISOString().slice(0,10)}catch(e){document.querySelector('#loading p').textContent='Error: '+e.message}}
 load();grist.onRecords(()=>load());
-
 function toRows(t){const ks=Object.keys(t).filter(k=>k!=='id'&&k!=='manualSort');const r=[];for(let i=0;i<(t.id?.length||0);i++){const o={_id:t.id[i]};ks.forEach(k=>o[k]=t[k][i]);r.push(o)}return r}
 function ep2d(ts){if(!ts)return null;return new Date(ts*1000).toISOString().slice(0,10)}
 function fmtD(iso){if(!iso)return'\u2014';const[y,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}, ${y}`}
-
-function populateDropdowns(orderMap){
-  const ps=document.getElementById('fPerson');
-  const curP=ps.value;
-  ps.innerHTML='<option value="">Select\u2026</option>';
-  peopleData.forEach(p=>{const o=document.createElement('option');o.value=p._id;o.textContent=p.Name;ps.appendChild(o)});
-  if(curP)ps.value=curP;
-  // Default to Charlotte (id 1) if nothing selected
-  if(!ps.value&&peopleData.length)ps.value=peopleData[0]._id;
-
-  const vs=document.getElementById('fVial');
-  const curV=vs.value;
-  vs.innerHTML='<option value="">None / Unknown</option>';
-  const activeVials=allVials.filter(v=>v.Status==='In Use'||v.Status==='Unopened');
-  activeVials.sort((a,b)=>(a.Status==='In Use'?0:1)-(b.Status==='In Use'?0:1));
-  activeVials.forEach(v=>{
-    const o=document.createElement('option');
-    o.value=v._id;
-    const tag=v.Status==='In Use'?'\u2705 ':'';
-    o.textContent=`${tag}${v.Vial_Label} (${v.Total_mg}mg ${v.Status})`;
-    vs.appendChild(o);
-  });
-  if(curV)vs.value=curV;
-}
-
-function showLastEntry(){
-  const sorted=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0));
-  const last=sorted[0];
-  if(!last)return;
-  const person=peopleData.find(p=>p._id===last.Person);
-  const el=document.getElementById('lastEntry');
-  el.style.display='block';
-  el.innerHTML=`<strong>Last entry:</strong> ${person?person.Name:''} \u2022 ${fmtD(ep2d(last.Date))} \u2022 ${last.Amount_mg}mg${last.Weight?' \u2022 '+last.Weight+' lbs':''}${last.Dosing_Frequency_Days?' \u2022 Every '+last.Dosing_Frequency_Days+'d':''}`;
-}
-
-function showRecent(){
-  const sorted=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0)).slice(0,10);
-  const tb=document.getElementById('recentBody');
-  tb.innerHTML='';
-  sorted.forEach(i=>{
-    const person=peopleData.find(p=>p._id===i.Person);
-    const vial=allVials.find(v=>v._id===i.Vial);
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td style="color:var(--dim)">${fmtD(ep2d(i.Date))}</td>
-      <td>${person?person.Name:'\u2014'}</td>
-      <td class="mono" style="font-weight:600">${i.Amount_mg}mg</td>
-      <td class="mono" style="color:var(--dim)">${i.Dosing_Frequency_Days||'\u2014'}</td>
-      <td class="mono">${i.Effective_Weekly_Dose||'\u2014'}</td>
-      <td class="mono">${i.Weight||'\u2014'}</td>
-      <td style="color:var(--dim);font-size:12px">${vial?vial.Vial_Label:'\u2014'}</td>`;
-    tb.appendChild(tr);
-  });
-  document.getElementById('ftr').textContent=`${allInjs.length} total injections`;
-}
-
-function showToast(msg, ok){
-  const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.className='toast show '+(ok?'toast-ok':'toast-err');
-  setTimeout(()=>{t.className='toast'},3000);
-}
-
-async function submit(){
-  const personId=parseInt(document.getElementById('fPerson').value);
-  const dateStr=document.getElementById('fDate').value;
-  const amount=parseFloat(document.getElementById('fAmount').value);
-  const freq=document.getElementById('fFreq').value?parseFloat(document.getElementById('fFreq').value):null;
-  const ewd=document.getElementById('fEWD').value?parseFloat(document.getElementById('fEWD').value):null;
-  const weight=document.getElementById('fWeight').value?parseFloat(document.getElementById('fWeight').value):null;
-  const vialId=document.getElementById('fVial').value?parseInt(document.getElementById('fVial').value):null;
-  const notes=document.getElementById('fNotes').value.trim();
-
-  // Validation
-  if(!personId){showToast('Select a person',false);return}
-  if(!dateStr){showToast('Enter a date',false);return}
-  if(!amount||amount<=0){showToast('Enter a valid dose amount',false);return}
-
-  const btn=document.getElementById('submitBtn');
-  btn.disabled=true;
-  btn.textContent='Saving…';
-
-  try{
-    // Convert date to epoch
-    const epoch=Math.floor(new Date(dateStr+'T12:00:00').getTime()/1000);
-    const fields={Date:epoch,Person:personId,Amount_mg:amount};
-    if(freq!=null)fields.Dosing_Frequency_Days=freq;
-    if(ewd!=null)fields.Effective_Weekly_Dose=ewd;
-    if(weight!=null)fields.Weight=weight;
-    if(vialId)fields.Vial=vialId;
-    if(notes)fields.Notes=notes;
-
-    const table=grist.getTable('Injections');
-    await table.create({fields});
-    showToast('Injection added successfully!',true);
-
-    // Clear dose-specific fields but keep person and date advanced
-    document.getElementById('fAmount').value='';
-    document.getElementById('fFreq').value='';
-    document.getElementById('fEWD').value='';
-    document.getElementById('fWeight').value='';
-    document.getElementById('fNotes').value='';
-
-    // Advance date by frequency if set
-    if(freq){
-      const d=new Date(dateStr);
-      d.setDate(d.getDate()+Math.round(freq));
-      document.getElementById('fDate').value=d.toISOString().slice(0,10);
-    }
-
-    // Reload to update recent list
-    await load();
-  }catch(e){
-    showToast('Error: '+e.message,false);
-  }finally{
-    btn.disabled=false;
-    btn.textContent='Add Injection';
-  }
-}
-
-function clearForm(){
-  document.getElementById('fDate').value=new Date().toISOString().slice(0,10);
-  document.getElementById('fAmount').value='';
-  document.getElementById('fFreq').value='';
-  document.getElementById('fEWD').value='';
-  document.getElementById('fWeight').value='';
-  document.getElementById('fVial').value='';
-  document.getElementById('fNotes').value='';
-}
-</script>
-</body>
-</html>
+function populateDropdowns(){const ps=document.getElementById('fPerson'),cv=ps.value;ps.innerHTML='<option value="">Select\u2026</option>';peopleData.forEach(p=>{const o=document.createElement('option');o.value=p._id;o.textContent=p.Name;ps.appendChild(o)});if(cv)ps.value=cv;if(!ps.value&&peopleData.length)ps.value=peopleData[0]._id;const vs=document.getElementById('fVial'),vv=vs.value;vs.innerHTML='<option value="">None / unknown</option>';allVials.filter(v=>v.Status==='In Use'||v.Status==='Unopened').sort((a,b)=>(a.Status==='In Use'?0:1)-(b.Status==='In Use'?0:1)).forEach(v=>{const o=document.createElement('option');o.value=v._id;o.textContent=(v.Status==='In Use'?'\u2705 ':'')+v.Vial_Label+' ('+v.Total_mg+'mg '+v.Status+')';vs.appendChild(o)});if(vv)vs.value=vv}
+function showLastEntry(){const s=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0))[0];if(!s)return;const p=peopleData.find(pp=>pp._id===s.Person);document.getElementById('lastEntry').style.display='block';document.getElementById('lastEntry').innerHTML=`<strong>Last entry:</strong> ${p?p.Name:''} \u2022 ${fmtD(ep2d(s.Date))} \u2022 ${s.Amount_mg}mg${s.Weight?' \u2022 '+s.Weight+' lbs':''}${s.Dosing_Frequency_Days?' \u2022 Every '+s.Dosing_Frequency_Days+'d':''}`}
+function showRecent(){const s=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0)).slice(0,10);const tb=document.getElementById('recentBody');tb.innerHTML='';s.forEach(i=>{const p=peopleData.find(pp=>pp._id===i.Person);const v=allVials.find(vv=>vv._id===i.Vial);const tr=document.createElement('tr');tr.innerHTML=`<td style="color:var(--dim)">${fmtD(ep2d(i.Date))}</td><td>${p?p.Name:'\u2014'}</td><td class="mono" style="font-weight:600">${i.Amount_mg}mg</td><td class="mono" style="color:var(--dim)">${i.Dosing_Frequency_Days||'\u2014'}</td><td class="mono">${i.Effective_Weekly_Dose||'\u2014'}</td><td class="mono">${i.Weight||'\u2014'}</td><td style="color:var(--dim);font-size:11px">${v?v.Vial_Label:'\u2014'}</td>`;tb.appendChild(tr)});document.getElementById('ftr').textContent=allInjs.length+' total injections'}
+function showToast(m,ok){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+(ok?'t-ok':'t-err');setTimeout(()=>{t.className='toast'},3000)}
+async function submit(){const pid=parseInt(document.getElementById('fPerson').value),ds=document.getElementById('fDate').value,amt=parseFloat(document.getElementById('fAmount').value),freq=document.getElementById('fFreq').value?parseFloat(document.getElementById('fFreq').value):null,ewd=document.getElementById('fEWD').value?parseFloat(document.getElementById('fEWD').value):null,wt=document.getElementById('fWeight').value?parseFloat(document.getElementById('fWeight').value):null,vid=document.getElementById('fVial').value?parseInt(document.getElementById('fVial').value):null,notes=document.getElementById('fNotes').value.trim();if(!pid){showToast('Select a person',false);return}if(!ds){showToast('Enter a date',false);return}if(!amt||amt<=0){showToast('Enter a valid dose',false);return}const btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent='Saving\u2026';try{const epoch=Math.floor(new Date(ds+'T12:00:00').getTime()/1000);const fields={Date:epoch,Person:pid,Amount_mg:amt};if(freq!=null)fields.Dosing_Frequency_Days=freq;if(ewd!=null)fields.Effective_Weekly_Dose=ewd;if(wt!=null)fields.Weight=wt;if(vid)fields.Vial=vid;if(notes)fields.Notes=notes;const table=grist.getTable('Injections');await table.create({fields});showToast('Injection added!',true);document.getElementById('fAmount').value='';document.getElementById('fFreq').value='';document.getElementById('fEWD').value='';document.getElementById('fWeight').value='';document.getElementById('fNotes').value='';if(freq){const d=new Date(ds);d.setDate(d.getDate()+Math.round(freq));document.getElementById('fDate').value=d.toISOString().slice(0,10)}await load()}catch(e){showToast('Error: '+e.message,false)}finally{btn.disabled=false;btn.textContent='Add injection'}}
+function clearForm(){document.getElementById('fDate').value=new Date().toISOString().slice(0,10);['fAmount','fFreq','fEWD','fWeight','fNotes'].forEach(id=>document.getElementById(id).value='');document.getElementById('fVial').value=''}
+</script></body></html>
