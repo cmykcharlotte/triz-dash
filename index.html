@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tirzepatide Overview</title>
@@ -7,23 +7,29 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#0c0f1a;--card:#141829;--border:#1e2340;--a1:#6366f1;--a2:#f472b6;--a3:#34d399;--a4:#fbbf24;--a5:#38bdf8;--text:#e2e8f0;--dim:#64748b;--muted:#475569;--red:#ef4444;--green:#22c55e}
+:root{--bg:#0c0f1a;--card:#141829;--border:#1e2340;--a1:#6366f1;--a2:#f472b6;--a3:#34d399;--a4:#fbbf24;--a5:#38bdf8;--text:#e2e8f0;--dim:#64748b;--muted:#475569;--red:#ef4444;--green:#22c55e;--hover:#1a1f38;--grid:#1e2340}
+[data-theme="light"]{--bg:#f8fafc;--card:#ffffff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--hover:#f1f5f9;--grid:#e2e8f0}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px 24px 40px}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px 24px 40px;transition:background .3s,color .3s}
 #loading{display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:12px}
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--a1);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #loading p{color:var(--dim);font-size:13px}
 #dash{display:none}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
 .sub{font-size:12px;color:var(--dim);margin-top:3px}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.theme-toggle{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s;display:flex;align-items:center;gap:4px}
+.theme-toggle:hover{border-color:var(--a1)}
+.theme-toggle span{font-size:11px;color:var(--dim);font-family:'DM Sans',sans-serif}
 .stats{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0 8px}
-.sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;flex:1 1 0;min-width:130}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;flex:1 1 0;min-width:130;transition:background .3s,border-color .3s}
 .sc-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);margin-bottom:5px}
 .sc-val{font-size:26px;font-weight:700;line-height:1.1}
 .sc-sub{font-size:11px;color:var(--muted);margin-top:3px}
 .stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:700}
-.cc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;transition:background .3s,border-color .3s}
 .cw{position:relative;width:100%;height:240px}
 .cw-sm{position:relative;width:100%;height:200px}
 .two{display:flex;gap:16px;flex-wrap:wrap}
@@ -35,16 +41,14 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
 .legend-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)}
 .legend-d{width:8px;height:8px;border-radius:2px}
 .footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
-.person-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;flex:1 1 300px}
+.person-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;flex:1 1 300px;transition:background .3s,border-color .3s}
 .person-name{font-size:18px;font-weight:700;margin-bottom:2px}
 .person-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:12px}
 .person-status.active{background:rgba(52,211,153,.15);color:var(--a3)}
 .person-status.inactive{background:rgba(71,85,105,.2);color:var(--dim)}
 .person-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.pg-item{padding:8px 0}
-.pg-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:2px}
-.pg-val{font-size:18px;font-weight:700}
-.pg-sub{font-size:11px;color:var(--muted)}
+.pg-item{padding:8px 0}.pg-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:2px}
+.pg-val{font-size:18px;font-weight:700}.pg-sub{font-size:11px;color:var(--muted)}
 .person-bar{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
 .bar-track{background:var(--border);border-radius:6px;height:10px;overflow:hidden;margin:6px 0}
 .bar-fill{height:100%;border-radius:6px;transition:width .3s}
@@ -54,8 +58,8 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
 <body>
 <div id="loading"><div class="spinner"></div><p>Connecting to Grist…</p></div>
 <div id="dash">
-<h1>Tirzepatide Tracker — Overview</h1>
-<div class="sub" id="sub"></div>
+<div class="hdr"><div><h1>Tirzepatide Tracker — Overview</h1><div class="sub" id="sub"></div></div>
+<div class="hdr-right"><button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️<span>Light</span></button></div></div>
 <div class="stats" id="topStats"></div>
 <div class="stitle">👤 Per-Person Summary</div>
 <div class="two" id="personCards"></div>
@@ -72,120 +76,56 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
 </div>
 <script>
 const PC={Hallandale:'#6366f1',BPI:'#f472b6',Southend:'#34d399',Olympia:'#fbbf24'};
-const PCOL=['#6366f1','#f472b6','#34d399','#fbbf24'];
-const SC={Finished:'#34d399','In Use':'#38bdf8',Unopened:'#475569'};
-let charts={};
+const PCOL=['#6366f1','#f472b6'];const SCC={Finished:'#34d399','In Use':'#38bdf8',Unopened:'#475569'};
+let charts={},DATA=null;
+
+function isDark(){return document.documentElement.getAttribute('data-theme')!=='light'}
+function gc(){return isDark()?'#64748b':'#94a3b8'}
+function gg(){return isDark()?'#1e2340':'#e2e8f0'}
+function gt(){return isDark()?'#e2e8f0':'#1e293b'}
+function toggleTheme(){const d=document.documentElement;d.setAttribute('data-theme',isDark()?'light':'dark');document.getElementById('themeBtn').innerHTML=isDark()?'☀️<span>Light</span>':'🌙<span>Dark</span>';if(DATA)render(DATA)}
+
 grist.ready({requiredAccess:'full'});
-async function load(){try{const[pe,ph,or,vi,inj]=await Promise.all([grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Pharmacies'),grist.docApi.fetchTable('Orders'),grist.docApi.fetchTable('Vials'),grist.docApi.fetchTable('Injections')]);document.getElementById('loading').style.display='none';document.getElementById('dash').style.display='block';render({people:pe,pharmacies:ph,orders:or,vials:vi,injections:inj})}catch(e){document.querySelector('#loading p').textContent='Error: '+e.message}}
+async function load(){try{const[pe,ph,or,vi,inj]=await Promise.all([grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Pharmacies'),grist.docApi.fetchTable('Orders'),grist.docApi.fetchTable('Vials'),grist.docApi.fetchTable('Injections')]);DATA={people:pe,pharmacies:ph,orders:or,vials:vi,injections:inj};document.getElementById('loading').style.display='none';document.getElementById('dash').style.display='block';render(DATA)}catch(e){document.querySelector('#loading p').textContent='Error: '+e.message}}
 load();grist.onRecords(()=>load());
+
 function toRows(t){const ks=Object.keys(t).filter(k=>k!=='id'&&k!=='manualSort');const r=[];for(let i=0;i<(t.id?.length||0);i++){const o={_id:t.id[i]};ks.forEach(k=>o[k]=t[k][i]);r.push(o)}return r}
 function ep2d(ts){if(!ts)return null;return new Date(ts*1000).toISOString().slice(0,10)}
-function fmtD(iso){if(!iso)return'—';const[y,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}, ${y}`}
-function usd(n){return n!=null?'$'+n.toLocaleString():'—'}
+function fmtD(iso){if(!iso)return'\u2014';const[y,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}, ${y}`}
+function usd(n){return n!=null?'$'+n.toLocaleString():'\u2014'}
 function destroy(n){if(charts[n]){charts[n].destroy();charts[n]=null}}
 function mksc(l,v,s,c){return`<div class="sc"><div class="sc-label">${l}</div><div class="sc-val" style="color:${c}">${v}</div>${s?`<div class="sc-sub">${s}</div>`:''}</div>`}
+function copt(){return{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1}}
 
 function render(D){
 const people=toRows(D.people),pharms=toRows(D.pharmacies),orders=toRows(D.orders),vials=toRows(D.vials),injs=toRows(D.injections);
 const pharmMap={};pharms.forEach(p=>pharmMap[p._id]=p);
 const orderMap={};orders.forEach(o=>orderMap[o._id]=o);
-const totalMgOrdered=orders.reduce((s,o)=>s+(o.Total_mg||0),0);
-const totalMgUsed=injs.reduce((s,i)=>s+(i.Amount_mg||0),0);
-const totalCost=orders.reduce((s,o)=>s+(o.Cost||0),0);
-const totalOnHand=totalMgOrdered-totalMgUsed;
-
+const tmgo=orders.reduce((s,o)=>s+(o.Total_mg||0),0),tmu=injs.reduce((s,i)=>s+(i.Amount_mg||0),0),tc=orders.reduce((s,o)=>s+(o.Cost||0),0),toh=tmgo-tmu;
 document.getElementById('sub').textContent=`${people.length} people \u2022 ${orders.length} orders \u2022 ${vials.length} vials \u2022 ${injs.length} injections`;
-document.getElementById('topStats').innerHTML=[
-  mksc('Total mg Used',totalMgUsed.toFixed(1),injs.length+' injections','var(--a2)'),
-  mksc('Total On Hand',totalOnHand.toFixed(1)+' mg',vials.filter(v=>v.Status==='Unopened').length+' unopened vials','var(--a4)'),
-  mksc('Total Ordered',totalMgOrdered+' mg',orders.length+' orders','var(--a1)'),
-  mksc('Total Spent',usd(totalCost),'$'+(totalCost/totalMgOrdered).toFixed(2)+'/mg ordered','var(--a3)'),
-  mksc('Effective Cost','$'+(totalCost/totalMgUsed).toFixed(2),'Per mg actually used','var(--red)'),
-].join('');
+document.getElementById('topStats').innerHTML=[mksc('Total mg Used',tmu.toFixed(1),injs.length+' injections','var(--a2)'),mksc('Total On Hand',toh.toFixed(1)+' mg',vials.filter(v=>v.Status==='Unopened').length+' unopened vials','var(--a4)'),mksc('Total Ordered',tmgo+' mg',orders.length+' orders','var(--a1)'),mksc('Total Spent',usd(tc),'$'+(tc/tmgo).toFixed(2)+'/mg ordered','var(--a3)'),mksc('Effective Cost','$'+(tc/tmu).toFixed(2),'Per mg used','var(--red)')].join('');
 
-// Person cards
-let ch='';
-people.forEach((p,idx)=>{
-  const pi=injs.filter(i=>i.Person===p._id).sort((a,b)=>(a.Date||0)-(b.Date||0));
-  const po=orders.filter(o=>o.Person===p._id);
-  const mu=pi.reduce((s,i)=>s+(i.Amount_mg||0),0);
-  const sp=po.reduce((s,o)=>s+(o.Cost||0),0);
-  const mo=po.reduce((s,o)=>s+(o.Total_mg||0),0);
-  const ww=pi.filter(i=>i.Weight&&i.Weight>0);
-  const cw=ww.length?ww[ww.length-1].Weight:null;
-  const sw=p.Starting_Weight;
-  const wl=sw&&cw?sw-cw:null;
-  const wp=wl&&sw?(wl/sw*100):null;
-  const li=pi.length?pi[pi.length-1]:null;
-  const ld=li?ep2d(li.Date):null;
-  const fd=pi.length?ep2d(pi[0].Date):null;
-  const ia=li&&li.Date&&(Date.now()/1000-li.Date)<90*86400;
-  ch+=`<div class="person-card">
-    <div class="person-name" style="color:${PCOL[idx]}">${p.Name}</div>
-    <span class="person-status ${ia?'active':'inactive'}">${ia?'ACTIVE':'INACTIVE'}</span>
-    <div class="person-grid">
-      <div class="pg-item"><div class="pg-label">Injections</div><div class="pg-val" style="color:var(--a2)">${pi.length}</div><div class="pg-sub">${fmtD(fd)} \u2192 ${fmtD(ld)}</div></div>
-      <div class="pg-item"><div class="pg-label">mg Used</div><div class="pg-val" style="color:var(--a1)">${mu.toFixed(1)}</div><div class="pg-sub">of ${mo}mg ordered</div></div>
-      <div class="pg-item"><div class="pg-label">${wl!=null?'Weight Loss':'Last Dose'}</div><div class="pg-val" style="color:var(--a3)">${wl!=null?wl.toFixed(1)+' lbs':li?li.Amount_mg+'mg':'\u2014'}</div><div class="pg-sub">${wp!=null?wp.toFixed(0)+'% \u2022 '+sw+' \u2192 '+cw.toFixed(1):li&&li.Dosing_Frequency_Days?'Every '+li.Dosing_Frequency_Days+' days':'No weight data'}</div></div>
-      <div class="pg-item"><div class="pg-label">Total Spent</div><div class="pg-val" style="color:var(--a4)">${usd(sp)}</div><div class="pg-sub">${mu>0?'$'+(sp/mu).toFixed(2)+'/mg used':'\u2014'}</div></div>
-    </div>
-    <div class="person-bar">
-      <div class="bar-labels"><span>Usage: ${mu.toFixed(0)}mg of ${mo}mg</span><span>${mo>0?Math.round(mu/mo*100):0}%</span></div>
-      <div class="bar-track"><div class="bar-fill" style="width:${mo>0?Math.min(mu/mo*100,100):0}%;background:${PCOL[idx]}"></div></div>
-    </div>
-  </div>`;
-});
+let ch='';people.forEach((p,idx)=>{const pi=injs.filter(i=>i.Person===p._id).sort((a,b)=>(a.Date||0)-(b.Date||0));const po=orders.filter(o=>o.Person===p._id);const mu=pi.reduce((s,i)=>s+(i.Amount_mg||0),0);const sp=po.reduce((s,o)=>s+(o.Cost||0),0);const mo=po.reduce((s,o)=>s+(o.Total_mg||0),0);const ww=pi.filter(i=>i.Weight&&i.Weight>0);const cw=ww.length?ww[ww.length-1].Weight:null;const sw=p.Starting_Weight;const wl=sw&&cw?sw-cw:null;const wp=wl&&sw?(wl/sw*100):null;const li=pi.length?pi[pi.length-1]:null;const ld=li?ep2d(li.Date):null;const fd=pi.length?ep2d(pi[0].Date):null;const ia=li&&li.Date&&(Date.now()/1000-li.Date)<90*86400;
+ch+=`<div class="person-card"><div class="person-name" style="color:${PCOL[idx]}">${p.Name}</div><span class="person-status ${ia?'active':'inactive'}">${ia?'ACTIVE':'INACTIVE'}</span><div class="person-grid"><div class="pg-item"><div class="pg-label">Injections</div><div class="pg-val" style="color:var(--a2)">${pi.length}</div><div class="pg-sub">${fmtD(fd)} \u2192 ${fmtD(ld)}</div></div><div class="pg-item"><div class="pg-label">mg Used</div><div class="pg-val" style="color:var(--a1)">${mu.toFixed(1)}</div><div class="pg-sub">of ${mo}mg ordered</div></div><div class="pg-item"><div class="pg-label">${wl!=null?'Weight Loss':'Last Dose'}</div><div class="pg-val" style="color:var(--a3)">${wl!=null?wl.toFixed(1)+' lbs':li?li.Amount_mg+'mg':'\u2014'}</div><div class="pg-sub">${wp!=null?wp.toFixed(0)+'% \u2022 '+sw+' \u2192 '+cw.toFixed(1):li&&li.Dosing_Frequency_Days?'Every '+li.Dosing_Frequency_Days+' days':'No weight data'}</div></div><div class="pg-item"><div class="pg-label">Total Spent</div><div class="pg-val" style="color:var(--a4)">${usd(sp)}</div><div class="pg-sub">${mu>0?'$'+(sp/mu).toFixed(2)+'/mg':'\u2014'}</div></div></div><div class="person-bar"><div class="bar-labels"><span>Usage: ${mu.toFixed(0)}mg of ${mo}mg</span><span>${mo>0?Math.round(mu/mo*100):0}%</span></div><div class="bar-track"><div class="bar-fill" style="width:${mo>0?Math.min(mu/mo*100,100):0}%;background:${PCOL[idx]}"></div></div></div></div>`;});
 document.getElementById('personCards').innerHTML=ch;
 
-// Usage by person
-destroy('usage');
-charts.usage=new Chart(document.getElementById('usageChart'),{type:'bar',
-  data:{labels:people.map(p=>p.Name),datasets:[{label:'mg Used',data:people.map(p=>Math.round(injs.filter(i=>i.Person===p._id).reduce((s,i)=>s+(i.Amount_mg||0),0)*10)/10),backgroundColor:PCOL.slice(0,people.length),borderRadius:8,maxBarThickness:80}]},
-  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1,callbacks:{label:c=>c.parsed.x+'mg'}}},
-    scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2340'}},y:{ticks:{color:'#e2e8f0',font:{size:14,weight:600}},grid:{display:false}}}}
-});
+destroy('usage');charts.usage=new Chart(document.getElementById('usageChart'),{type:'bar',data:{labels:people.map(p=>p.Name),datasets:[{data:people.map(p=>Math.round(injs.filter(i=>i.Person===p._id).reduce((s,i)=>s+(i.Amount_mg||0),0)*10)/10),backgroundColor:PCOL.slice(0,people.length),borderRadius:8,maxBarThickness:80}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{...copt(),callbacks:{label:c=>c.parsed.x+'mg'}}},scales:{x:{ticks:{color:gc(),font:{size:10}},grid:{color:gg()}},y:{ticks:{color:gt(),font:{size:14,weight:600}},grid:{display:false}}}}});
 
-// Spending by person
-destroy('spend');
-charts.spend=new Chart(document.getElementById('spendChart'),{type:'bar',
-  data:{labels:people.map(p=>p.Name),datasets:[{label:'Spent',data:people.map(p=>orders.filter(o=>o.Person===p._id).reduce((s,o)=>s+(o.Cost||0),0)),backgroundColor:PCOL.slice(0,people.length),borderRadius:8,maxBarThickness:80}]},
-  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1,callbacks:{label:c=>'$'+c.parsed.x.toLocaleString()}}},
-    scales:{x:{ticks:{color:'#64748b',font:{size:10},callback:v=>'$'+v.toLocaleString()},grid:{color:'#1e2340'}},y:{ticks:{color:'#e2e8f0',font:{size:14,weight:600}},grid:{display:false}}}}
-});
+destroy('spend');charts.spend=new Chart(document.getElementById('spendChart'),{type:'bar',data:{labels:people.map(p=>p.Name),datasets:[{data:people.map(p=>orders.filter(o=>o.Person===p._id).reduce((s,o)=>s+(o.Cost||0),0)),backgroundColor:PCOL.slice(0,people.length),borderRadius:8,maxBarThickness:80}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{...copt(),callbacks:{label:c=>'$'+c.parsed.x.toLocaleString()}}},scales:{x:{ticks:{color:gc(),font:{size:10},callback:v=>'$'+v.toLocaleString()},grid:{color:gg()}},y:{ticks:{color:gt(),font:{size:14,weight:600}},grid:{display:false}}}}});
 
-// Stock by pharmacy
-const byPh={};vials.forEach(v=>{const ord=orderMap[v.Order];if(!ord)return;const ph=pharmMap[ord.Pharmacy];if(!ph)return;const pn=ph.Compounding_Pharmacy;const pr=people.find(p=>p._id===ord.Person);const prn=pr?pr.Name:'?';if(!byPh[pn])byPh[pn]={};byPh[pn][prn]=(byPh[pn][prn]||0)+(v.mg_Remaining||0)});
-destroy('stock');
-const phn=Object.keys(byPh).sort();
-charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',
-  data:{labels:phn,datasets:people.map((p,i)=>({label:p.Name,data:phn.map(ph=>Math.round((byPh[ph]?.[p.Name]||0)*10)/10),backgroundColor:PCOL[i],borderRadius:4}))},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#64748b',font:{size:11}}},tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},
-    scales:{x:{stacked:true,ticks:{color:'#64748b',font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2340'}}}}
-});
+const byPh={};vials.forEach(v=>{const ord=orderMap[v.Order];if(!ord)return;const ph=pharmMap[ord.Pharmacy];if(!ph)return;const pn=ph.Compounding_Pharmacy;const pr=people.find(p=>p._id===ord.Person);if(!byPh[pn])byPh[pn]={};byPh[pn][pr?.Name||'?']=(byPh[pn][pr?.Name||'?']||0)+(v.mg_Remaining||0)});
+destroy('stock');const phn=Object.keys(byPh).sort();
+charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:people.map((p,i)=>({label:p.Name,data:phn.map(ph=>Math.round((byPh[ph]?.[p.Name]||0)*10)/10),backgroundColor:PCOL[i],borderRadius:4}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...copt(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:10}},grid:{color:gg()}}}}});
 document.getElementById('stockLeg').innerHTML=phn.map(p=>{const t=people.reduce((s,pr)=>s+(byPh[p]?.[pr.Name]||0),0);return`<div class="legend-i"><div class="legend-d" style="background:${PC[p]||'#666'}"></div>${p}: ${Math.round(t)}mg</div>`}).join('');
 
-// Vial donut
 const sc2={Finished:0,'In Use':0,Unopened:0};vials.forEach(v=>{if(sc2.hasOwnProperty(v.Status))sc2[v.Status]++});
-destroy('vial');
-charts.vial=new Chart(document.getElementById('vialChart'),{type:'doughnut',
-  data:{labels:Object.keys(sc2),datasets:[{data:Object.values(sc2),backgroundColor:Object.keys(sc2).map(k=>SC[k]),borderWidth:0,spacing:3}]},
-  options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1}}}
-});
-document.getElementById('vialLeg').innerHTML=Object.entries(sc2).map(([k,v])=>`<div class="legend-i"><div class="legend-d" style="background:${SC[k]}"></div>${k} (${v})</div>`).join('');
+destroy('vial');charts.vial=new Chart(document.getElementById('vialChart'),{type:'doughnut',data:{labels:Object.keys(sc2),datasets:[{data:Object.values(sc2),backgroundColor:Object.keys(sc2).map(k=>SCC[k]),borderWidth:0,spacing:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false},tooltip:{...copt()}}}});
+document.getElementById('vialLeg').innerHTML=Object.entries(sc2).map(([k,v])=>`<div class="legend-i"><div class="legend-d" style="background:${SCC[k]}"></div>${k} (${v})</div>`).join('');
 
-// Monthly combined
-const mo2={};injs.forEach(i=>{const d=ep2d(i.Date);if(!d)return;const ym=d.slice(0,7);if(!mo2[ym])mo2[ym]={};const pr=people.find(p=>p._id===i.Person);const pn=pr?pr.Name:'?';mo2[ym][pn]=(mo2[ym][pn]||0)+(i.Amount_mg||0)});
-const mk=Object.keys(mo2).sort();
-const ml=mk.map(k=>{const[y,m]=k.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return M[+m]+" '"+y.slice(2)});
-destroy('month');
-charts.month=new Chart(document.getElementById('monthChart'),{type:'bar',
-  data:{labels:ml,datasets:people.map((p,i)=>({label:p.Name,data:mk.map(k=>Math.round((mo2[k]?.[p.Name]||0)*10)/10),backgroundColor:PCOL[i],borderRadius:3}))},
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#64748b',font:{size:11}}},tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},
-    scales:{x:{stacked:true,ticks:{color:'#64748b',font:{size:10}},grid:{display:false}},y:{stacked:true,ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2340'}}}}
-});
-
-document.getElementById('ftr').textContent=totalMgUsed.toFixed(1)+'mg used \u2022 '+totalOnHand.toFixed(1)+'mg on hand \u2022 '+usd(totalCost)+' total spent';
+const mo2={};injs.forEach(i=>{const d=ep2d(i.Date);if(!d)return;const ym=d.slice(0,7);if(!mo2[ym])mo2[ym]={};const pr=people.find(p=>p._id===i.Person);mo2[ym][pr?.Name||'?']=(mo2[ym][pr?.Name||'?']||0)+(i.Amount_mg||0)});
+const mk=Object.keys(mo2).sort(),ml=mk.map(k=>{const[y,m]=k.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return M[+m]+" '"+y.slice(2)});
+destroy('month');charts.month=new Chart(document.getElementById('monthChart'),{type:'bar',data:{labels:ml,datasets:people.map((p,i)=>({label:p.Name,data:mk.map(k=>Math.round((mo2[k]?.[p.Name]||0)*10)/10),backgroundColor:PCOL[i],borderRadius:3}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...copt(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:10}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:10}},grid:{color:gg()}}}}});
+document.getElementById('ftr').textContent=tmu.toFixed(1)+'mg used \u2022 '+toh.toFixed(1)+'mg on hand \u2022 '+usd(tc)+' spent';
 }
 </script>
-</body>
-</html>
+</body></html>

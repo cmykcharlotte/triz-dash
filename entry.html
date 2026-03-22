@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Add Injection</title>
+<script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+:root{--bg:#0c0f1a;--card:#141829;--border:#1e2340;--a1:#6366f1;--a2:#f472b6;--a3:#34d399;--a4:#fbbf24;--a5:#38bdf8;--text:#e2e8f0;--dim:#64748b;--muted:#475569;--red:#ef4444;--green:#22c55e;--input-bg:#1e2340;--input-border:#2e3456}
+[data-theme="light"]{--bg:#f8fafc;--card:#ffffff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--input-bg:#f1f5f9;--input-border:#cbd5e1}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px 24px 40px;transition:background .3s,color .3s}
+#loading{display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:12px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--a3);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{color:var(--dim);font-size:13px}
+#dash{display:none}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.sub{font-size:12px;color:var(--dim);margin-top:3px}
+.theme-toggle{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s;display:flex;align-items:center;gap:4px}
+.theme-toggle:hover{border-color:var(--a1)}
+.theme-toggle span{font-size:11px;color:var(--dim);font-family:'DM Sans',sans-serif}
+
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;transition:background .3s,border-color .3s}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600}
+input,select,textarea{background:var(--input-bg);border:1px solid var(--input-border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;transition:border-color .2s,background .3s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--a1)}
+input::placeholder{color:var(--muted)}
+textarea{resize:vertical;min-height:60px}
+select{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.required::after{content:' *';color:var(--red)}
+
+.btn-row{display:flex;gap:12px;margin-top:20px;align-items:center}
+.btn{padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;transition:all .2s}
+.btn-primary{background:var(--a1);color:#fff}.btn-primary:hover{background:#5558e6}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-secondary{background:transparent;border:1px solid var(--border);color:var(--dim)}.btn-secondary:hover{border-color:var(--a1);color:var(--text)}
+
+.toast{position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transform:translateY(-10px);transition:all .3s;pointer-events:none;z-index:100}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-ok{background:#065f46;color:#a7f3d0;border:1px solid #34d399}
+.toast-err{background:#7f1d1d;color:#fca5a5;border:1px solid #ef4444}
+
+.stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:700}
+.recent{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:background .3s,border-color .3s}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{border-bottom:1px solid var(--border)}
+th{padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600}
+td{padding:9px 12px;border-bottom:1px solid var(--border)}
+.mono{font-family:'DM Mono',monospace}
+.footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+
+.last-entry{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:13px;transition:background .3s,border-color .3s}
+.last-entry strong{color:var(--a5)}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div><p>Connecting to Grist…</p></div>
+<div id="dash">
+<div class="hdr">
+  <div><h1>💉 Add Injection</h1><div class="sub">Enter new injection data directly into Grist</div></div>
+  <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️<span>Light</span></button>
+</div>
+
+<div id="lastEntry" class="last-entry" style="display:none"></div>
+
+<div class="form-card">
+  <div class="form-grid">
+    <div class="form-group">
+      <label class="required">Person</label>
+      <select id="fPerson"><option value="">Select…</option></select>
+    </div>
+    <div class="form-group">
+      <label class="required">Date</label>
+      <input type="date" id="fDate">
+    </div>
+    <div class="form-group">
+      <label class="required">Amount (mg)</label>
+      <input type="number" id="fAmount" step="0.1" min="0" placeholder="e.g. 4.6">
+    </div>
+    <div class="form-group">
+      <label>Dosing Frequency (days)</label>
+      <input type="number" id="fFreq" step="0.5" min="0" placeholder="e.g. 5">
+    </div>
+    <div class="form-group">
+      <label>Effective Weekly Dose (mg)</label>
+      <input type="number" id="fEWD" step="0.1" min="0" placeholder="e.g. 6.5">
+    </div>
+    <div class="form-group">
+      <label>Weight (lbs)</label>
+      <input type="number" id="fWeight" step="0.1" min="0" placeholder="e.g. 205.8">
+    </div>
+    <div class="form-group">
+      <label>Vial</label>
+      <select id="fVial"><option value="">None / Unknown</option></select>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <input type="text" id="fNotes" placeholder="Optional notes">
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" id="submitBtn" onclick="submit()">Add Injection</button>
+    <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+    <span id="status" style="font-size:12px;color:var(--dim)"></span>
+  </div>
+</div>
+
+<div class="stitle">📋 Recent Injections</div>
+<div class="recent"><table><thead><tr>
+<th>Date</th><th>Person</th><th>Dose</th><th>Freq</th><th>EWD</th><th>Weight</th><th>Vial</th>
+</tr></thead><tbody id="recentBody"></tbody></table></div>
+
+<div class="footer"><div>Data Entry • Grist Custom Widget</div><div id="ftr"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let peopleData=[], vialsData=[], allInjs=[], allVials=[];
+function isDark(){return document.documentElement.getAttribute('data-theme')!=='light'}
+function toggleTheme(){document.documentElement.setAttribute('data-theme',isDark()?'light':'dark');document.getElementById('themeBtn').innerHTML=isDark()?'☀️<span>Light</span>':'🌙<span>Dark</span>'}
+
+grist.ready({requiredAccess:'full'});
+
+async function load(){
+  try{
+    const[pe,or,vi,inj]=await Promise.all([
+      grist.docApi.fetchTable('People'),
+      grist.docApi.fetchTable('Orders'),
+      grist.docApi.fetchTable('Vials'),
+      grist.docApi.fetchTable('Injections')]);
+    peopleData=toRows(pe);
+    allVials=toRows(vi);
+    allInjs=toRows(inj);
+    const orderRows=toRows(or);
+    const orderMap={};orderRows.forEach(o=>orderMap[o._id]=o);
+    document.getElementById('loading').style.display='none';
+    document.getElementById('dash').style.display='block';
+    populateDropdowns(orderMap);
+    showRecent();
+    showLastEntry();
+    // Default date to today
+    if(!document.getElementById('fDate').value){
+      document.getElementById('fDate').value=new Date().toISOString().slice(0,10);
+    }
+  }catch(e){document.querySelector('#loading p').textContent='Error: '+e.message}
+}
+load();grist.onRecords(()=>load());
+
+function toRows(t){const ks=Object.keys(t).filter(k=>k!=='id'&&k!=='manualSort');const r=[];for(let i=0;i<(t.id?.length||0);i++){const o={_id:t.id[i]};ks.forEach(k=>o[k]=t[k][i]);r.push(o)}return r}
+function ep2d(ts){if(!ts)return null;return new Date(ts*1000).toISOString().slice(0,10)}
+function fmtD(iso){if(!iso)return'\u2014';const[y,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}, ${y}`}
+
+function populateDropdowns(orderMap){
+  const ps=document.getElementById('fPerson');
+  const curP=ps.value;
+  ps.innerHTML='<option value="">Select\u2026</option>';
+  peopleData.forEach(p=>{const o=document.createElement('option');o.value=p._id;o.textContent=p.Name;ps.appendChild(o)});
+  if(curP)ps.value=curP;
+  // Default to Charlotte (id 1) if nothing selected
+  if(!ps.value&&peopleData.length)ps.value=peopleData[0]._id;
+
+  const vs=document.getElementById('fVial');
+  const curV=vs.value;
+  vs.innerHTML='<option value="">None / Unknown</option>';
+  const activeVials=allVials.filter(v=>v.Status==='In Use'||v.Status==='Unopened');
+  activeVials.sort((a,b)=>(a.Status==='In Use'?0:1)-(b.Status==='In Use'?0:1));
+  activeVials.forEach(v=>{
+    const o=document.createElement('option');
+    o.value=v._id;
+    const tag=v.Status==='In Use'?'\u2705 ':'';
+    o.textContent=`${tag}${v.Vial_Label} (${v.Total_mg}mg ${v.Status})`;
+    vs.appendChild(o);
+  });
+  if(curV)vs.value=curV;
+}
+
+function showLastEntry(){
+  const sorted=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0));
+  const last=sorted[0];
+  if(!last)return;
+  const person=peopleData.find(p=>p._id===last.Person);
+  const el=document.getElementById('lastEntry');
+  el.style.display='block';
+  el.innerHTML=`<strong>Last entry:</strong> ${person?person.Name:''} \u2022 ${fmtD(ep2d(last.Date))} \u2022 ${last.Amount_mg}mg${last.Weight?' \u2022 '+last.Weight+' lbs':''}${last.Dosing_Frequency_Days?' \u2022 Every '+last.Dosing_Frequency_Days+'d':''}`;
+}
+
+function showRecent(){
+  const sorted=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0)).slice(0,10);
+  const tb=document.getElementById('recentBody');
+  tb.innerHTML='';
+  sorted.forEach(i=>{
+    const person=peopleData.find(p=>p._id===i.Person);
+    const vial=allVials.find(v=>v._id===i.Vial);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="color:var(--dim)">${fmtD(ep2d(i.Date))}</td>
+      <td>${person?person.Name:'\u2014'}</td>
+      <td class="mono" style="font-weight:600">${i.Amount_mg}mg</td>
+      <td class="mono" style="color:var(--dim)">${i.Dosing_Frequency_Days||'\u2014'}</td>
+      <td class="mono">${i.Effective_Weekly_Dose||'\u2014'}</td>
+      <td class="mono">${i.Weight||'\u2014'}</td>
+      <td style="color:var(--dim);font-size:12px">${vial?vial.Vial_Label:'\u2014'}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('ftr').textContent=`${allInjs.length} total injections`;
+}
+
+function showToast(msg, ok){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show '+(ok?'toast-ok':'toast-err');
+  setTimeout(()=>{t.className='toast'},3000);
+}
+
+async function submit(){
+  const personId=parseInt(document.getElementById('fPerson').value);
+  const dateStr=document.getElementById('fDate').value;
+  const amount=parseFloat(document.getElementById('fAmount').value);
+  const freq=document.getElementById('fFreq').value?parseFloat(document.getElementById('fFreq').value):null;
+  const ewd=document.getElementById('fEWD').value?parseFloat(document.getElementById('fEWD').value):null;
+  const weight=document.getElementById('fWeight').value?parseFloat(document.getElementById('fWeight').value):null;
+  const vialId=document.getElementById('fVial').value?parseInt(document.getElementById('fVial').value):null;
+  const notes=document.getElementById('fNotes').value.trim();
+
+  // Validation
+  if(!personId){showToast('Select a person',false);return}
+  if(!dateStr){showToast('Enter a date',false);return}
+  if(!amount||amount<=0){showToast('Enter a valid dose amount',false);return}
+
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;
+  btn.textContent='Saving…';
+
+  try{
+    // Convert date to epoch
+    const epoch=Math.floor(new Date(dateStr+'T12:00:00').getTime()/1000);
+    const fields={Date:epoch,Person:personId,Amount_mg:amount};
+    if(freq!=null)fields.Dosing_Frequency_Days=freq;
+    if(ewd!=null)fields.Effective_Weekly_Dose=ewd;
+    if(weight!=null)fields.Weight=weight;
+    if(vialId)fields.Vial=vialId;
+    if(notes)fields.Notes=notes;
+
+    const table=grist.getTable('Injections');
+    await table.create({fields});
+    showToast('Injection added successfully!',true);
+
+    // Clear dose-specific fields but keep person and date advanced
+    document.getElementById('fAmount').value='';
+    document.getElementById('fFreq').value='';
+    document.getElementById('fEWD').value='';
+    document.getElementById('fWeight').value='';
+    document.getElementById('fNotes').value='';
+
+    // Advance date by frequency if set
+    if(freq){
+      const d=new Date(dateStr);
+      d.setDate(d.getDate()+Math.round(freq));
+      document.getElementById('fDate').value=d.toISOString().slice(0,10);
+    }
+
+    // Reload to update recent list
+    await load();
+  }catch(e){
+    showToast('Error: '+e.message,false);
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Add Injection';
+  }
+}
+
+function clearForm(){
+  document.getElementById('fDate').value=new Date().toISOString().slice(0,10);
+  document.getElementById('fAmount').value='';
+  document.getElementById('fFreq').value='';
+  document.getElementById('fEWD').value='';
+  document.getElementById('fWeight').value='';
+  document.getElementById('fVial').value='';
+  document.getElementById('fNotes').value='';
+}
+</script>
+</body>
+</html>

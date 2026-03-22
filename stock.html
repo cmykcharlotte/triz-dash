@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Stock Overview</title>
@@ -7,222 +7,75 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#0c0f1a;--card:#141829;--border:#1e2340;--a1:#6366f1;--a2:#f472b6;--a3:#34d399;--a4:#fbbf24;--a5:#38bdf8;--text:#e2e8f0;--dim:#64748b;--muted:#475569;--red:#ef4444;--green:#22c55e}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px 24px 40px}
-#loading{display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:12px}
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--a1);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#loading p{color:var(--dim);font-size:13px}
-#dash{display:none}
-h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
-.sub{font-size:12px;color:var(--dim);margin-top:3px}
-.stats{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0 8px}
-.sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;flex:1 1 0;min-width:130}
-.sc-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);margin-bottom:5px}
-.sc-val{font-size:26px;font-weight:700;line-height:1.1}
-.sc-sub{font-size:11px;color:var(--muted);margin-top:3px}
-.stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:700}
-.cc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 14px 10px}
-.cw{position:relative;width:100%;height:260px}
-.cw-sm{position:relative;width:100%;height:200px}
-.two{display:flex;gap:16px;flex-wrap:wrap}
-.two .wide{flex:2 1 380px} .two .narrow{flex:1 1 220px}
-.three{display:flex;gap:16px;flex-wrap:wrap}
-.three>div{flex:1 1 200px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead tr{border-bottom:1px solid var(--border)}
-th{padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600}
-td{padding:9px 12px;border-bottom:1px solid var(--border)}
-.mono{font-family:'DM Mono',monospace}
-.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
-.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:6px}
-.legend-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)}
-.legend-d{width:8px;height:8px;border-radius:2px}
+:root{--bg:#0c0f1a;--card:#141829;--border:#1e2340;--a1:#6366f1;--a2:#f472b6;--a3:#34d399;--a4:#fbbf24;--a5:#38bdf8;--text:#e2e8f0;--dim:#64748b;--muted:#475569;--red:#ef4444;--green:#22c55e;--grid:#1e2340}
+[data-theme="light"]{--bg:#f8fafc;--card:#ffffff;--border:#e2e8f0;--text:#1e293b;--dim:#64748b;--muted:#94a3b8;--hover:#f1f5f9;--grid:#e2e8f0}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px 24px 40px;transition:background .3s,color .3s}
+#loading{display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:12px}.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--a1);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#loading p{color:var(--dim);font-size:13px}#dash{display:none}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start}h1{font-size:22px;font-weight:700;letter-spacing:-.5px}.sub{font-size:12px;color:var(--dim);margin-top:3px}
+.theme-toggle{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s;display:flex;align-items:center;gap:4px}.theme-toggle:hover{border-color:var(--a1)}.theme-toggle span{font-size:11px;color:var(--dim);font-family:'DM Sans',sans-serif}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0 8px}.sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;flex:1 1 0;min-width:130;transition:background .3s,border-color .3s}.sc-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);margin-bottom:5px}.sc-val{font-size:26px;font-weight:700;line-height:1.1}.sc-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:700}.cc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 14px 10px;transition:background .3s,border-color .3s}
+.cw{position:relative;width:100%;height:260px}.cw-sm{position:relative;width:100%;height:200px}
+.two{display:flex;gap:16px;flex-wrap:wrap}.two .wide{flex:2 1 380px}.two .narrow{flex:1 1 220px}
+table{width:100%;border-collapse:collapse;font-size:13px}thead tr{border-bottom:1px solid var(--border)}th{padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600}td{padding:9px 12px;border-bottom:1px solid var(--border)}
+.mono{font-family:'DM Mono',monospace}.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase}.badge-red{background:rgba(239,68,68,.15);color:var(--red)}.badge-green{background:rgba(34,211,153,.15);color:var(--a3)}.badge-blue{background:rgba(56,189,248,.15);color:var(--a5)}.badge-gray{background:rgba(71,85,105,.2);color:var(--dim)}
+.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:6px}.legend-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)}.legend-d{width:8px;height:8px;border-radius:2px}
 .footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
-.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase}
-.badge-red{background:rgba(239,68,68,.15);color:var(--red)}
-.badge-green{background:rgba(34,211,153,.15);color:var(--a3)}
-.badge-blue{background:rgba(56,189,248,.15);color:var(--a5)}
-.badge-gray{background:rgba(71,85,105,.2);color:var(--dim)}
-</style>
-</head>
-<body>
+</style></head><body>
 <div id="loading"><div class="spinner"></div><p>Connecting to Grist…</p></div>
 <div id="dash">
-<h1>📦 Tirzepatide Stock Overview</h1>
-<div class="sub" id="sub"></div>
+<div class="hdr"><div><h1>📦 Tirzepatide Stock Overview</h1><div class="sub" id="sub"></div></div><button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️<span>Light</span></button></div>
 <div class="stats" id="stats"></div>
-
-<div class="two">
-<div class="wide">
-  <div class="stitle">🏭 Available Stock by Pharmacy</div>
-  <div class="cc"><div class="cw"><canvas id="stockChart"></canvas></div>
-  <div class="legend" id="stockLeg"></div></div>
-</div>
-<div class="narrow">
-  <div class="stitle">🧪 Vial Status</div>
-  <div class="cc" style="text-align:center"><div class="cw-sm"><canvas id="statusChart"></canvas></div>
-  <div class="legend" id="statusLeg"></div></div>
-</div>
-</div>
-
-<div class="two" style="margin-top:0">
-<div class="wide">
-  <div class="stitle">💰 Spending by Person</div>
-  <div class="cc"><div class="cw-sm"><canvas id="spendChart"></canvas></div></div>
-</div>
-<div class="narrow">
-  <div class="stitle">⚠️ BUD Status</div>
-  <div class="cc" id="budBox" style="font-size:13px"></div>
-</div>
-</div>
-
-<div class="stitle">📋 Stock Detail</div>
-<div class="cc" style="padding:0;overflow:hidden"><div style="overflow-x:auto">
-<table id="stockTable"><thead><tr>
-<th>Vial</th><th>Pharmacy</th><th>Owner</th><th>mg</th><th>Used</th><th>Left</th><th>Status</th><th>BUD</th><th>Days</th>
-</tr></thead><tbody></tbody></table>
-</div></div>
-
+<div class="two"><div class="wide"><div class="stitle">🏭 Stock by Pharmacy</div><div class="cc"><div class="cw"><canvas id="stockChart"></canvas></div><div class="legend" id="stockLeg"></div></div></div><div class="narrow"><div class="stitle">🧪 Vial Status</div><div class="cc" style="text-align:center"><div class="cw-sm"><canvas id="statusChart"></canvas></div><div class="legend" id="statusLeg"></div></div></div></div>
+<div class="two" style="margin-top:0"><div class="wide"><div class="stitle">💰 Spending by Person</div><div class="cc"><div class="cw-sm"><canvas id="spendChart"></canvas></div></div></div><div class="narrow"><div class="stitle">⚠️ BUD Status</div><div class="cc" id="budBox" style="font-size:13px"></div></div></div>
+<div class="stitle">📋 Stock Detail</div><div class="cc" style="padding:0;overflow:hidden"><div style="overflow-x:auto"><table id="stockTable"><thead><tr><th>Vial</th><th>Pharmacy</th><th>Owner</th><th>mg</th><th>Used</th><th>Left</th><th>Status</th><th>BUD</th><th>Days</th></tr></thead><tbody></tbody></table></div></div>
 <div class="footer"><div>Stock Overview • Grist Custom Widget</div><div id="ftr"></div></div>
 </div>
-
 <script>
-const PC={Hallandale:'#6366f1',BPI:'#f472b6',Southend:'#34d399',Olympia:'#fbbf24'};
-const SC={Finished:'#34d399','In Use':'#38bdf8',Unopened:'#475569'};
-let charts={};
+const PC={Hallandale:'#6366f1',BPI:'#f472b6',Southend:'#34d399',Olympia:'#fbbf24'},SCC={Finished:'#34d399','In Use':'#38bdf8',Unopened:'#475569'};
+let charts={},DATA=null;
+function isDark(){return document.documentElement.getAttribute('data-theme')!=='light'}
+function gc(){return isDark()?'#64748b':'#94a3b8'}function gg(){return isDark()?'#1e2340':'#e2e8f0'}function gt(){return isDark()?'#e2e8f0':'#1e293b'}
+function toggleTheme(){document.documentElement.setAttribute('data-theme',isDark()?'light':'dark');document.getElementById('themeBtn').innerHTML=isDark()?'☀️<span>Light</span>':'🌙<span>Dark</span>';if(DATA)render(DATA)}
+function copt(){return{backgroundColor:isDark()?'#1e2340':'#fff',titleColor:'#64748b',bodyColor:isDark()?'#e2e8f0':'#1e293b',borderColor:isDark()?'#2e3456':'#e2e8f0',borderWidth:1}}
 grist.ready({requiredAccess:'full'});
-
-async function load(){
-  try{
-    const[people,pharmacies,orders,vials,injections]=await Promise.all([
-      grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Pharmacies'),
-      grist.docApi.fetchTable('Orders'),grist.docApi.fetchTable('Vials'),
-      grist.docApi.fetchTable('Injections')]);
-    document.getElementById('loading').style.display='none';
-    document.getElementById('dash').style.display='block';
-    render({people,pharmacies,orders,vials,injections});
-  }catch(e){document.querySelector('#loading p').textContent='Error: '+e.message}
-}
-load(); grist.onRecords(()=>load());
-
+async function load(){try{const[pe,ph,or,vi,inj]=await Promise.all([grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Pharmacies'),grist.docApi.fetchTable('Orders'),grist.docApi.fetchTable('Vials'),grist.docApi.fetchTable('Injections')]);DATA={people:pe,pharmacies:ph,orders:or,vials:vi,injections:inj};document.getElementById('loading').style.display='none';document.getElementById('dash').style.display='block';render(DATA)}catch(e){document.querySelector('#loading p').textContent='Error: '+e.message}}
+load();grist.onRecords(()=>load());
 function toRows(t){const ks=Object.keys(t).filter(k=>k!=='id'&&k!=='manualSort');const r=[];for(let i=0;i<(t.id?.length||0);i++){const o={_id:t.id[i]};ks.forEach(k=>o[k]=t[k][i]);r.push(o)}return r}
 function ep2d(ts){if(!ts)return null;return new Date(ts*1000).toISOString().slice(0,10)}
-function fmtD(iso){if(!iso)return'—';const[y,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}, ${y}`}
-function usd(n){return n!=null?'$'+n.toLocaleString():'—'}
+function fmtD(iso){if(!iso)return'\u2014';const[y,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}, ${y}`}
+function usd(n){return n!=null?'$'+n.toLocaleString():'\u2014'}
 function destroy(n){if(charts[n]){charts[n].destroy();charts[n]=null}}
+function mksc(l,v,s,c){return`<div class="sc"><div class="sc-label">${l}</div><div class="sc-val" style="color:${c}">${v}</div>${s?`<div class="sc-sub">${s}</div>`:''}</div>`}
 
 function render(D){
-  const people=toRows(D.people),pharms=toRows(D.pharmacies),orders=toRows(D.orders),vials=toRows(D.vials),injs=toRows(D.injections);
-  const pharmMap={};pharms.forEach(p=>pharmMap[p._id]=p);
-  const personMap={};people.forEach(p=>personMap[p._id]=p);
-  const orderMap={};orders.forEach(o=>orderMap[o._id]=o);
+const people=toRows(D.people),pharms=toRows(D.pharmacies),orders=toRows(D.orders),vials=toRows(D.vials),injs=toRows(D.injections);
+const pharmMap={};pharms.forEach(p=>pharmMap[p._id]=p);const orderMap={};orders.forEach(o=>orderMap[o._id]=o);const personMap={};people.forEach(p=>personMap[p._id]=p);
+vials.forEach(v=>{const ord=orderMap[v.Order];v._ph=ord?pharmMap[ord.Pharmacy]:null;v._pr=ord?personMap[ord.Person]:null});
+const tmgo=orders.reduce((s,o)=>s+(o.Total_mg||0),0),tmu=injs.reduce((s,i)=>s+(i.Amount_mg||0),0),tc=orders.reduce((s,o)=>s+(o.Cost||0),0),toh=tmgo-tmu,ov=vials.filter(v=>v.Status==='In Use').length,uv=vials.filter(v=>v.Status==='Unopened').length;
+document.getElementById('sub').textContent=`${vials.length} vials \u2022 ${orders.length} orders \u2022 ${people.length} people`;
+document.getElementById('stats').innerHTML=[mksc('Total Ordered',tmgo+' mg',orders.length+' orders','var(--a1)'),mksc('Total Used',tmu.toFixed(1)+' mg',injs.length+' injections','var(--a2)'),mksc('Remaining',toh.toFixed(1)+' mg',uv+' unopened vials','var(--a4)'),mksc('Total Spent',usd(tc),'$'+(tc/tmgo).toFixed(2)+'/mg ordered','var(--a3)'),mksc('Cost/mg Used','$'+(tc/tmu).toFixed(2),'Effective cost','var(--red)')].join('');
 
-  // Enrich vials
-  vials.forEach(v=>{
-    const ord=orderMap[v.Order];
-    v._pharm=ord?pharmMap[ord.Pharmacy]:null;
-    v._person=ord?personMap[ord.Person]:null;
-  });
+const byPh={};vials.forEach(v=>{const pn=v._ph?.Compounding_Pharmacy||'?';if(!byPh[pn])byPh[pn]={used:0,rem:0};byPh[pn].used+=(v.mg_Used||0);byPh[pn].rem+=(v.mg_Remaining||0)});
+destroy('stock');const phn=Object.keys(byPh).sort();
+charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:[{label:'Used',data:phn.map(p=>byPh[p].used),backgroundColor:'rgba(99,102,241,0.7)',borderRadius:4},{label:'Remaining',data:phn.map(p=>byPh[p].rem),backgroundColor:phn.map(p=>PC[p]||'#666'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...copt(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:10}},grid:{color:gg()}}}}});
 
-  const totalMgOrdered=orders.reduce((s,o)=>s+(o.Total_mg||0),0);
-  const totalCost=orders.reduce((s,o)=>s+(o.Cost||0),0);
-  const totalMgUsed=injs.reduce((s,i)=>s+(i.Amount_mg||0),0);
-  const totalUnused=totalMgOrdered-totalMgUsed;
-  const openVials=vials.filter(v=>v.Status==='In Use').length;
-  const unopenedVials=vials.filter(v=>v.Status==='Unopened').length;
+const sc2={Finished:0,'In Use':0,Unopened:0};vials.forEach(v=>{if(sc2.hasOwnProperty(v.Status))sc2[v.Status]++});
+destroy('status');charts.status=new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:Object.keys(sc2),datasets:[{data:Object.values(sc2),backgroundColor:Object.keys(sc2).map(k=>SCC[k]),borderWidth:0,spacing:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{...copt()}}}});
+document.getElementById('statusLeg').innerHTML=Object.entries(sc2).map(([k,v])=>`<div class="legend-i"><div class="legend-d" style="background:${SCC[k]}"></div>${k} (${v})</div>`).join('');
 
-  document.getElementById('sub').textContent=`${vials.length} vials across ${orders.length} orders • ${people.length} people`;
-  document.getElementById('stats').innerHTML=[
-    sc('Total mg Ordered',totalMgOrdered,`${orders.length} orders`,'var(--a1)'),
-    sc('Total mg Used',totalMgUsed.toFixed(1),`${injs.length} injections`,'var(--a2)'),
-    sc('Total Unused',totalUnused.toFixed(1),`${unopenedVials} unopened vials`,'var(--a4)'),
-    sc('Total Spent',usd(totalCost),`$${(totalCost/totalMgOrdered).toFixed(2)}/mg ordered`,'var(--a3)'),
-    sc('Cost Per mg Used',`$${(totalCost/totalMgUsed).toFixed(2)}`,`Effective cost`,'var(--red)'),
-  ].join('');
+destroy('spend');const pnames=people.map(p=>p.Name),pcosts=people.map(p=>orders.filter(o=>o.Person===p._id).reduce((s,o)=>s+(o.Cost||0),0));
+charts.spend=new Chart(document.getElementById('spendChart'),{type:'bar',data:{labels:pnames,datasets:[{data:pcosts,backgroundColor:['#6366f1','#f472b6'],borderRadius:6,maxBarThickness:60}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{...copt(),callbacks:{label:c=>'$'+c.parsed.x.toLocaleString()}}},scales:{x:{ticks:{color:gc(),font:{size:10},callback:v=>'$'+v.toLocaleString()},grid:{color:gg()}},y:{ticks:{color:gt(),font:{size:13,weight:600}},grid:{display:false}}}}});
 
-  // Stock by pharmacy
-  const byPharm={};vials.forEach(v=>{
-    const pn=v._pharm?.Compounding_Pharmacy||'Unknown';
-    if(!byPharm[pn])byPharm[pn]={total:0,used:0,remaining:0};
-    byPharm[pn].total+=(v.Total_mg||0);
-    byPharm[pn].used+=(v.mg_Used||0);
-    byPharm[pn].remaining+=(v.mg_Remaining||0);
-  });
-  destroy('stock');
-  const pharmNames=Object.keys(byPharm).sort();
-  charts.stock=new Chart(document.getElementById('stockChart'),{
-    type:'bar',
-    data:{labels:pharmNames,datasets:[
-      {label:'Used',data:pharmNames.map(p=>byPharm[p].used),backgroundColor:'rgba(99,102,241,0.7)',borderRadius:4},
-      {label:'Remaining',data:pharmNames.map(p=>byPharm[p].remaining),backgroundColor:pharmNames.map(p=>PC[p]||'#666'),borderRadius:4},
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#64748b',font:{size:11}}},
-      tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1,callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.y}mg`}}},
-      scales:{x:{stacked:true,ticks:{color:'#64748b',font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2340'}}}}
-  });
+const exp=vials.filter(v=>v.Days_Until_BUD&&v.Days_Until_BUD<0&&v.Status!=='Finished');
+let bh=`<div style="margin-bottom:12px"><span class="badge badge-red">EXPIRED</span> <strong>${exp.length}</strong> vials past BUD</div>`;
+if(exp.length===vials.filter(v=>v.Status!=='Finished').length)bh+=`<div style="color:var(--red);margin-top:8px;font-weight:600">\u26A0\uFE0F All non-finished vials are past BUD</div>`;
+document.getElementById('budBox').innerHTML=bh;
 
-  // Vial status donut
-  const statusCounts={Finished:0,'In Use':0,Unopened:0};
-  vials.forEach(v=>{if(statusCounts.hasOwnProperty(v.Status))statusCounts[v.Status]++});
-  destroy('status');
-  charts.status=new Chart(document.getElementById('statusChart'),{
-    type:'doughnut',data:{labels:Object.keys(statusCounts),datasets:[{data:Object.values(statusCounts),backgroundColor:Object.keys(statusCounts).map(k=>SC[k]),borderWidth:0,spacing:3}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1}}}
-  });
-  document.getElementById('statusLeg').innerHTML=Object.entries(statusCounts).map(([k,v])=>`<div class="legend-i"><div class="legend-d" style="background:${SC[k]}"></div>${k} (${v})</div>`).join('');
-
-  // Spending by person
-  const spendByPerson={};orders.forEach(o=>{
-    const pn=personMap[o.Person]?.Name||'Unknown';
-    if(!spendByPerson[pn])spendByPerson[pn]={cost:0,mg:0};
-    spendByPerson[pn].cost+=(o.Cost||0);
-    spendByPerson[pn].mg+=(o.Total_mg||0);
-  });
-  destroy('spend');
-  const pnames=Object.keys(spendByPerson);
-  charts.spend=new Chart(document.getElementById('spendChart'),{
-    type:'bar',data:{labels:pnames,datasets:[
-      {label:'Cost',data:pnames.map(p=>spendByPerson[p].cost),backgroundColor:['#6366f1','#f472b6'],borderRadius:6,maxBarThickness:60}
-    ]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},
-      tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1,callbacks:{label:c=>`$${c.parsed.x.toLocaleString()} (${spendByPerson[c.label].mg}mg)`}}},
-      scales:{x:{ticks:{color:'#64748b',font:{size:10},callback:v=>'$'+v.toLocaleString()},grid:{color:'#1e2340'}},y:{ticks:{color:'#e2e8f0',font:{size:13,weight:600}},grid:{display:false}}}}
-  });
-
-  // BUD status
-  const expired=vials.filter(v=>v.Days_Until_BUD&&v.Days_Until_BUD<0&&v.Status!=='Finished');
-  const expSoon=vials.filter(v=>v.Days_Until_BUD&&v.Days_Until_BUD>=0&&v.Days_Until_BUD<=30);
-  const ok=vials.filter(v=>v.Days_Until_BUD&&v.Days_Until_BUD>30);
-  let budHtml=`<div style="margin-bottom:12px"><span class="badge badge-red">EXPIRED</span> <strong>${expired.length}</strong> vials past BUD</div>`;
-  if(expSoon.length)budHtml+=`<div style="margin-bottom:12px"><span class="badge badge-blue">EXPIRING SOON</span> <strong>${expSoon.length}</strong> within 30 days</div>`;
-  if(ok.length)budHtml+=`<div style="margin-bottom:12px"><span class="badge badge-green">OK</span> <strong>${ok.length}</strong> vials with valid BUD</div>`;
-  if(expired.length===vials.filter(v=>v.Status!=='Finished').length)budHtml+=`<div style="color:var(--red);margin-top:8px;font-weight:600">⚠️ All non-finished vials are past their Beyond Use Date</div>`;
-  document.getElementById('budBox').innerHTML=budHtml;
-
-  // Stock detail table
-  const tbody=document.querySelector('#stockTable tbody');tbody.innerHTML='';
-  vials.forEach(v=>{
-    const pn=v._pharm?.Compounding_Pharmacy||'—';
-    const person=v._person?.Name||'—';
-    const budDays=v.Days_Until_BUD;
-    const budColor=budDays<0?'var(--red)':budDays<=30?'var(--a4)':'var(--a3)';
-    const statusBadge=v.Status==='Finished'?'badge-green':v.Status==='In Use'?'badge-blue':'badge-gray';
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td style="font-weight:600">${v.Vial_Label||''}</td>
-      <td><span class="dot" style="background:${PC[pn]||'#666'}"></span>${pn}</td>
-      <td style="color:var(--dim)">${person}</td>
-      <td class="mono">${v.Total_mg||0}</td>
-      <td class="mono">${v.mg_Used||0}</td>
-      <td class="mono">${v.mg_Remaining||0}</td>
-      <td><span class="badge ${statusBadge}">${v.Status||''}</span></td>
-      <td style="color:var(--dim)">${fmtD(ep2d(v.BUD))}</td>
-      <td class="mono" style="color:${budColor}">${budDays!=null?budDays:'—'}</td>`;
-    tbody.appendChild(tr);
-  });
-  document.getElementById('ftr').textContent=`${vials.length} vials • ${totalMgOrdered}mg ordered • ${usd(totalCost)} spent`;
+const tb=document.querySelector('#stockTable tbody');tb.innerHTML='';
+vials.forEach(v=>{const pn=v._ph?.Compounding_Pharmacy||'\u2014';const pr=v._pr?.Name||'\u2014';const bd=v.Days_Until_BUD;const bc=bd<0?'var(--red)':bd<=30?'var(--a4)':'var(--a3)';const sb=v.Status==='Finished'?'badge-green':v.Status==='In Use'?'badge-blue':'badge-gray';
+const tr=document.createElement('tr');tr.innerHTML=`<td style="font-weight:600">${v.Vial_Label||''}</td><td><span class="dot" style="background:${PC[pn]||'#666'}"></span>${pn}</td><td style="color:var(--dim)">${pr}</td><td class="mono">${v.Total_mg||0}</td><td class="mono">${v.mg_Used||0}</td><td class="mono">${v.mg_Remaining||0}</td><td><span class="badge ${sb}">${v.Status||''}</span></td><td style="color:var(--dim)">${fmtD(ep2d(v.BUD))}</td><td class="mono" style="color:${bc}">${bd!=null?bd:'\u2014'}</td>`;tb.appendChild(tr)});
+document.getElementById('ftr').textContent=`${vials.length} vials \u2022 ${tmgo}mg ordered \u2022 ${usd(tc)} spent`;
 }
-function sc(l,v,s,c){return`<div class="sc"><div class="sc-label">${l}</div><div class="sc-val" style="color:${c}">${v}</div>${s?`<div class="sc-sub">${s}</div>`:''}</div>`}
-</script>
-</body>
-</html>
+</script></body></html>
