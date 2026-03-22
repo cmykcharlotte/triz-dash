@@ -90,11 +90,15 @@ pb+=`<div style="background:var(--card);border:1px solid var(--border);border-ra
 document.getElementById('pharmBars').innerHTML=pb;
 
 const sc2={Finished:0,'In Use':0,Unopened:0};vials.forEach(v=>{if(sc2.hasOwnProperty(v.Status))sc2[v.Status]++});
+const wastedMg=vials.filter(v=>v.Status==='Finished'&&v.mg_Wasted>0).reduce((s,v)=>s+(v.mg_Wasted||0),0);
+const wastedVials=vials.filter(v=>v.Status==='Finished'&&v.mg_Wasted>0).length;
+const wastedPct=tmu>0?Math.round(wastedMg/(tmu+wastedMg)*100):0;
 const badgeColors={'In Use':['rgba(90,130,181,.12)','var(--pri)'],Unopened:['rgba(123,163,204,.1)','#7ba3cc'],Finished:['rgba(196,120,90,.1)','var(--sec)']};
 let vb='<div style="display:flex;flex-direction:column;gap:10px">';
 Object.entries(sc2).forEach(([k,v])=>{const[bg,c]=badgeColors[k]||['rgba(139,149,165,.08)','var(--dim)'];
-const mgInfo=k==='In Use'?vials.filter(x=>x.Status==='In Use').reduce((s,x)=>s+(x.mg_Remaining||0),0).toFixed(1)+'mg active':k==='Unopened'?vials.filter(x=>x.Status==='Unopened').reduce((s,x)=>s+(x.mg_Remaining||0),0).toFixed(0)+'mg sealed':twaste>0?twaste.toFixed(1)+'mg wasted':'';
+const mgInfo=k==='In Use'?vials.filter(x=>x.Status==='In Use').reduce((s,x)=>s+(x.mg_Remaining||0),0).toFixed(1)+'mg active':k==='Unopened'?vials.filter(x=>x.Status==='Unopened').reduce((s,x)=>s+(x.mg_Remaining||0),0).toFixed(0)+'mg sealed':'';
 vb+=`<div style="background:${bg};border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:24px;font-weight:700;color:${c}">${v}</div><div style="font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">${k}</div></div><div style="font-size:12px;color:var(--dim);text-align:right">${mgInfo}</div></div>`});
+vb+=`<div style="background:rgba(196,90,90,.08);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:24px;font-weight:700;color:var(--neg)">${wastedMg.toFixed(1)}mg</div><div style="font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">Wasted</div></div><div style="font-size:12px;color:var(--dim);text-align:right">${wastedVials} vial${wastedVials!==1?'s':''} · ${wastedPct}% of used+wasted</div></div>`;
 vb+='</div>';
 document.getElementById('vialBadges').innerHTML=vb;
 
