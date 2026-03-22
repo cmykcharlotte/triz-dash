@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tirzepatide Tracker Dashboard</title>
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.7/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
@@ -347,19 +347,23 @@ function render() {
   const weightSection = document.getElementById('weight-section');
   if (weightsWithData.length > 2) {
     weightSection.style.display = 'block';
-    renderWeightChart(weightsWithData, startWeight);
+    try { renderWeightChart(weightsWithData, startWeight); }
+    catch (e) { console.error('Weight chart error:', e); }
   } else {
     weightSection.style.display = 'none';
   }
 
   // ── Dose Chart ─────────────────────────────────────────────
-  renderDoseChart(personInjections);
+  try { renderDoseChart(personInjections); }
+  catch (e) { console.error('Dose chart error:', e); }
 
   // ── Cost Chart ─────────────────────────────────────────────
-  renderCostChart(personOrders, pharmMap);
+  try { renderCostChart(personOrders, pharmMap); }
+  catch (e) { console.error('Cost chart error:', e); }
 
   // ── Vial Chart ─────────────────────────────────────────────
-  renderVialChart(allVials);
+  try { renderVialChart(allVials); }
+  catch (e) { console.error('Vial chart error:', e); }
 
   // ── Order Table ────────────────────────────────────────────
   renderOrderTable(personOrders, pharmMap);
@@ -393,22 +397,32 @@ function renderWeightChart(data, startWeight) {
   const labels = data.map(d => fmtShort(epochToDate(d.Date)));
   const values = data.map(d => d.Weight);
 
+  const datasets = [{
+    label: 'Weight',
+    data: values,
+    borderColor: '#34d399',
+    backgroundColor: 'rgba(52, 211, 153, 0.1)',
+    fill: true,
+    tension: 0.3,
+    pointRadius: 0,
+    pointHitRadius: 8,
+    borderWidth: 2.5,
+  }];
+  if (startWeight) {
+    datasets.push({
+      label: 'Starting Weight',
+      data: values.map(() => startWeight),
+      borderColor: '#475569',
+      borderDash: [6, 4],
+      borderWidth: 1,
+      pointRadius: 0,
+      pointHitRadius: 0,
+      fill: false,
+    });
+  }
   charts.weight = new Chart(document.getElementById('weightChart'), {
     type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Weight',
-        data: values,
-        borderColor: '#34d399',
-        backgroundColor: 'rgba(52, 211, 153, 0.1)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 0,
-        pointHitRadius: 8,
-        borderWidth: 2.5,
-      }]
-    },
+    data: { labels, datasets },
     options: {
       responsive: true,
       plugins: {
@@ -416,18 +430,9 @@ function renderWeightChart(data, startWeight) {
         tooltip: {
           backgroundColor: '#1e2340', titleColor: '#64748b',
           bodyColor: '#e2e8f0', borderColor: '#2e3456', borderWidth: 1,
+          filter: (item) => item.datasetIndex === 0,
           callbacks: { label: ctx => `${ctx.parsed.y} lbs` }
         },
-        annotation: startWeight ? {
-          annotations: {
-            start: {
-              type: 'line', yMin: startWeight, yMax: startWeight,
-              borderColor: '#475569', borderDash: [6, 4], borderWidth: 1,
-              label: { display: true, content: `Start: ${startWeight}`, position: 'end',
-                color: '#475569', font: { size: 10 } }
-            }
-          }
-        } : undefined
       },
       scales: {
         x: { ticks: { color: '#64748b', font: { size: 10 }, maxTicksLimit: 10 }, grid: { color: '#1e2340' } },
