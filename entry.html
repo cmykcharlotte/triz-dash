@@ -109,7 +109,7 @@ function showLastEntry(){
   const s=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0))[0];
   if(!s)return;const p=peopleData.find(pp=>pp._id===s.Person);
   const el=document.getElementById('lastEntry');el.style.display='block';
-  el.innerHTML=`<strong>Last entry:</strong> ${p?p.Name:''} \u2022 ${fmtD(ep2d(s.Date))} \u2022 ${s.Amount_mg}mg${s.Weight?' \u2022 '+s.Weight+' lbs':''}${s.Dosing_Frequency_Days?' \u2022 Every '+s.Dosing_Frequency_Days+'d':''}${s.Effective_Weekly_Dose?' \u2022 EWD '+s.Effective_Weekly_Dose+'mg':''}`;
+  el.innerHTML=`<strong>Last entry:</strong> ${p?p.Name:''} \u2022 ${fmtD(ep2d(s.Date))} \u2022 ${s.Amount_mg}mg${s.Weight?' \u2022 '+s.Weight+' lbs':''}${s.Dosing_Frequency_Days?' \u2022 Every '+s.Dosing_Frequency_Days+'d':''}${s.Effective_weekly_dose?' \u2022 EWD '+s.Effective_weekly_dose+'mg':''}`;
 }
 function showRecent(){
   const s=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0)).slice(0,10);
@@ -123,8 +123,8 @@ function showRecent(){
       <td>${p?p.Name:'\u2014'}</td>
       <td class="mono" style="font-weight:600">${i.Amount_mg}mg</td>
       <td class="mono" style="color:var(--dim)">${i.Dosing_Frequency_Days||'\u2014'}</td>
-      <td class="mono">${i.Effective_Weekly_Dose||'\u2014'}</td>
-      <td class="mono">${i.Actual_Weekly_Rate||'\u2014'}</td>
+      <td class="mono">${i.Effective_weekly_dose||'\u2014'}</td>
+      <td class="mono">${i.Actual_weekly_dose||'\u2014'}</td>
       <td class="mono" style="color:var(--dim)">${i.Actual_Interval!=null?i.Actual_Interval+'d':'\u2014'}</td>
       <td class="mono ${vClass}">${vStr}</td>
       <td class="mono">${i.Weight||'\u2014'}</td>`;
