@@ -50,7 +50,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}thead tr{border-bottom:
 </style></head><body>
 <div id="loading"><div class="spinner"></div><p>Connecting to Grist…</p></div>
 <div id="dash">
-<div class="hdr"><div><h1>Add injection</h1><div class="sub">Enter date, amount, frequency, and weight. Everything else auto-calculates.</div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
+<div class="hdr"><div><h1>Add Injection</h1><div class="sub">Enter date, amount, frequency, and weight. Everything else auto-calculates.</div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
 <div id="lastEntry" class="last-e" style="display:none"></div>
 <div class="form-card"><div class="form-grid">
 <div class="fg"><label class="req">Person</label><select id="fPerson"><option value="">Select…</option></select></div>
@@ -153,8 +153,9 @@ function updatePreview(){
   if(pid&&ds){
     const last=getLastInjForPerson(pid);
     if(last&&last.Date){
-      const newEpoch=Math.floor(new Date(ds+'T12:00:00').getTime()/1000);
-      const actualDays=Math.round((newEpoch-last.Date)/86400);
+      const newDate=new Date(ds+'T00:00:00Z');
+      const lastDate=new Date(ep2d(last.Date)+'T00:00:00Z');
+      const actualDays=Math.round((newDate-lastDate)/86400000);
       if(actualDays>0){
         document.getElementById('pvActualRow').style.display='flex';
         document.getElementById('pvActual').textContent=actualDays+' days';
