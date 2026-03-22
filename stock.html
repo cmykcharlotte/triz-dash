@@ -76,7 +76,7 @@ document.getElementById('stats').innerHTML=[
   sc('Total Ordered',tmgo+' mg',orders.length+' orders','var(--dim)'),
   sc('Total Used',tmu.toFixed(1)+' mg',injs.length+' injections','var(--pri)'),
   sc('Remaining',toh.toFixed(1)+' mg',vials.filter(v=>v.Status==='Unopened').length+' unopened','var(--sec)'),
-  sc('Total Spent',usd(tc),'$'+(tc/tmgo).toFixed(2)+'/mg ordered','var(--text)'),
+  sc('Cost per mg Ordered','$'+(tc/tmgo).toFixed(2),usd(tc)+' total across '+orders.length+' orders','var(--dim)'),
 ].join('');
 
 const byPh={};vials.forEach(v=>{const pn=v._ph?.Compounding_Pharmacy||'?';if(!byPh[pn])byPh[pn]={used:0,rem:0};byPh[pn].used+=(v.mg_Used||0);byPh[pn].rem+=(v.mg_Remaining||0)});

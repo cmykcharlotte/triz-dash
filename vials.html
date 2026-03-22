@@ -160,6 +160,8 @@ function renderCard(v,section){
 
   let meta=`<span class="pharm-dot" style="background:${info.color}"></span>${info.pharmacy}`;
   meta+=`<span>${v.Concentration||''}</span>`;
+  if(v.Compounded_Date)meta+=`<span>Compounded ${v.Compounded_Date}</span>`;
+  if(v.BUD)meta+=`<span>BUD ${fmtD(ep2d(v.BUD))}</span>`;
   if(section==='active'&&v.Date_Opened)meta+=`<span>Opened ${fmtD(ep2d(v.Date_Opened))}</span>`;
   if(section==='finished'){
     if(v.Date_Opened)meta+=`<span>Opened ${fmtD(ep2d(v.Date_Opened))}</span>`;
