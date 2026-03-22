@@ -40,23 +40,40 @@ table{width:100%;border-collapse:collapse;font-size:12px}thead tr{border-bottom:
 .footer{margin-top:24px;padding-top:12px;border-top:1px solid var(--border);font-size:10px;color:var(--muted);display:flex;justify-content:space-between}
 .last-e{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--dim);transition:background .3s,border-color .3s}
 .last-e strong{color:var(--pri)}
+.preview{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:14px;font-size:12px;color:var(--dim);transition:background .3s}
+.pv-row{display:flex;justify-content:space-between;margin-bottom:4px}
+.pv-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px}
+.pv-val{color:var(--text);font-weight:600;font-family:'DM Mono',monospace}
+.hint{font-size:10px;color:var(--muted);margin-top:2px;font-style:italic}
+.var-pos{color:var(--pos)}.var-neg{color:var(--neg)}.var-zero{color:var(--dim)}
 </style></head><body>
 <div id="loading"><div class="spinner"></div><p>Connecting to Grist…</p></div>
 <div id="dash">
-<div class="hdr"><div><h1>Add injection</h1><div class="sub">Enter new injection data into Grist</div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
+<div class="hdr"><div><h1>Add injection</h1><div class="sub">Enter date, amount, frequency, and weight. Everything else auto-calculates.</div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
 <div id="lastEntry" class="last-e" style="display:none"></div>
 <div class="form-card"><div class="form-grid">
 <div class="fg"><label class="req">Person</label><select id="fPerson"><option value="">Select…</option></select></div>
 <div class="fg"><label class="req">Date</label><input type="date" id="fDate"></div>
-<div class="fg"><label class="req">Amount (mg)</label><input type="number" id="fAmount" step="0.1" min="0" placeholder="e.g. 4.6"></div>
-<div class="fg"><label>Dosing frequency (days)</label><input type="number" id="fFreq" step="0.5" min="0" placeholder="e.g. 5"></div>
-<div class="fg"><label>Effective weekly dose (mg)</label><input type="number" id="fEWD" step="0.1" min="0" placeholder="e.g. 6.5"></div>
+<div class="fg"><label class="req">Amount (mg)</label><input type="number" id="fAmount" step="0.1" min="0" placeholder="e.g. 4.6" oninput="updatePreview()"></div>
+<div class="fg"><label>Intended frequency (days)</label><input type="number" id="fFreq" step="0.5" min="0" placeholder="e.g. 5" oninput="updatePreview()"><div class="hint">How often you intend to dose at this rate</div></div>
 <div class="fg"><label>Weight (lbs)</label><input type="number" id="fWeight" step="0.1" min="0" placeholder="e.g. 205.8"></div>
 <div class="fg"><label>Vial</label><select id="fVial"><option value="">None / unknown</option></select></div>
-<div class="fg"><label>Notes</label><input type="text" id="fNotes" placeholder="Optional"></div>
-</div><div class="btn-row"><button class="btn btn-p" id="submitBtn" onclick="submit()">Add injection</button><button class="btn btn-s" onclick="clearForm()">Clear</button><span id="status" style="font-size:11px;color:var(--dim)"></span></div></div>
+<div class="fg" style="grid-column:1/-1"><label>Notes</label><input type="text" id="fNotes" placeholder="Optional"></div>
+</div>
+<div class="preview" id="preview" style="display:none">
+  <div style="font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px;font-weight:600">Auto-calculated preview</div>
+  <div class="pv-row"><span class="pv-label">Effective weekly dose (EWD)</span><span class="pv-val" id="pvEWD">—</span></div>
+  <div class="pv-row"><span class="pv-label">Dose per day</span><span class="pv-val" id="pvDPD">—</span></div>
+  <div class="pv-row" id="pvActualRow" style="display:none"><span class="pv-label">Actual interval (from last injection)</span><span class="pv-val" id="pvActual">—</span></div>
+  <div class="pv-row" id="pvAWDRow" style="display:none"><span class="pv-label">Actual weekly dose (AWD)</span><span class="pv-val" id="pvAWD">—</span></div>
+  <div class="pv-row" id="pvVarianceRow" style="display:none"><span class="pv-label">Timing variance</span><span class="pv-val" id="pvVariance">—</span></div>
+</div>
+<div class="btn-row"><button class="btn btn-p" id="submitBtn" onclick="submit()">Add injection</button><button class="btn btn-s" onclick="clearForm()">Clear</button><span id="status" style="font-size:11px;color:var(--dim)"></span></div></div>
+
 <div class="stitle">Recent injections</div>
-<div class="recent"><table><thead><tr><th>Date</th><th>Person</th><th>Dose</th><th>Freq</th><th>EWD</th><th>Weight</th><th>Vial</th></tr></thead><tbody id="recentBody"></tbody></table></div>
+<div class="recent"><div style="overflow-x:auto"><table><thead><tr>
+<th>Date</th><th>Person</th><th>Dose</th><th>Freq</th><th>EWD</th><th>AWD</th><th>Interval</th><th>Variance</th><th>Weight</th>
+</tr></thead><tbody id="recentBody"></tbody></table></div></div>
 <div class="footer"><div>Data entry • Grist custom widget</div><div id="ftr"></div></div>
 </div>
 <div class="toast" id="toast"></div>
@@ -68,15 +85,139 @@ function applyTheme(){const p=getThemePref(),r=resolveTheme(p);document.document
 function cycleTheme(){const o=['auto','light','dark'],c=getThemePref();localStorage.setItem('tirz-theme',o[(o.indexOf(c)+1)%3]);applyTheme()}
 applyTheme();
 grist.ready({requiredAccess:'full'});
-async function load(){try{const[pe,or,vi,inj]=await Promise.all([grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Orders'),grist.docApi.fetchTable('Vials'),grist.docApi.fetchTable('Injections')]);peopleData=toRows(pe);allVials=toRows(vi);allInjs=toRows(inj);document.getElementById('loading').style.display='none';document.getElementById('dash').style.display='block';populateDropdowns();showRecent();showLastEntry();if(!document.getElementById('fDate').value)document.getElementById('fDate').value=new Date().toISOString().slice(0,10)}catch(e){document.querySelector('#loading p').textContent='Error: '+e.message}}
+async function load(){try{const[pe,or,vi,inj]=await Promise.all([grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Orders'),grist.docApi.fetchTable('Vials'),grist.docApi.fetchTable('Injections')]);peopleData=toRows(pe);allVials=toRows(vi);allInjs=toRows(inj);document.getElementById('loading').style.display='none';document.getElementById('dash').style.display='block';populateDropdowns();showRecent();showLastEntry();if(!document.getElementById('fDate').value)document.getElementById('fDate').value=new Date().toISOString().slice(0,10);updatePreview()}catch(e){document.querySelector('#loading p').textContent='Error: '+e.message}}
 load();grist.onRecords(()=>load());
 function toRows(t){const ks=Object.keys(t).filter(k=>k!=='id'&&k!=='manualSort');const r=[];for(let i=0;i<(t.id?.length||0);i++){const o={_id:t.id[i]};ks.forEach(k=>o[k]=t[k][i]);r.push(o)}return r}
 function ep2d(ts){if(!ts)return null;return new Date(ts*1000).toISOString().slice(0,10)}
 function fmtD(iso){if(!iso)return'\u2014';const[y,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}, ${y}`}
-function populateDropdowns(){const ps=document.getElementById('fPerson'),cv=ps.value;ps.innerHTML='<option value="">Select\u2026</option>';peopleData.forEach(p=>{const o=document.createElement('option');o.value=p._id;o.textContent=p.Name;ps.appendChild(o)});if(cv)ps.value=cv;if(!ps.value&&peopleData.length)ps.value=peopleData[0]._id;const vs=document.getElementById('fVial'),vv=vs.value;vs.innerHTML='<option value="">None / unknown</option>';allVials.filter(v=>v.Status==='In Use'||v.Status==='Unopened').sort((a,b)=>(a.Status==='In Use'?0:1)-(b.Status==='In Use'?0:1)).forEach(v=>{const o=document.createElement('option');o.value=v._id;o.textContent=(v.Status==='In Use'?'\u2705 ':'')+v.Vial_Label+' ('+v.Total_mg+'mg '+v.Status+')';vs.appendChild(o)});if(vv)vs.value=vv}
-function showLastEntry(){const s=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0))[0];if(!s)return;const p=peopleData.find(pp=>pp._id===s.Person);document.getElementById('lastEntry').style.display='block';document.getElementById('lastEntry').innerHTML=`<strong>Last entry:</strong> ${p?p.Name:''} \u2022 ${fmtD(ep2d(s.Date))} \u2022 ${s.Amount_mg}mg${s.Weight?' \u2022 '+s.Weight+' lbs':''}${s.Dosing_Frequency_Days?' \u2022 Every '+s.Dosing_Frequency_Days+'d':''}`}
-function showRecent(){const s=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0)).slice(0,10);const tb=document.getElementById('recentBody');tb.innerHTML='';s.forEach(i=>{const p=peopleData.find(pp=>pp._id===i.Person);const v=allVials.find(vv=>vv._id===i.Vial);const tr=document.createElement('tr');tr.innerHTML=`<td style="color:var(--dim)">${fmtD(ep2d(i.Date))}</td><td>${p?p.Name:'\u2014'}</td><td class="mono" style="font-weight:600">${i.Amount_mg}mg</td><td class="mono" style="color:var(--dim)">${i.Dosing_Frequency_Days||'\u2014'}</td><td class="mono">${i.Effective_Weekly_Dose||'\u2014'}</td><td class="mono">${i.Weight||'\u2014'}</td><td style="color:var(--dim);font-size:11px">${v?v.Vial_Label:'\u2014'}</td>`;tb.appendChild(tr)});document.getElementById('ftr').textContent=allInjs.length+' total injections'}
+function populateDropdowns(){
+  const ps=document.getElementById('fPerson'),cv=ps.value;
+  ps.innerHTML='<option value="">Select\u2026</option>';
+  peopleData.forEach(p=>{const o=document.createElement('option');o.value=p._id;o.textContent=p.Name;ps.appendChild(o)});
+  if(cv)ps.value=cv;if(!ps.value&&peopleData.length)ps.value=peopleData[0]._id;
+  const vs=document.getElementById('fVial'),vv=vs.value;
+  vs.innerHTML='<option value="">None / unknown</option>';
+  allVials.filter(v=>v.Status==='In Use'||v.Status==='Unopened').sort((a,b)=>(a.Status==='In Use'?0:1)-(b.Status==='In Use'?0:1)).forEach(v=>{const o=document.createElement('option');o.value=v._id;o.textContent=(v.Status==='In Use'?'\u2705 ':'')+v.Vial_Label+' ('+v.Total_mg+'mg '+v.Status+')';vs.appendChild(o)});
+  if(vv)vs.value=vv;
+}
+function getLastInjForPerson(pid){
+  const pi=allInjs.filter(i=>i.Person===pid&&i.Date).sort((a,b)=>(b.Date||0)-(a.Date||0));
+  return pi.length?pi[0]:null;
+}
+function showLastEntry(){
+  const s=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0))[0];
+  if(!s)return;const p=peopleData.find(pp=>pp._id===s.Person);
+  const el=document.getElementById('lastEntry');el.style.display='block';
+  el.innerHTML=`<strong>Last entry:</strong> ${p?p.Name:''} \u2022 ${fmtD(ep2d(s.Date))} \u2022 ${s.Amount_mg}mg${s.Weight?' \u2022 '+s.Weight+' lbs':''}${s.Dosing_Frequency_Days?' \u2022 Every '+s.Dosing_Frequency_Days+'d':''}${s.Effective_Weekly_Dose?' \u2022 EWD '+s.Effective_Weekly_Dose+'mg':''}`;
+}
+function showRecent(){
+  const s=[...allInjs].sort((a,b)=>(b.Date||0)-(a.Date||0)).slice(0,10);
+  const tb=document.getElementById('recentBody');tb.innerHTML='';
+  s.forEach(i=>{
+    const p=peopleData.find(pp=>pp._id===i.Person);
+    const tr=document.createElement('tr');
+    const vClass=i.Timing_Variance>0?'var-neg':i.Timing_Variance<0?'var-pos':'var-zero';
+    const vStr=i.Timing_Variance!=null&&i.Timing_Variance!==0?(i.Timing_Variance>0?'+':'')+i.Timing_Variance+'d':'\u2014';
+    tr.innerHTML=`<td style="color:var(--dim)">${fmtD(ep2d(i.Date))}</td>
+      <td>${p?p.Name:'\u2014'}</td>
+      <td class="mono" style="font-weight:600">${i.Amount_mg}mg</td>
+      <td class="mono" style="color:var(--dim)">${i.Dosing_Frequency_Days||'\u2014'}</td>
+      <td class="mono">${i.Effective_Weekly_Dose||'\u2014'}</td>
+      <td class="mono">${i.Actual_Weekly_Rate||'\u2014'}</td>
+      <td class="mono" style="color:var(--dim)">${i.Actual_Interval!=null?i.Actual_Interval+'d':'\u2014'}</td>
+      <td class="mono ${vClass}">${vStr}</td>
+      <td class="mono">${i.Weight||'\u2014'}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('ftr').textContent=allInjs.length+' total injections';
+}
+function calcEWD(amt,freq){return Math.round((amt/freq)*7*2)/2}
+function updatePreview(){
+  const amt=parseFloat(document.getElementById('fAmount').value);
+  const freq=parseFloat(document.getElementById('fFreq').value);
+  const preview=document.getElementById('preview');
+  if(!amt||amt<=0){preview.style.display='none';return}
+  preview.style.display='block';
+  if(freq&&freq>0){
+    const dpd=amt/freq;
+    const ewd=calcEWD(amt,freq);
+    document.getElementById('pvEWD').textContent=ewd+'mg/week';
+    document.getElementById('pvDPD').textContent=dpd.toFixed(2)+'mg/day';
+  }else{
+    document.getElementById('pvEWD').textContent='\u2014 (enter frequency)';
+    document.getElementById('pvDPD').textContent='\u2014';
+  }
+  const pid=parseInt(document.getElementById('fPerson').value);
+  const ds=document.getElementById('fDate').value;
+  if(pid&&ds){
+    const last=getLastInjForPerson(pid);
+    if(last&&last.Date){
+      const newEpoch=Math.floor(new Date(ds+'T12:00:00').getTime()/1000);
+      const actualDays=Math.round((newEpoch-last.Date)/86400);
+      if(actualDays>0){
+        document.getElementById('pvActualRow').style.display='flex';
+        document.getElementById('pvActual').textContent=actualDays+' days';
+        if(amt&&amt>0){
+          const awd=calcEWD(amt,actualDays);
+          document.getElementById('pvAWDRow').style.display='flex';
+          document.getElementById('pvAWD').textContent=awd+'mg/week';
+        }
+        if(freq&&freq>0){
+          const variance=actualDays-freq;
+          document.getElementById('pvVarianceRow').style.display='flex';
+          const vEl=document.getElementById('pvVariance');
+          vEl.textContent=(variance>0?'+':'')+variance+(variance===1||variance===-1?' day':' days');
+          vEl.className='pv-val '+(variance>0?'var-neg':variance<0?'var-pos':'var-zero');
+        }else{document.getElementById('pvVarianceRow').style.display='none'}
+      }else{
+        document.getElementById('pvActualRow').style.display='none';
+        document.getElementById('pvAWDRow').style.display='none';
+        document.getElementById('pvVarianceRow').style.display='none';
+      }
+    }
+  }
+}
+document.getElementById('fDate').addEventListener('change',updatePreview);
+document.getElementById('fPerson').addEventListener('change',updatePreview);
 function showToast(m,ok){const t=document.getElementById('toast');t.textContent=m;t.className='toast show '+(ok?'t-ok':'t-err');setTimeout(()=>{t.className='toast'},3000)}
-async function submit(){const pid=parseInt(document.getElementById('fPerson').value),ds=document.getElementById('fDate').value,amt=parseFloat(document.getElementById('fAmount').value),freq=document.getElementById('fFreq').value?parseFloat(document.getElementById('fFreq').value):null,ewd=document.getElementById('fEWD').value?parseFloat(document.getElementById('fEWD').value):null,wt=document.getElementById('fWeight').value?parseFloat(document.getElementById('fWeight').value):null,vid=document.getElementById('fVial').value?parseInt(document.getElementById('fVial').value):null,notes=document.getElementById('fNotes').value.trim();if(!pid){showToast('Select a person',false);return}if(!ds){showToast('Enter a date',false);return}if(!amt||amt<=0){showToast('Enter a valid dose',false);return}const btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent='Saving\u2026';try{const epoch=Math.floor(new Date(ds+'T12:00:00').getTime()/1000);const fields={Date:epoch,Person:pid,Amount_mg:amt};if(freq!=null)fields.Dosing_Frequency_Days=freq;if(ewd!=null)fields.Effective_Weekly_Dose=ewd;if(wt!=null)fields.Weight=wt;if(vid)fields.Vial=vid;if(notes)fields.Notes=notes;const table=grist.getTable('Injections');await table.create({fields});showToast('Injection added!',true);document.getElementById('fAmount').value='';document.getElementById('fFreq').value='';document.getElementById('fEWD').value='';document.getElementById('fWeight').value='';document.getElementById('fNotes').value='';if(freq){const d=new Date(ds);d.setDate(d.getDate()+Math.round(freq));document.getElementById('fDate').value=d.toISOString().slice(0,10)}await load()}catch(e){showToast('Error: '+e.message,false)}finally{btn.disabled=false;btn.textContent='Add injection'}}
-function clearForm(){document.getElementById('fDate').value=new Date().toISOString().slice(0,10);['fAmount','fFreq','fEWD','fWeight','fNotes'].forEach(id=>document.getElementById(id).value='');document.getElementById('fVial').value=''}
+async function submit(){
+  const pid=parseInt(document.getElementById('fPerson').value);
+  const ds=document.getElementById('fDate').value;
+  const amt=parseFloat(document.getElementById('fAmount').value);
+  const freq=document.getElementById('fFreq').value?parseFloat(document.getElementById('fFreq').value):null;
+  const wt=document.getElementById('fWeight').value?parseFloat(document.getElementById('fWeight').value):null;
+  const vid=document.getElementById('fVial').value?parseInt(document.getElementById('fVial').value):null;
+  const notes=document.getElementById('fNotes').value.trim();
+  if(!pid){showToast('Select a person',false);return}
+  if(!ds){showToast('Enter a date',false);return}
+  if(!amt||amt<=0){showToast('Enter a valid dose amount',false);return}
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.textContent='Saving\u2026';
+  try{
+    const epoch=Math.floor(new Date(ds+'T12:00:00').getTime()/1000);
+    const fields={Date:epoch,Person:pid,Amount_mg:amt};
+    if(freq!=null)fields.Dosing_Frequency_Days=freq;
+    if(wt!=null)fields.Weight=wt;
+    if(vid)fields.Vial=vid;
+    if(notes)fields.Notes=notes;
+    const table=grist.getTable('Injections');
+    await table.create({fields});
+    showToast('Injection added!',true);
+    document.getElementById('fAmount').value='';
+    document.getElementById('fFreq').value='';
+    document.getElementById('fWeight').value='';
+    document.getElementById('fNotes').value='';
+    document.getElementById('preview').style.display='none';
+    if(freq){const d=new Date(ds);d.setDate(d.getDate()+Math.round(freq));document.getElementById('fDate').value=d.toISOString().slice(0,10)}
+    await load();
+  }catch(e){showToast('Error: '+e.message,false)}
+  finally{btn.disabled=false;btn.textContent='Add injection'}
+}
+function clearForm(){
+  document.getElementById('fDate').value=new Date().toISOString().slice(0,10);
+  ['fAmount','fFreq','fWeight','fNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fVial').value='';
+  document.getElementById('preview').style.display='none';
+  updatePreview();
+}
 </script></body></html>
