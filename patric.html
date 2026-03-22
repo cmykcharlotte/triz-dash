@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Patric's Dashboard</title>
+<script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+:root{--bg:#0c0f1a;--card:#141829;--border:#1e2340;--a1:#6366f1;--a2:#f472b6;--a3:#34d399;--a4:#fbbf24;--a5:#38bdf8;--text:#e2e8f0;--dim:#64748b;--muted:#475569;--red:#ef4444;--green:#22c55e}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px 24px 40px}
+#loading{display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:12px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--a2);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{color:var(--dim);font-size:13px}
+#dash{display:none}
+h1{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.sub{font-size:12px;color:var(--dim);margin-top:3px}
+.inactive-badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;background:rgba(71,85,105,.3);color:var(--dim);margin-left:10px;vertical-align:middle}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0 8px}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;flex:1 1 0;min-width:140}
+.sc-label{font-size:10px;text-transform:uppercase;letter-spacing:1.2px;color:var(--dim);margin-bottom:5px}
+.sc-val{font-size:26px;font-weight:700;line-height:1.1}
+.sc-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:700}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 14px 10px}
+.cw{position:relative;width:100%;height:240px}
+.cw-sm{position:relative;width:100%;height:200px}
+.two{display:flex;gap:16px;flex-wrap:wrap}
+.two .wide{flex:2 1 380px} .two .narrow{flex:1 1 220px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{border-bottom:1px solid var(--border)}
+th{padding:10px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600}
+td{padding:9px 12px;border-bottom:1px solid var(--border)}
+.mono{font-family:'DM Mono',monospace}
+.dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.legend-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)}
+.legend-d{width:8px;height:8px;border-radius:2px}
+.footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div><p>Loading Patric's data…</p></div>
+<div id="dash">
+<h1>💊 Patric's Tirzepatide Record <span class="inactive-badge">INACTIVE</span></h1>
+<div class="sub" id="sub"></div>
+<div class="stats" id="stats"></div>
+
+<div class="two">
+<div class="wide">
+  <div class="stitle">💉 Dose Over Time</div>
+  <div class="cc"><div class="cw"><canvas id="doseChart"></canvas></div></div>
+</div>
+<div class="narrow">
+  <div class="stitle">🏭 Use by Pharmacy</div>
+  <div class="cc" style="text-align:center"><div class="cw-sm"><canvas id="pharmChart"></canvas></div>
+  <div class="legend" id="pharmLeg"></div></div>
+</div>
+</div>
+
+<div class="two">
+<div class="wide">
+  <div class="stitle">📊 Monthly mg Used</div>
+  <div class="cc"><div class="cw-sm"><canvas id="monthChart"></canvas></div></div>
+</div>
+<div class="narrow">
+  <div class="stitle">📋 Summary</div>
+  <div class="cc" id="summaryBox"></div>
+</div>
+</div>
+
+<div class="stitle">📦 Order History</div>
+<div class="cc" style="padding:0;overflow:hidden"><div style="overflow-x:auto">
+<table id="orderTable"><thead><tr>
+<th>Order</th><th>Vendor</th><th>Pharmacy</th><th>Vials</th><th>mg</th><th>Cost</th><th>$/mg</th><th>Date</th>
+</tr></thead><tbody></tbody></table>
+</div></div>
+
+<div class="stitle">💉 Injection Log</div>
+<div class="cc" style="padding:0;overflow:hidden"><div style="overflow-x:auto">
+<table id="injTable"><thead><tr>
+<th>Date</th><th>Dose</th><th>Frequency</th><th>EWD</th>
+</tr></thead><tbody></tbody></table>
+</div></div>
+
+<div class="footer"><div>Patric's Record • Grist Custom Widget</div><div id="ftr"></div></div>
+</div>
+
+<script>
+const PERSON_NAME='Patric';
+const PC={Hallandale:'#6366f1',BPI:'#f472b6',Southend:'#34d399',Olympia:'#fbbf24'};
+let charts={};
+grist.ready({requiredAccess:'full'});
+
+async function load(){
+  try{
+    const[people,pharmacies,orders,vials,injections]=await Promise.all([
+      grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Pharmacies'),
+      grist.docApi.fetchTable('Orders'),grist.docApi.fetchTable('Vials'),
+      grist.docApi.fetchTable('Injections')]);
+    document.getElementById('loading').style.display='none';
+    document.getElementById('dash').style.display='block';
+    render({people,pharmacies,orders,vials,injections});
+  }catch(e){document.querySelector('#loading p').textContent='Error: '+e.message}
+}
+load();grist.onRecords(()=>load());
+
+function toRows(t){const ks=Object.keys(t).filter(k=>k!=='id'&&k!=='manualSort');const r=[];for(let i=0;i<(t.id?.length||0);i++){const o={_id:t.id[i]};ks.forEach(k=>o[k]=t[k][i]);r.push(o)}return r}
+function ep2d(ts){if(!ts)return null;return new Date(ts*1000).toISOString().slice(0,10)}
+function fmtD(iso){if(!iso)return'—';const[y,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}, ${y}`}
+function fmtS(iso){if(!iso)return'';const[,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}`}
+function usd(n){return n!=null?'$'+n.toLocaleString():'—'}
+function destroy(n){if(charts[n]){charts[n].destroy();charts[n]=null}}
+function sc(l,v,s,c){return`<div class="sc"><div class="sc-label">${l}</div><div class="sc-val" style="color:${c}">${v}</div>${s?`<div class="sc-sub">${s}</div>`:''}</div>`}
+
+function render(D){
+  const people=toRows(D.people),pharms=toRows(D.pharmacies),allOrders=toRows(D.orders),allVials=toRows(D.vials),allInjs=toRows(D.injections);
+  const pharmMap={};pharms.forEach(p=>pharmMap[p._id]=p);
+  const person=people.find(p=>p.Name===PERSON_NAME);if(!person)return;
+  const pid=person._id;
+
+  const orders=allOrders.filter(o=>o.Person===pid);
+  const injs=allInjs.filter(i=>i.Person===pid).sort((a,b)=>(a.Date||0)-(b.Date||0));
+  const totalMg=injs.reduce((s,i)=>s+(i.Amount_mg||0),0);
+  const totalSpent=orders.reduce((s,o)=>s+(o.Cost||0),0);
+  const firstDate=injs.length?ep2d(injs[0].Date):null;
+  const lastDate=injs.length?ep2d(injs[injs.length-1].Date):null;
+  const daysDuration=injs.length?Math.round((injs[injs.length-1].Date-injs[0].Date)/86400):0;
+
+  document.getElementById('sub').textContent=`${fmtD(firstDate)} → ${fmtD(lastDate)} • ${daysDuration} days • Discontinued`;
+
+  document.getElementById('stats').innerHTML=[
+    sc('Injections',injs.length,`Over ${daysDuration} days`,'var(--a2)'),
+    sc('Total mg',totalMg.toFixed(1),`Avg ${(totalMg/injs.length).toFixed(2)}mg/injection`,'var(--a1)'),
+    sc('Total Spent',usd(totalSpent),`$${(totalSpent/totalMg).toFixed(2)}/mg`,'var(--a4)'),
+    sc('Avg Weekly Dose',injs.filter(i=>i.Effective_Weekly_Dose&&i.Effective_Weekly_Dose>0).length?
+      (injs.filter(i=>i.Effective_Weekly_Dose>0).reduce((s,i)=>s+i.Effective_Weekly_Dose,0)/injs.filter(i=>i.Effective_Weekly_Dose>0).length).toFixed(1)+'mg':'—',
+      'When recorded','var(--a5)'),
+  ].join('');
+
+  // Dose over time
+  destroy('dose');
+  charts.dose=new Chart(document.getElementById('doseChart'),{type:'line',
+    data:{labels:injs.map(d=>fmtS(ep2d(d.Date))),datasets:[
+      {label:'Dose',data:injs.map(d=>d.Amount_mg),borderColor:'#f472b6',backgroundColor:'rgba(244,114,182,.1)',fill:true,tension:.2,pointRadius:3,pointBackgroundColor:'#f472b6',borderWidth:2},
+      ...(injs.some(i=>i.Effective_Weekly_Dose>0)?[{label:'EWD',data:injs.map(d=>d.Effective_Weekly_Dose>0?d.Effective_Weekly_Dose:null),borderColor:'#6366f1',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false,spanGaps:true}]:[])
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#64748b',font:{size:11}}},
+      tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1,callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},
+      scales:{x:{ticks:{color:'#64748b',font:{size:10},maxTicksLimit:10},grid:{color:'#1e2340'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2340'}}}}
+  });
+
+  // Monthly mg
+  const monthly={};injs.forEach(i=>{
+    const d=ep2d(i.Date);if(!d)return;
+    const ym=d.slice(0,7);monthly[ym]=(monthly[ym]||0)+(i.Amount_mg||0);
+  });
+  const mKeys=Object.keys(monthly).sort();
+  const mLabels=mKeys.map(k=>{const[y,m]=k.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return M[+m]+' '+y.slice(2)});
+  destroy('month');
+  charts.month=new Chart(document.getElementById('monthChart'),{type:'bar',
+    data:{labels:mLabels,datasets:[{label:'mg Used',data:mKeys.map(k=>Math.round(monthly[k]*10)/10),backgroundColor:'#f472b6',borderRadius:6,maxBarThickness:40}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1,callbacks:{label:c=>c.parsed.y+'mg'}}},
+      scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2340'}}}}
+  });
+
+  // Pharmacy use pie (based on CSV pharmacy column - use injection notes or vial links)
+  // Since Patric's vials aren't linked, we'll compute from context doc: 5 Hallandale, 16 BPI
+  const pharmUse={Hallandale:0,BPI:0};
+  injs.forEach((inj,i)=>{if(i<5)pharmUse.Hallandale+=(inj.Amount_mg||0);else pharmUse.BPI+=(inj.Amount_mg||0)});
+  destroy('pharm');
+  const pnames=Object.keys(pharmUse);
+  charts.pharm=new Chart(document.getElementById('pharmChart'),{type:'doughnut',
+    data:{labels:pnames,datasets:[{data:pnames.map(p=>Math.round(pharmUse[p]*10)/10),backgroundColor:pnames.map(p=>PC[p]),borderWidth:0,spacing:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{display:false},
+      tooltip:{backgroundColor:'#1e2340',titleColor:'#64748b',bodyColor:'#e2e8f0',borderColor:'#2e3456',borderWidth:1,callbacks:{label:c=>{const t=pnames.reduce((s,p)=>s+pharmUse[p],0);return c.label+': '+c.parsed+'mg ('+Math.round(c.parsed/t*100)+'%)';}}}}}
+  });
+  document.getElementById('pharmLeg').innerHTML=pnames.map(p=>`<div class="legend-i"><div class="legend-d" style="background:${PC[p]}"></div>${p} (${Math.round(pharmUse[p]*10)/10}mg)</div>`).join('');
+
+  // Summary box
+  const phases=[
+    {label:'Hallandale phase',desc:'Weekly 1.25–2.5mg',dates:`${fmtD(firstDate)} – Apr 13`},
+    {label:'BPI phase',desc:'Tapered to 0.75mg q4d',dates:'Apr 20 – Jul 10'},
+  ];
+  let sumHtml=`<div style="font-size:13px;margin-bottom:12px;color:var(--dim)">Patric used tirzepatide for ${daysDuration} days, starting with weekly dosing at 2.5mg and eventually tapering to 0.75mg every 4 days before discontinuing.</div>`;
+  sumHtml+=`<div style="border-top:1px solid var(--border);padding-top:10px;font-size:12px">`;
+  sumHtml+=`<div style="margin-bottom:6px"><strong style="color:var(--a1)">Peak dose:</strong> 2.5mg (weekly)</div>`;
+  sumHtml+=`<div style="margin-bottom:6px"><strong style="color:var(--a2)">Final dose:</strong> 0.75mg (every 4 days)</div>`;
+  sumHtml+=`<div><strong style="color:var(--a4)">Source:</strong> Charlotte's BPI vials (Fifty410)</div>`;
+  sumHtml+=`</div>`;
+  document.getElementById('summaryBox').innerHTML=sumHtml;
+
+  // Order table
+  const otbody=document.querySelector('#orderTable tbody');otbody.innerHTML='';
+  orders.forEach(o=>{
+    const ph=pharmMap[o.Pharmacy];const pn=ph?ph.Compounding_Pharmacy:'—';
+    const ppm=o.Total_mg?(o.Cost/o.Total_mg):0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-weight:600">${o.Order_Label||''}</td><td style="color:var(--dim)">${ph?ph.Vendor:'—'}</td>
+      <td><span class="dot" style="background:${PC[pn]||'#666'}"></span>${pn}</td>
+      <td class="mono">${o.Num_Vials||''}</td><td class="mono">${o.Total_mg||''}</td>
+      <td class="mono">${usd(o.Cost)}</td><td class="mono">$${ppm.toFixed(2)}</td>
+      <td style="color:var(--dim)">${fmtD(ep2d(o.Date_Ordered))}</td>`;
+    otbody.appendChild(tr);
+  });
+
+  // Injection log
+  const itbody=document.querySelector('#injTable tbody');itbody.innerHTML='';
+  injs.forEach(i=>{
+    const tr=document.createElement('tr');
+    const freq=i.Dosing_Frequency_Days;
+    const freqStr=freq===7?'Weekly':freq?`Every ${freq} days`:'—';
+    tr.innerHTML=`<td style="color:var(--dim)">${fmtD(ep2d(i.Date))}</td>
+      <td class="mono" style="font-weight:600">${i.Amount_mg}mg</td>
+      <td style="color:var(--dim)">${freqStr}</td>
+      <td class="mono">${i.Effective_Weekly_Dose>0?i.Effective_Weekly_Dose+'mg':'—'}</td>`;
+    itbody.appendChild(tr);
+  });
+
+  document.getElementById('ftr').textContent=`${injs.length} injections • ${totalMg.toFixed(1)}mg • ${fmtD(firstDate)} – ${fmtD(lastDate)}`;
+}
+</script>
+</body>
+</html>
