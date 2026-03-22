@@ -6,7 +6,7 @@
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#5a82b5;--sec:#c4785a;--pos:#5a9fc4;--neg:#b08a4a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--input-bg:#1e2a3a;--input-border:#2a3a4a}
+:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#5a82b5;--sec:#c4785a;--pos:#5a9fc4;--neg:#c45a5a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--input-bg:#1e2a3a;--input-border:#2a3a4a}
 [data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1a2332;--dim:#5a6878;--muted:#8494a7;--input-bg:#f0f2f5;--input-border:#c5cdd8}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px 28px 48px;transition:background .3s,color .3s}
@@ -32,7 +32,7 @@ select{cursor:pointer;-webkit-appearance:none;appearance:none}
 .toast{position:fixed;top:16px;right:16px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none;z-index:100}
 .toast.show{opacity:1;transform:translateY(0)}
 .t-ok{background:#0c2030;color:#5a9fc4;border:1px solid #2a4a5a}
-.t-err{background:#302818;color:#b08a4a;border:1px solid #5a4a30}
+.t-err{background:#301818;color:#c45a5a;border:1px solid #5a3030}
 .stitle svg{flex-shrink:0;opacity:.85}
 .stitle{display:flex;align-items:center;gap:8px;margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
 .recent{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:background .3s,border-color .3s}
@@ -199,7 +199,7 @@ async function submit(){
     const epoch=Math.floor(new Date(ds+'T12:00:00').getTime()/1000);
     const fields={Date:epoch,Person:pid,Amount_mg:amt};
     if(freq!=null)fields.Dosing_Frequency_Days=freq;
-    if(wt!=null)fields.Weight=wt;
+    if(wt!=null&&wt>0)fields.Weight=wt;
     if(vid)fields.Vial=vid;
     if(notes)fields.Notes=notes;
     const table=grist.getTable('Injections');

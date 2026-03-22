@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#5a82b5;--sec:#c4785a;--pos:#5a9fc4;--neg:#b08a4a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--grid:#1e2a3a}
+:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#5a82b5;--sec:#c4785a;--pos:#5a9fc4;--neg:#c45a5a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--grid:#1e2a3a}
 [data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1a2332;--dim:#5a6878;--muted:#8494a7;--grid:#dce1e8}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px 28px 48px;transition:background .3s,color .3s}
@@ -104,7 +104,7 @@ const tiers={};injs.filter(i=>i.EWD_Tier&&i.Weight_Change!=null&&i.Weight_Change
 const tierOrder=['2.5mg','2.8-3.5mg','4.2-4.5mg','5.0-5.5mg','6.0-6.5mg','7.0mg+'];
 const activeTiers=tierOrder.filter(t=>tiers[t]);
 if(activeTiers.length){
-destroy('tier');charts.tier=new Chart(document.getElementById('tierChart'),{type:'bar',data:{labels:activeTiers,datasets:[{label:'Avg weight change',data:activeTiers.map(t=>Math.round(tiers[t].sum/tiers[t].n*10)/10),backgroundColor:activeTiers.map(t=>tiers[t].sum/tiers[t].n<0?'rgba(90,159,196,.5)':'rgba(176,138,74,.5)'),borderColor:activeTiers.map(t=>tiers[t].sum/tiers[t].n<0?'#5a9fc4':'#b08a4a'),borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>{const t=activeTiers[c.dataIndex],d=tiers[t];return[c.parsed.y+' lbs avg',d.losses+'/'+d.n+' injections lost weight ('+Math.round(d.losses/d.n*100)+'%)']}}}},scales:{x:{ticks:{color:gc(),font:{size:10}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:10}},grid:{color:gg()}}}}})}
+destroy('tier');charts.tier=new Chart(document.getElementById('tierChart'),{type:'bar',data:{labels:activeTiers,datasets:[{label:'Avg weight change',data:activeTiers.map(t=>Math.round(tiers[t].sum/tiers[t].n*10)/10),backgroundColor:activeTiers.map(t=>tiers[t].sum/tiers[t].n<0?'rgba(90,159,196,.5)':'rgba(196,90,90,.5)'),borderColor:activeTiers.map(t=>tiers[t].sum/tiers[t].n<0?'#5a9fc4':'#c45a5a'),borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>{const t=activeTiers[c.dataIndex],d=tiers[t];return[c.parsed.y+' lbs avg',d.losses+'/'+d.n+' injections lost weight ('+Math.round(d.losses/d.n*100)+'%)']}}}},scales:{x:{ticks:{color:gc(),font:{size:10}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:10}},grid:{color:gg()}}}}})}
 
 // Weight chart
 if(ww.length>2){destroy('weight');const lb=ww.map(d=>fmtS(ep2d(d.Date))),vl=ww.map(d=>d.Weight);
@@ -121,7 +121,7 @@ destroy('monthMg');charts.monthMg=new Chart(document.getElementById('monthMgChar
 
 // Monthly weight change
 const mwc=mks.map((k,i)=>{if(i===0)return mo[k].wLast&&mo[k].wFirst?Math.round((mo[k].wLast-mo[k].wFirst)*10)/10:null;const prev=mo[mks[i-1]];const curr=mo[k];if(prev?.wLast&&curr?.wLast)return Math.round((curr.wLast-prev.wLast)*10)/10;return null});
-destroy('monthWt');charts.monthWt=new Chart(document.getElementById('monthWtChart'),{type:'bar',data:{labels:mls,datasets:[{data:mwc,backgroundColor:mwc.map(v=>v!=null&&v<=0?'rgba(90,159,196,.5)':'rgba(176,138,74,.5)'),borderColor:mwc.map(v=>v!=null&&v<=0?'#5a9fc4':'#b08a4a'),borderWidth:1,borderRadius:4,maxBarThickness:36}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>(c.parsed.y>0?'+':'')+c.parsed.y+' lbs'}}},scales:{x:{ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
+destroy('monthWt');charts.monthWt=new Chart(document.getElementById('monthWtChart'),{type:'bar',data:{labels:mls,datasets:[{data:mwc,backgroundColor:mwc.map(v=>v!=null&&v<=0?'rgba(90,159,196,.5)':'rgba(196,90,90,.5)'),borderColor:mwc.map(v=>v!=null&&v<=0?'#5a9fc4':'#c45a5a'),borderWidth:1,borderRadius:4,maxBarThickness:36}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>(c.parsed.y>0?'+':'')+c.parsed.y+' lbs'}}},scales:{x:{ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
 
 // Pharmacy use
 const pu={};injs.forEach(i=>{if(!i.Vial)return;const v=allVi.find(v2=>v2._id===i.Vial);if(!v)return;const o=allOrd.find(o2=>o2._id===v.Order);if(!o)return;const ph=pharmMap[o.Pharmacy];if(!ph)return;pu[ph.Compounding_Pharmacy]=(pu[ph.Compounding_Pharmacy]||0)+(i.Amount_mg||0)});
