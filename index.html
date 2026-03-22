@@ -71,7 +71,7 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
 <div class="footer"><div>Overview Dashboard</div><div id="ftr"></div></div>
 </div>
 <script>
-const PCOL=['#5a82b5','#c4785a'],PC={Hallandale:'#5a82b5',BPI:'#7ba3cc',Southend:'#c4785a',Olympia:'#d99b86'},SCC={Finished:'#8b95a5','In Use':'#5a82b5',Unopened:'#6b7585'};
+const PCOL=['#5a82b5','#c4785a'],PC={Hallandale:'#5a82b5',BPI:'#7ba3cc',Southend:'#c4785a',Olympia:'#d99b86'},PCD={Hallandale:'#3a5a82',BPI:'#4a7aa5',Southend:'#8a4a30',Olympia:'#a5654a'},SCC={Finished:'#c4785a','In Use':'#5a82b5',Unopened:'#7ba3cc'};
 let charts={},DATA=null;
 function getThemePref(){return localStorage.getItem('tirz-theme')||'auto'}
 function resolveTheme(p){if(p==='light'||p==='dark')return p;return matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
@@ -96,8 +96,8 @@ const pharmMap={};pharms.forEach(p=>pharmMap[p._id]=p);const orderMap={};orders.
 const tmgo=orders.reduce((s,o)=>s+(o.Total_mg||0),0),tmu=injs.reduce((s,i)=>s+(i.Amount_mg||0),0),toh=vials.filter(v=>v.Status==='Unopened'||v.Status==='In Use').reduce((s,v)=>s+(v.mg_Remaining||0),0),twaste=vials.filter(v=>v.Status==='Finished').reduce((s,v)=>s+(v.mg_Wasted||0),0);
 document.getElementById('sub').textContent=`${people.length} people \u2022 ${orders.length} orders \u2022 ${vials.length} vials \u2022 ${injs.length} injections`;
 document.getElementById('topStats').innerHTML=[
-  sc('Total Used',tmu.toFixed(1)+' mg',injs.length+' injections','var(--pri)'),
-  sc('On Hand',toh.toFixed(1)+' mg',vials.filter(v=>v.Status==='Unopened').length+' unopened vials'+(twaste>0?' 2022 '+twaste.toFixed(0)+'mg wasted':''),'var(--sec)'),
+  sc('On Hand',toh.toFixed(1)+' mg',vials.filter(v=>v.Status==='Unopened').length+' unopened vials','var(--pos)'),
+  sc('Total Used',tmu.toFixed(1)+' mg',injs.length+' injections','var(--neg)'),
   sc('Total Ordered',tmgo+' mg',orders.length+' orders','var(--dim)'),
 ].join('');
 
@@ -111,7 +111,7 @@ destroy('usage');charts.usage=new Chart(document.getElementById('usageChart'),{t
 // Stock by pharmacy
 const byPh={};vials.forEach(v=>{const ord=orderMap[v.Order];if(!ord)return;const ph=pharmMap[ord.Pharmacy];if(!ph)return;const pn=ph.Compounding_Pharmacy;if(!byPh[pn])byPh[pn]={used:0,rem:0};byPh[pn].used+=(v.mg_Used||0);byPh[pn].rem+=(v.mg_Remaining||0)});
 destroy('stock');const phn=Object.keys(byPh).sort();
-charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:[{label:'Used',data:phn.map(p=>Math.round(byPh[p].used*10)/10),backgroundColor:'rgba(196,90,90,.35)',borderRadius:4},{label:'Remaining',data:phn.map(p=>Math.round(byPh[p].rem*10)/10),backgroundColor:phn.map(p=>PC[p]||'#666'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
+charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:[{label:'Used',data:phn.map(p=>Math.round(byPh[p].used*10)/10),backgroundColor:phn.map(p=>PCD[p]||'#555'),borderRadius:4},{label:'Remaining',data:phn.map(p=>Math.round(byPh[p].rem*10)/10),backgroundColor:phn.map(p=>PC[p]||'#888'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
 
 // Vial status
 const sc2={Finished:0,'In Use':0,Unopened:0};vials.forEach(v=>{if(sc2.hasOwnProperty(v.Status))sc2[v.Status]++});

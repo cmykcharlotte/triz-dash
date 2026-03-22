@@ -30,7 +30,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}thead tr{border-bottom:
 .mono{font-family:'DM Mono',monospace}
 .dot{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:5px;vertical-align:middle}
 .badge{display:inline-block;padding:3px 7px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase}
-.b-pos{background:rgba(139,149,165,.08);color:var(--dim)}.b-pri{background:rgba(90,130,181,.1);color:var(--pri)}.b-dim{background:rgba(139,149,165,.08);color:var(--dim)}
+.b-pos{background:rgba(196,120,90,.1);color:var(--sec)}.b-pri{background:rgba(90,130,181,.1);color:var(--pri)}.b-dim{background:rgba(123,163,204,.08);color:#7ba3cc}
 .legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:8px}
 .leg-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)}.leg-d{width:8px;height:8px;border-radius:2px}
 .footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
@@ -46,7 +46,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}thead tr{border-bottom:
 <div class="footer"><div>Stock Overview</div><div id="ftr"></div></div>
 </div>
 <script>
-const PC={Hallandale:'#5a82b5',BPI:'#7ba3cc',Southend:'#c4785a',Olympia:'#d99b86'},SCC={Finished:'#8b95a5','In Use':'#5a82b5',Unopened:'#6b7585'};
+const PC={Hallandale:'#5a82b5',BPI:'#7ba3cc',Southend:'#c4785a',Olympia:'#d99b86'},PCD={Hallandale:'#3a5a82',BPI:'#4a7aa5',Southend:'#8a4a30',Olympia:'#a5654a'},SCC={Finished:'#c4785a','In Use':'#5a82b5',Unopened:'#7ba3cc'};
 let charts={},DATA=null;
 function getThemePref(){return localStorage.getItem('tirz-theme')||'auto'}
 function resolveTheme(p){if(p==='light'||p==='dark')return p;return matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
@@ -74,14 +74,14 @@ const tmgo=orders.reduce((s,o)=>s+(o.Total_mg||0),0),tmu=injs.reduce((s,i)=>s+(i
 document.getElementById('sub').textContent=`${vials.length} vials \u2022 ${orders.length} orders \u2022 ${people.length} people`;
 document.getElementById('stats').innerHTML=[
   sc('Total Ordered',tmgo+' mg',orders.length+' orders','var(--dim)'),
-  sc('Total Used',tmu.toFixed(1)+' mg',injs.length+' injections','var(--pri)'),
-  sc('Remaining',toh.toFixed(1)+' mg',vials.filter(v=>v.Status==='Unopened').length+' unopened','var(--sec)'),
+  sc('Total Used',tmu.toFixed(1)+' mg',injs.length+' injections','var(--neg)'),
+  sc('Remaining',toh.toFixed(1)+' mg',vials.filter(v=>v.Status==='Unopened').length+' unopened','var(--pos)'),
   sc('Cost per mg Ordered','$'+(tc/tmgo).toFixed(2),usd(tc)+' total across '+orders.length+' orders','var(--dim)'),
 ].join('');
 
 const byPh={};vials.forEach(v=>{const pn=v._ph?.Compounding_Pharmacy||'?';if(!byPh[pn])byPh[pn]={used:0,rem:0};byPh[pn].used+=(v.mg_Used||0);byPh[pn].rem+=(v.mg_Remaining||0)});
 destroy('stock');const phn=Object.keys(byPh).sort();
-charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:[{label:'Used',data:phn.map(p=>Math.round(byPh[p].used*10)/10),backgroundColor:'rgba(196,90,90,.35)',borderRadius:4},{label:'Remaining',data:phn.map(p=>Math.round(byPh[p].rem*10)/10),backgroundColor:phn.map(p=>PC[p]||'#666'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
+charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:[{label:'Used',data:phn.map(p=>Math.round(byPh[p].used*10)/10),backgroundColor:phn.map(p=>PCD[p]||'#555'),borderRadius:4},{label:'Remaining',data:phn.map(p=>Math.round(byPh[p].rem*10)/10),backgroundColor:phn.map(p=>PC[p]||'#888'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
 
 const sc2={Finished:0,'In Use':0,Unopened:0};vials.forEach(v=>{if(sc2.hasOwnProperty(v.Status))sc2[v.Status]++});
 destroy('status');charts.status=new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:Object.keys(sc2),datasets:[{data:Object.values(sc2),backgroundColor:Object.keys(sc2).map(k=>SCC[k]),borderWidth:0,spacing:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{...ttip()}}}});
