@@ -24,30 +24,46 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 .stitle svg{flex-shrink:0;opacity:.85}
 .stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
 .cc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;transition:background .3s,border-color .3s}
-.cw{position:relative;width:100%;height:300px}.cw-sm{position:relative;width:100%;height:220px}
+.cw{position:relative;width:100%;height:300px}
 .two{display:flex;gap:14px;flex-wrap:wrap}.two .wide{flex:2 1 380px}.two .narrow{flex:1 1 280px}
-.three{display:flex;gap:14px;flex-wrap:wrap}.three>div{flex:1 1 250px}
 .mono{font-family:'DM Mono',monospace}
 .legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:8px}
 .leg-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)}.leg-d{width:8px;height:8px;border-radius:2px}
 .footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
-.ctrl{display:flex;flex-direction:column;gap:16px}
-.ctrl-row{display:flex;align-items:center;gap:12px}
+.ctrl-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .ctrl-label{font-size:12px;color:var(--dim);min-width:120px;text-transform:uppercase;letter-spacing:.5px}
-.ctrl input[type=range]{flex:1;accent-color:var(--pri);height:6px}
+.ctrl-row input[type=range]{flex:1;accent-color:var(--pri);height:6px}
 .ctrl-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:600;min-width:60px;text-align:right;color:var(--text)}
+.pharm-ctrl{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.pharm-pill{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 14px;cursor:pointer;transition:all .2s;user-select:none}
+.pharm-pill:hover{border-color:var(--pri)}
+.pharm-pill.use{border-color:var(--pri);background:rgba(90,130,181,.08)}
+.pharm-pill.last{border-color:var(--sec);background:rgba(196,120,90,.06)}
+.pharm-pill.skip{border-color:var(--neg);background:rgba(196,90,90,.06);opacity:.7}
+.pharm-name{font-size:13px;font-weight:600;color:var(--text)}
+.pharm-mg{font-size:11px;color:var(--dim)}
+.pharm-status{font-size:9px;text-transform:uppercase;letter-spacing:.8px;font-weight:600;padding:2px 6px;border-radius:4px}
+.pharm-pill.use .pharm-status{color:var(--pri);background:rgba(90,130,181,.12)}
+.pharm-pill.last .pharm-status{color:var(--sec);background:rgba(196,120,90,.12)}
+.pharm-pill.skip .pharm-status{color:var(--neg);background:rgba(196,90,90,.12)}
 .scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
-.scenario-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;transition:all .2s}
+.scenario-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px}
 .scenario-card.active{border-color:var(--pri);background:rgba(90,130,181,.06)}
-.scenario-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+.scenario-name{font-size:13px;font-weight:600;margin-bottom:8px}
 .scenario-detail{font-size:11px;color:var(--dim);line-height:1.6}
 .scenario-detail strong{color:var(--text);font-weight:600}
-.vial-timeline{display:flex;flex-direction:column;gap:8px}
-.vt-row{display:flex;align-items:center;gap:10px}
-.vt-label{font-size:12px;color:var(--text);min-width:90px;font-weight:500}
-.vt-bar-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;position:relative}
-.vt-bar{height:100%;border-radius:4px;position:absolute;left:0;top:0}
-.vt-info{font-size:10px;color:var(--dim);min-width:90px;text-align:right}
+.vial-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.vial-row:last-child{border-bottom:none}
+.vial-row.excluded{opacity:.4}
+.vial-cb{accent-color:var(--pri);width:14px;height:14px;cursor:pointer}
+.vial-lbl{font-size:12px;font-weight:500;color:var(--text);min-width:100px}
+.vial-bar-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.vial-bar{height:100%;border-radius:4px}
+.vial-meta{font-size:10px;color:var(--dim);min-width:110px;text-align:right}
+.waste-summary{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.ws-item{flex:1;min-width:120px}
+.ws-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+.ws-val{font-size:18px;font-weight:700}
 </style></head><body>
 <div id="loading"><div class="spinner"></div><p>Loading projections…</p></div>
 <div id="dash">
@@ -55,15 +71,16 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 <div class="stats" id="stats"></div>
 <div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M6 20V4M18 20v-6"/></svg> Scenario Modeler</div>
 <div class="cc">
-<div class="ctrl" id="controls"></div>
+<div id="controls"></div>
+<div style="margin-top:4px"><div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Pharmacy Priority</div><div style="font-size:10px;color:var(--muted);margin-bottom:8px">Click to cycle: Use → Use Last → Skip (planned waste)</div><div class="pharm-ctrl" id="pharmCtrl"></div></div>
 <div class="scenario-grid" id="scenarioGrid"></div>
 </div>
-<div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Depletion Timeline</div>
-<div class="cc"><div class="cw"><canvas id="depletionChart"></canvas></div>
-<div class="legend" id="depLeg"></div></div>
+<div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="17 6 22 6 22 12"/></svg> Depletion Timeline</div>
+<div class="cc"><div class="cw"><canvas id="depletionChart"></canvas></div><div class="legend" id="depLeg"></div></div>
 <div class="two">
-<div class="wide"><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v6.5L4.8 18.3a2 2 0 001.7 2.7h11a2 2 0 001.7-2.7L14 8.5V2"/><path d="M7 15h10"/></svg> Vial Consumption Order</div>
-<div class="cc" id="vialTimeline"></div></div>
+<div class="wide"><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v6.5L4.8 18.3a2 2 0 001.7 2.7h11a2 2 0 001.7-2.7L14 8.5V2"/><path d="M7 15h10"/></svg> Vial Inventory</div>
+<div class="cc"><div style="font-size:10px;color:var(--muted);margin-bottom:10px">Uncheck vials to exclude them (planned waste). Simulation uses checked vials only.</div><div id="vialList"></div>
+<div class="waste-summary" id="wasteSummary"></div></div></div>
 <div class="narrow"><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Clinical Comparison</div>
 <div class="cc" id="clinicalBox"></div></div>
 </div>
@@ -71,7 +88,9 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 </div>
 <script>
 let DATA=null,charts={};
-let paramEWD=7,paramWaste=15,paramMaxOpen=6;
+let paramEWD=7,paramMaxOpen=6;
+let pharmPriority={};
+let vialExcluded=new Set();
 function getThemePref(){return localStorage.getItem('tirz-theme')||'auto'}
 function resolveTheme(p){if(p==='light'||p==='dark')return p;return matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
 function applyTheme(){const p=getThemePref(),r=resolveTheme(p);document.documentElement.setAttribute('data-theme',r);const L={auto:'Auto',light:'Light',dark:'Dark'},I={auto:'\u2728',light:'\u2600\uFE0F',dark:'\uD83C\uDF19'};document.getElementById('themeBtn').textContent=I[p]+' '+L[p];if(DATA)render(DATA)}
@@ -80,185 +99,198 @@ applyTheme();
 function isDark(){return document.documentElement.getAttribute('data-theme')==='dark'}
 function gc(){return isDark()?'#8b95a5':'#8494a7'}
 function gg(){return isDark()?'#1e2a3a':'#dce1e8'}
-function gt(){return isDark()?'#d0d7de':'#1a2332'}
 function ep2d(ts){if(!ts)return null;return new Date(ts*1000).toISOString().slice(0,10)}
-function fmtD(iso){if(!iso)return'\u2014';const[y,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}, ${y}`}
 function fmtShort(iso){if(!iso)return'';const[y,m]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return M[+m]+" '"+y.slice(2)}
 function destroy(k){if(charts[k]){charts[k].destroy();delete charts[k]}}
 function toRows(t){const ks=Object.keys(t).filter(k=>k!=='id'&&k!=='manualSort');const r=[];for(let i=0;i<(t.id?.length||0);i++){const o={_id:t.id[i]};ks.forEach(k=>o[k]=t[k][i]);if(o.Effective_Weekly_Dose!==undefined&&o.Effective_weekly_dose===undefined)o.Effective_weekly_dose=o.Effective_Weekly_Dose;if(o.Actual_Weekly_Rate!==undefined&&o.Actual_weekly_dose===undefined)o.Actual_weekly_dose=o.Actual_Weekly_Rate;r.push(o)}return r}
-function sc(l,v,s,c){return`<div class="sc"><div class="sc-l">${l}</div><div class="sc-v" style="color:${c}">${v}</div>${s?`<div class="sc-s">${s}</div>`:''}</div>`}
+function sc(l,v,s,c){return'<div class="sc"><div class="sc-l">'+l+'</div><div class="sc-v" style="color:'+c+'">'+v+'</div>'+(s?'<div class="sc-s">'+s+'</div>':'')+'</div>'}
 function ttip(){return{backgroundColor:isDark()?'#1a2332':'#fff',titleColor:isDark()?'#d0d7de':'#1a2332',bodyColor:isDark()?'#8b95a5':'#5a6878',borderColor:isDark()?'#2a3a4a':'#dce1e8',borderWidth:1,cornerRadius:8,padding:10,titleFont:{family:'DM Sans',size:12,weight:600},bodyFont:{family:'DM Sans',size:11}}}
+var CLINICAL=[2.5,2.5,2.5,2.5,5,5,5,5,7.5,7.5,7.5,7.5,10,10,10,10,12.5,12.5,12.5,12.5,15,15,15,15];
 
-// Clinical Mounjaro schedule (weekly mg)
-const CLINICAL=[2.5,2.5,2.5,2.5,5,5,5,5,7.5,7.5,7.5,7.5,10,10,10,10,12.5,12.5,12.5,12.5,15,15,15,15];
-
-function simulate(ewd,wastePct,maxOpenWeeks,vials){
-  // Sort vials: use In Use first, then by BUD (earliest first), then by size (smallest first for less waste)
-  const sorted=[...vials].sort((a,b)=>{
+function getActiveVials(all){
+  var incl=all.filter(function(v){return !vialExcluded.has(v._id)&&pharmPriority[v._pharmacy]!=='skip'});
+  return incl.sort(function(a,b){
     if(a.Status==='In Use'&&b.Status!=='In Use')return-1;
     if(b.Status==='In Use'&&a.Status!=='In Use')return 1;
+    var pa=pharmPriority[a._pharmacy]==='last'?1:0;
+    var pb=pharmPriority[b._pharmacy]==='last'?1:0;
+    if(pa!==pb)return pa-pb;
     if((a.bud_ts||0)!==(b.bud_ts||0))return(a.bud_ts||0)-(b.bud_ts||0);
     return(a.Total_mg||0)-(b.Total_mg||0);
   });
-  let remaining=0,currentVial=null,vialWeeksOpen=0,totalUsed=0,totalWasted=0;
-  const weeklyData=[];const vialLog=[];
-  const queue=[...sorted];
-  for(let w=0;w<200;w++){
-    // Need a vial?
-    if(!currentVial||remaining<=0||vialWeeksOpen>=maxOpenWeeks){
-      if(currentVial&&remaining>0){totalWasted+=remaining;vialLog.push({...currentVial,wasted:Math.round(remaining*10)/10,weeksUsed:vialWeeksOpen})}
-      if(queue.length===0){weeklyData.push({week:w,stock:0,cum:totalUsed,wasted:totalWasted});break}
-      currentVial=queue.shift();
-      remaining=currentVial.mg_Remaining||currentVial.Total_mg||0;
-      vialWeeksOpen=0;
-    }
-    const draw=Math.min(ewd,remaining);
-    remaining-=draw;totalUsed+=draw;vialWeeksOpen++;
-    const totalStock=remaining+queue.reduce((s,v)=>s+(v.mg_Remaining||v.Total_mg||0),0);
-    weeklyData.push({week:w,stock:Math.round(totalStock*10)/10,cum:Math.round(totalUsed*10)/10,wasted:Math.round(totalWasted*10)/10});
-    if(totalStock<=0&&remaining<=0){
-      if(currentVial)vialLog.push({...currentVial,wasted:0,weeksUsed:vialWeeksOpen});
-      break;
-    }
-  }
-  return{weeklyData,totalUsed:Math.round(totalUsed*10)/10,totalWasted:Math.round(totalWasted*10)/10,weeks:weeklyData.length,vialLog};
 }
+
+function getExcludedMg(all){
+  var skipPh=all.filter(function(v){return pharmPriority[v._pharmacy]==='skip'});
+  var manEx=all.filter(function(v){return vialExcluded.has(v._id)&&pharmPriority[v._pharmacy]!=='skip'});
+  var spMg=skipPh.reduce(function(s,v){return s+(v.mg_Remaining||0)},0);
+  var meMg=manEx.reduce(function(s,v){return s+(v.mg_Remaining||0)},0);
+  return{pharmSkipMg:spMg,pharmSkipCount:skipPh.length,manualExclMg:meMg,manualExclCount:manEx.length,totalPlannedWaste:spMg+meMg};
+}
+
+function simulate(ewd,maxOW,vials){
+  var sorted=vials.slice();
+  var rem=0,cur=null,wkOpen=0,used=0,wasted=0;
+  var wd=[],vLog=[],queue=sorted.slice();
+  for(var w=0;w<300;w++){
+    if(!cur||rem<=0||wkOpen>=maxOW){
+      if(cur&&rem>0){wasted+=rem;vLog.push({label:cur.Vial_Label,wasted:Math.round(rem*10)/10,weeksUsed:wkOpen})}
+      if(!queue.length){wd.push({week:w,stock:0});break}
+      cur=queue.shift();rem=cur.mg_Remaining||cur.Total_mg||0;wkOpen=0;
+    }
+    var draw=Math.min(ewd,rem);rem-=draw;used+=draw;wkOpen++;
+    var ts=rem+queue.reduce(function(s,v){return s+(v.mg_Remaining||v.Total_mg||0)},0);
+    wd.push({week:w,stock:Math.round(ts*10)/10});
+    if(ts<=0&&rem<=0){if(cur)vLog.push({label:cur.Vial_Label,wasted:0,weeksUsed:wkOpen});break}
+  }
+  return{weeklyData:wd,totalUsed:Math.round(used*10)/10,totalWasted:Math.round(wasted*10)/10,weeks:wd.length,vialLog:vLog};
+}
+
+function cyclePharm(name){
+  var order=['use','last','skip'];
+  var cur=pharmPriority[name]||'use';
+  pharmPriority[name]=order[(order.indexOf(cur)+1)%3];
+  if(pharmPriority[name]==='skip'){
+    DATA.allActive.filter(function(v){return v._pharmacy===name}).forEach(function(v){vialExcluded.add(v._id)});
+  }else{
+    DATA.allActive.filter(function(v){return v._pharmacy===name}).forEach(function(v){vialExcluded.delete(v._id)});
+  }
+  updateAll();
+}
+function toggleVial(id){if(vialExcluded.has(id))vialExcluded.delete(id);else vialExcluded.add(id);updateAll()}
+function updateAll(){if(DATA)renderProjections(DATA)}
 
 function buildControls(){
-  document.getElementById('controls').innerHTML=`
-    <div class="ctrl-row"><span class="ctrl-label">Weekly dose</span><input type="range" min="2.5" max="15" step="0.5" value="${paramEWD}" id="slEWD" oninput="paramEWD=+this.value;document.getElementById('vEWD').textContent=this.value+'mg';updateProjections()"><span class="ctrl-val" id="vEWD">${paramEWD}mg</span></div>
-    <div class="ctrl-row"><span class="ctrl-label">Max weeks open</span><input type="range" min="2" max="20" step="1" value="${paramMaxOpen}" id="slOpen" oninput="paramMaxOpen=+this.value;document.getElementById('vOpen').textContent=this.value+'wk';updateProjections()"><span class="ctrl-val" id="vOpen">${paramMaxOpen}wk</span></div>
-  `;
+  document.getElementById('controls').innerHTML='<div class="ctrl-row"><span class="ctrl-label">Weekly dose</span><input type="range" min="2.5" max="15" step="0.5" value="'+paramEWD+'" oninput="paramEWD=+this.value;document.getElementById(\'vEWD\').textContent=this.value+\'mg\';updateAll()"><span class="ctrl-val" id="vEWD">'+paramEWD+'mg</span></div><div class="ctrl-row"><span class="ctrl-label">Max weeks open</span><input type="range" min="2" max="20" step="1" value="'+paramMaxOpen+'" oninput="paramMaxOpen=+this.value;document.getElementById(\'vOpen\').textContent=this.value+\'wk\';updateAll()"><span class="ctrl-val" id="vOpen">'+paramMaxOpen+'wk</span></div>';
 }
 
-function updateProjections(){if(DATA)renderProjections(DATA)}
+function buildPharmPills(all){
+  var pharms={};
+  all.forEach(function(v){var p=v._pharmacy;if(!pharms[p])pharms[p]={count:0,mg:0};pharms[p].count++;pharms[p].mg+=(v.mg_Remaining||0)});
+  var h='';Object.keys(pharms).sort().forEach(function(p){
+    var d=pharms[p],st=pharmPriority[p]||'use';
+    var labels={use:'Use',last:'Use Last',skip:'Skip'};
+    h+='<div class="pharm-pill '+st+'" onclick="cyclePharm(\''+p+'\')"><div><div class="pharm-name">'+p+'</div><div class="pharm-mg">'+d.count+' vials \u2022 '+Math.round(d.mg)+'mg</div></div><span class="pharm-status">'+labels[st]+'</span></div>';
+  });
+  document.getElementById('pharmCtrl').innerHTML=h;
+}
 
 function renderProjections(data){
-  const{vials}=data;
-  const active=vials.filter(v=>v.Status==='Unopened'||v.Status==='In Use');
-  const totalMg=active.reduce((s,v)=>s+(v.mg_Remaining||0),0);
+  var all=data.allActive;
+  buildPharmPills(all);
+  var usable=getActiveVials(all);
+  var excl=getExcludedMg(all);
+  var usableMg=usable.reduce(function(s,v){return s+(v.mg_Remaining||0)},0);
 
-  // Scenarios
-  const scenarios=[
-    {name:'Current rate',ewd:data.currentEWD,maxOpen:paramMaxOpen,color:'#5a82b5',dash:[]},
-    {name:'Custom',ewd:paramEWD,maxOpen:paramMaxOpen,color:'#c4785a',dash:[]},
-    {name:'Maintenance (5mg/wk)',ewd:5,maxOpen:paramMaxOpen,color:'#5a9fc4',dash:[6,3]},
-    {name:'Clinical max (15mg/wk)',ewd:15,maxOpen:paramMaxOpen,color:'#c45a5a',dash:[4,4]},
+  var scenarios=[
+    {name:'Current rate',ewd:data.currentEWD,color:'#5a82b5',dash:[]},
+    {name:'Custom',ewd:paramEWD,color:'#c4785a',dash:[]},
+    {name:'Maintenance (5mg/wk)',ewd:5,color:'#5a9fc4',dash:[6,3]},
+    {name:'Clinical max (15mg/wk)',ewd:15,color:'#c45a5a',dash:[4,4]}
   ];
-  // Dedupe if custom matches current
-  const unique=scenarios.filter((s,i)=>i===0||s.ewd!==scenarios[0].ewd);
+  var unique=scenarios.filter(function(s,i){return i===0||s.ewd!==scenarios[0].ewd});
+  var results=unique.map(function(s){var r=simulate(s.ewd,paramMaxOpen,usable);return Object.assign({},s,r)});
 
-  const results=unique.map(s=>{const r=simulate(s.ewd,0,s.maxOpen,active);return{...s,...r}});
-
-  // Scenario cards
-  let sg='';results.forEach(r=>{
-    const months=Math.round(r.weeks/4.33);
-    const depDate=new Date();depDate.setDate(depDate.getDate()+r.weeks*7);
-    const depStr=depDate.toLocaleDateString('en-US',{month:'short',year:'numeric'});
-    const wastePct=r.totalWasted>0?Math.round(r.totalWasted/(r.totalUsed+r.totalWasted)*100):0;
-    sg+=`<div class="scenario-card${r.ewd===paramEWD?' active':''}">
-      <div class="scenario-name" style="color:${r.color}">${r.name}</div>
-      <div class="scenario-detail">
-        <strong>${r.ewd}mg/week</strong><br>
-        ${r.weeks} weeks (${months} months)<br>
-        Through ~${depStr}<br>
-        ${r.totalWasted>0?`${r.totalWasted}mg wasted (${wastePct}%)<br>`:''}
-        ${r.totalUsed}mg consumed
-      </div></div>`;
+  var sg='';results.forEach(function(r){
+    var months=Math.round(r.weeks/4.33);
+    var dd=new Date();dd.setDate(dd.getDate()+r.weeks*7);
+    var ds=dd.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    var aw=r.totalWasted+excl.totalPlannedWaste;
+    var wp=aw>0?Math.round(aw/(r.totalUsed+aw)*100):0;
+    sg+='<div class="scenario-card'+(r.ewd===paramEWD?' active':'')+'"><div class="scenario-name" style="color:'+r.color+'">'+r.name+'</div><div class="scenario-detail"><strong>'+r.ewd+'mg/week</strong><br>'+r.weeks+' weeks ('+months+' months)<br>Through ~'+ds+'<br>'+r.totalUsed+'mg consumed<br><span style="color:var(--neg)">'+aw.toFixed(1)+'mg total waste ('+wp+'%)</span></div></div>';
   });
   document.getElementById('scenarioGrid').innerHTML=sg;
 
-  // Depletion chart
-  const maxWeeks=Math.max(...results.map(r=>r.weeks))+4;
-  const labels=[];for(let w=0;w<=maxWeeks;w++){
-    const d=new Date();d.setDate(d.getDate()+w*7);
-    labels.push(w%8===0?fmtShort(d.toISOString().slice(0,10)):'');
-  }
-  const datasets=results.map(r=>({
-    label:r.name+' ('+r.ewd+'mg/wk)',
-    data:Array.from({length:maxWeeks+1},(_, w)=>{const pt=r.weeklyData.find(d=>d.week===w);return pt?pt.stock:null}),
-    borderColor:r.color,borderWidth:2,borderDash:r.dash,
-    pointRadius:0,pointHitRadius:6,tension:.2,
-    fill:false,spanGaps:true,
-  }));
+  var cr=results.find(function(r){return r.ewd===paramEWD})||results[0];
+  var cw=cr.weeks,cm=Math.round(cw/4.33);
+  var cd=new Date();cd.setDate(cd.getDate()+cw*7);
+  var aw2=cr.totalWasted+excl.totalPlannedWaste;
+  document.getElementById('stats').innerHTML=[
+    sc('Usable Stock',usableMg.toFixed(0)+'mg',usable.length+' of '+all.length+' vials','var(--pos)'),
+    sc('Modeled Rate',paramEWD+'mg/wk','Max '+paramMaxOpen+' weeks open','var(--pri)'),
+    sc('Runway',cw+' weeks',cm+' months at modeled rate','var(--sec)'),
+    sc('Total Waste',aw2.toFixed(0)+'mg',excl.totalPlannedWaste>0?excl.totalPlannedWaste.toFixed(0)+'mg planned skip':'Vial-open waste only','var(--neg)')
+  ].join('');
+
+  var maxW=Math.max.apply(null,results.map(function(r){return r.weeks}))+4;
+  var labels=[];for(var w=0;w<=maxW;w++){var d2=new Date();d2.setDate(d2.getDate()+w*7);labels.push(w%8===0?fmtShort(d2.toISOString().slice(0,10)):'')}
+  var datasets=results.map(function(r){return{label:r.name+' ('+r.ewd+'mg/wk)',data:Array.from({length:maxW+1},function(_,w2){var pt=r.weeklyData.find(function(d3){return d3.week===w2});return pt?pt.stock:null}),borderColor:r.color,borderWidth:2,borderDash:r.dash,pointRadius:0,pointHitRadius:6,tension:.2,fill:false,spanGaps:true}});
   destroy('depletion');
-  charts.depletion=new Chart(document.getElementById('depletionChart'),{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>{const w=c.dataIndex;const d=new Date();d.setDate(d.getDate()+w*7);return c.dataset.label+': '+c.parsed.y+'mg ('+fmtShort(d.toISOString().slice(0,10))+')'}}}},scales:{x:{ticks:{color:gc(),font:{size:10},maxRotation:0},grid:{color:gg()}},y:{ticks:{color:gc(),font:{size:11},callback:v=>v+'mg'},grid:{color:gg()}}}}});
-  let leg='';results.forEach(r=>{leg+=`<div class="leg-i"><div class="leg-d" style="background:${r.color}"></div>${r.name} (${r.ewd}mg/wk) \u2192 ${r.weeks} weeks</div>`});
+  charts.depletion=new Chart(document.getElementById('depletionChart'),{type:'line',data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:Object.assign({},ttip(),{callbacks:{label:function(c){var w3=c.dataIndex;var d4=new Date();d4.setDate(d4.getDate()+w3*7);return c.dataset.label+': '+c.parsed.y+'mg ('+fmtShort(d4.toISOString().slice(0,10))+')';}}})},scales:{x:{ticks:{color:gc(),font:{size:10},maxRotation:0},grid:{color:gg()}},y:{ticks:{color:gc(),font:{size:11},callback:function(v){return v+'mg'}},grid:{color:gg()}}}}});
+  var leg='';results.forEach(function(r){leg+='<div class="leg-i"><div class="leg-d" style="background:'+r.color+'"></div>'+r.name+' ('+r.ewd+'mg/wk) \u2192 '+r.weeks+' weeks</div>'});
   document.getElementById('depLeg').innerHTML=leg;
 
-  // Vial consumption order for custom scenario
-  const custom=results.find(r=>r.ewd===paramEWD)||results[0];
-  let vt='<div class="vial-timeline">';
-  const maxVialMg=Math.max(...active.map(v=>v.Total_mg||0));
-  active.forEach((v,i)=>{
-    const usedPct=v.Total_mg>0?Math.round(((v.mg_Remaining||0)/maxVialMg)*100):0;
-    const budStr=v.bud_ts?fmtShort(ep2d(v.bud_ts)):'';
-    vt+=`<div class="vt-row"><span class="vt-label">${v.Vial_Label}</span><div class="vt-bar-track"><div class="vt-bar" style="width:${usedPct}%;background:var(--pri)"></div></div><span class="vt-info">${v.mg_Remaining||0}mg \u2022 ${budStr}</span></div>`;
+  var maxMg=Math.max.apply(null,all.map(function(v){return v.Total_mg||0}));
+  var vh='';
+  var byPh={};all.forEach(function(v){var p=v._pharmacy;if(!byPh[p])byPh[p]=[];byPh[p].push(v)});
+  Object.keys(byPh).sort().forEach(function(ph){
+    var st=pharmPriority[ph]||'use';
+    var stL=st==='skip'?' (skipped)':st==='last'?' (use last)':'';
+    vh+='<div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;'+(st==='skip'?'opacity:.5':'')+'">'+ph+stL+'</div>';
+    byPh[ph].forEach(function(v){
+      var ex=vialExcluded.has(v._id);
+      var pct=maxMg>0?Math.round((v.mg_Remaining||0)/maxMg*100):0;
+      var bs=v.bud_ts?fmtShort(ep2d(v.bud_ts)):'';
+      var bc=ex?'var(--neg)':'var(--pri)';
+      vh+='<div class="vial-row'+(ex?' excluded':'')+'"><input type="checkbox" class="vial-cb" '+(ex?'':'checked')+' onchange="toggleVial('+v._id+')"><span class="vial-lbl">'+v.Vial_Label+'</span><div class="vial-bar-track"><div class="vial-bar" style="width:'+pct+'%;background:'+bc+'"></div></div><span class="vial-meta">'+(v.mg_Remaining||0)+'mg \u2022 '+bs+'</span></div>';
+    });
   });
-  vt+='</div>';
-  document.getElementById('vialTimeline').innerHTML=vt;
+  document.getElementById('vialList').innerHTML=vh;
 
-  // Clinical comparison
-  const clinicalTotal=CLINICAL.reduce((s,v)=>s+v,0);
-  const yourWeek=Math.min(data.treatmentWeeks,CLINICAL.length);
-  const yourDoseAtSameWeek=data.currentEWD;
-  const clinicalAtSameWeek=yourWeek<CLINICAL.length?CLINICAL[yourWeek-1]:15;
-  let cl=`<div style="display:flex;flex-direction:column;gap:14px">`;
-  cl+=`<div><div style="font-size:11px;color:var(--dim);margin-bottom:3px">FDA Mounjaro schedule</div><div style="font-size:12px;color:var(--dim);line-height:1.7">2.5mg × 4wk → 5mg × 4wk → 7.5mg × 4wk → 10mg × 4wk → 12.5mg × 4wk → 15mg × 4wk</div><div style="font-size:11px;color:var(--dim);margin-top:4px">24-week total: ${clinicalTotal}mg</div></div>`;
-  cl+=`<div style="border-top:1px solid var(--border);padding-top:12px"><div style="font-size:11px;color:var(--dim);margin-bottom:6px">Your actual vs. clinical at week ${yourWeek}</div>`;
-  cl+=`<div style="display:flex;gap:20px">`;
-  cl+=`<div><div style="font-size:20px;font-weight:700;color:var(--pri)">${yourDoseAtSameWeek}mg</div><div style="font-size:10px;color:var(--dim)">Your EWD</div></div>`;
-  cl+=`<div><div style="font-size:20px;font-weight:700;color:var(--dim)">${clinicalAtSameWeek}mg</div><div style="font-size:10px;color:var(--dim)">Mounjaro at wk ${yourWeek}</div></div>`;
-  cl+=`</div></div>`;
-  cl+=`<div style="border-top:1px solid var(--border);padding-top:12px"><div style="font-size:11px;color:var(--dim);margin-bottom:3px">Compounded advantage</div><div style="font-size:12px;color:var(--text);line-height:1.6">Your 876mg stash at clinical pace would last ${Math.round(876/((clinicalTotal/24)))} weeks. At your current ${data.currentEWD}mg/wk, it lasts ${Math.round(876/data.currentEWD)} weeks.</div></div>`;
-  cl+=`</div>`;
+  var ws='';
+  ws+='<div class="ws-item"><div class="ws-label">Planned skip</div><div class="ws-val" style="color:var(--neg)">'+excl.totalPlannedWaste.toFixed(1)+'mg</div><div style="font-size:10px;color:var(--dim)">'+(excl.pharmSkipCount+excl.manualExclCount)+' vials excluded</div></div>';
+  ws+='<div class="ws-item"><div class="ws-label">Vial-open waste</div><div class="ws-val" style="color:var(--sec)">'+cr.totalWasted.toFixed(1)+'mg</div><div style="font-size:10px;color:var(--dim)">From '+paramMaxOpen+'-week open limit</div></div>';
+  ws+='<div class="ws-item"><div class="ws-label">Total projected waste</div><div class="ws-val" style="color:var(--neg)">'+aw2.toFixed(1)+'mg</div><div style="font-size:10px;color:var(--dim)">'+Math.round(aw2/data.totalMg*100)+'% of all stock</div></div>';
+  document.getElementById('wasteSummary').innerHTML=ws;
+
+  var clinT=CLINICAL.reduce(function(s,v){return s+v},0);
+  var yw=Math.min(data.treatmentWeeks,CLINICAL.length);
+  var caw=yw>0&&yw<=CLINICAL.length?CLINICAL[yw-1]:15;
+  var cl='<div style="display:flex;flex-direction:column;gap:14px">';
+  cl+='<div><div style="font-size:11px;color:var(--dim);margin-bottom:3px">FDA Mounjaro schedule</div><div style="font-size:12px;color:var(--dim);line-height:1.7">2.5mg \u00d7 4wk \u2192 5mg \u00d7 4wk \u2192 7.5mg \u00d7 4wk \u2192 10mg \u00d7 4wk \u2192 12.5mg \u00d7 4wk \u2192 15mg \u00d7 4wk</div><div style="font-size:11px;color:var(--dim);margin-top:4px">24-week total: '+clinT+'mg</div></div>';
+  cl+='<div style="border-top:1px solid var(--border);padding-top:12px"><div style="font-size:11px;color:var(--dim);margin-bottom:6px">Your actual vs. clinical at week '+yw+'</div>';
+  cl+='<div style="display:flex;gap:20px"><div><div style="font-size:20px;font-weight:700;color:var(--pri)">'+data.currentEWD+'mg</div><div style="font-size:10px;color:var(--dim)">Your EWD</div></div><div><div style="font-size:20px;font-weight:700;color:var(--dim)">'+caw+'mg</div><div style="font-size:10px;color:var(--dim)">Mounjaro at wk '+yw+'</div></div></div></div>';
+  cl+='<div style="border-top:1px solid var(--border);padding-top:12px"><div style="font-size:11px;color:var(--dim);margin-bottom:3px">Compounded advantage</div><div style="font-size:12px;color:var(--text);line-height:1.6">Your '+usableMg.toFixed(0)+'mg usable stock at clinical pace would last '+Math.round(usableMg/(clinT/24))+' weeks. At your modeled '+paramEWD+'mg/wk, it lasts '+cw+' weeks.</div></div></div>';
   document.getElementById('clinicalBox').innerHTML=cl;
+  document.getElementById('ftr').textContent=all.length+' total vials \u2022 '+usable.length+' included \u2022 '+data.totalMg.toFixed(0)+'mg total stock';
 }
 
 function render(data){
   DATA=data;
-  const{people,injs,vials}=data;
-  const charlotte=people.find(p=>p.Name==='Charlotte');
+  var ppl=data.people,inj=data.injs,vi=data.vials;
+  var charlotte=ppl.find(function(p){return p.Name==='Charlotte'});
   if(!charlotte)return;
-  const pid=charlotte._id;
-  const myInjs=injs.filter(i=>i.Person===pid).sort((a,b)=>(a.Date||0)-(b.Date||0));
-  const active=vials.filter(v=>v.Status==='Unopened'||v.Status==='In Use');
-  const totalMg=active.reduce((s,v)=>s+(v.mg_Remaining||0),0);
-
-  // Add bud_ts to vials for sorting
-  active.forEach(v=>{v.bud_ts=v.BUD||0});
-
+  var pid=charlotte._id;
+  var myInjs=inj.filter(function(i){return i.Person===pid}).sort(function(a,b){return(a.Date||0)-(b.Date||0)});
+  var allActive=vi.filter(function(v){return v.Status==='Unopened'||v.Status==='In Use'});
+  var orderMap={};(data.orders||[]).forEach(function(o){orderMap[o._id]=o});
+  var pharmMap={};(data.pharmacies||[]).forEach(function(p){pharmMap[p._id]=p});
+  allActive.forEach(function(v){
+    v.bud_ts=v.BUD||0;
+    var ord=orderMap[v.Order];
+    var ph=ord?pharmMap[ord.Pharmacy]:null;
+    v._pharmacy=ph?ph.Compounding_Pharmacy:'Unknown';
+  });
+  data.allActive=allActive;
+  data.totalMg=allActive.reduce(function(s,v){return s+(v.mg_Remaining||0)},0);
   data.currentEWD=charlotte.Current_EWD||7;
   data.treatmentWeeks=myInjs.length>1?Math.round(((myInjs[myInjs.length-1].Date||0)-(myInjs[0].Date||0))/604800):0;
   paramEWD=data.currentEWD;
-
-  const weeks=data.currentEWD>0?Math.round(totalMg/data.currentEWD):0;
-  const months=Math.round(weeks/4.33);
-  const depDate=new Date();depDate.setDate(depDate.getDate()+weeks*7);
-
-  document.getElementById('sub').textContent=`${totalMg.toFixed(0)}mg remaining \u2022 ${active.length} vials \u2022 ${data.currentEWD}mg/week current rate`;
-  document.getElementById('stats').innerHTML=[
-    sc('Remaining Stock',totalMg.toFixed(0)+'mg',active.length+' vials ('+active.filter(v=>v.Status==='In Use').length+' open)','var(--pos)'),
-    sc('Current Rate',data.currentEWD+'mg/wk',charlotte.Current_Dose+'mg every '+charlotte.Current_Frequency+'d','var(--pri)'),
-    sc('Runway',weeks+' weeks',months+' months','var(--sec)'),
-    sc('Projected Depletion','~'+depDate.toLocaleDateString('en-US',{month:'short',year:'numeric'}),'At current rate, no waste','var(--dim)'),
-  ].join('');
-
+  var pharms=new Set(allActive.map(function(v){return v._pharmacy}));
+  pharms.forEach(function(p){if(!pharmPriority[p])pharmPriority[p]='use'});
+  document.getElementById('sub').textContent=data.totalMg.toFixed(0)+'mg total stock \u2022 '+allActive.length+' vials \u2022 '+data.currentEWD+'mg/week current rate';
   buildControls();
-  document.getElementById('slEWD').value=paramEWD;
-  document.getElementById('vEWD').textContent=paramEWD+'mg';
   renderProjections(data);
-  document.getElementById('ftr').textContent=`${active.length} active vials \u2022 ${totalMg.toFixed(0)}mg`;
 }
 
 grist.ready({requiredAccess:'full'});
-grist.on('message',async()=>{
+grist.on('message',async function(){
   try{
-    const[ppl,inj,vi]=await Promise.all([grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Injections'),grist.docApi.fetchTable('Vials')]);
-    const data={people:toRows(ppl),injs:toRows(inj),vials:toRows(vi)};
+    var r=await Promise.all([grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Injections'),grist.docApi.fetchTable('Vials'),grist.docApi.fetchTable('Orders'),grist.docApi.fetchTable('Pharmacies')]);
+    var data={people:toRows(r[0]),injs:toRows(r[1]),vials:toRows(r[2]),orders:toRows(r[3]),pharmacies:toRows(r[4])};
     document.getElementById('loading').style.display='none';
     document.getElementById('dash').style.display='block';
     render(data);
-  }catch(e){document.getElementById('loading').innerHTML=`<p style="color:var(--neg)">${e.message}</p>`}
+  }catch(e){document.getElementById('loading').innerHTML='<p style="color:var(--neg)">'+e.message+'</p>'}
 });
 </script></body></html>
