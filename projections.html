@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projections</title>
+<script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#5a82b5;--sec:#c4785a;--pos:#5a9fc4;--neg:#c45a5a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--grid:#1e2a3a}
+[data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1a2332;--dim:#5a6878;--muted:#8494a7;--grid:#dce1e8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px 28px 48px;transition:background .3s,color .3s}
+#loading{display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:12px}
+.spinner{width:28px;height:28px;border:2.5px solid var(--border);border-top-color:var(--sec);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}#loading p{color:var(--dim);font-size:14px}#dash{display:none}
+.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color:var(--dim);margin-top:4px}
+.theme-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;color:var(--dim);font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px}.theme-btn:hover{border-color:var(--pri);color:var(--text)}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;flex:1 1 0;min-width:130px;transition:background .3s,border-color .3s}
+.sc-l{font-size:10px;text-transform:uppercase;letter-spacing:1.1px;color:var(--dim);margin-bottom:6px}
+.sc-v{font-size:26px;font-weight:700;line-height:1.1}.sc-s{font-size:11px;color:var(--muted);margin-top:4px}
+.stitle svg{flex-shrink:0;opacity:.85}
+.stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;transition:background .3s,border-color .3s}
+.cw{position:relative;width:100%;height:300px}.cw-sm{position:relative;width:100%;height:220px}
+.two{display:flex;gap:14px;flex-wrap:wrap}.two .wide{flex:2 1 380px}.two .narrow{flex:1 1 280px}
+.three{display:flex;gap:14px;flex-wrap:wrap}.three>div{flex:1 1 250px}
+.mono{font-family:'DM Mono',monospace}
+.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.leg-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)}.leg-d{width:8px;height:8px;border-radius:2px}
+.footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+.ctrl{display:flex;flex-direction:column;gap:16px}
+.ctrl-row{display:flex;align-items:center;gap:12px}
+.ctrl-label{font-size:12px;color:var(--dim);min-width:120px;text-transform:uppercase;letter-spacing:.5px}
+.ctrl input[type=range]{flex:1;accent-color:var(--pri);height:6px}
+.ctrl-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:600;min-width:60px;text-align:right;color:var(--text)}
+.scenario-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.scenario-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px;transition:all .2s}
+.scenario-card.active{border-color:var(--pri);background:rgba(90,130,181,.06)}
+.scenario-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+.scenario-detail{font-size:11px;color:var(--dim);line-height:1.6}
+.scenario-detail strong{color:var(--text);font-weight:600}
+.vial-timeline{display:flex;flex-direction:column;gap:8px}
+.vt-row{display:flex;align-items:center;gap:10px}
+.vt-label{font-size:12px;color:var(--text);min-width:90px;font-weight:500}
+.vt-bar-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;position:relative}
+.vt-bar{height:100%;border-radius:4px;position:absolute;left:0;top:0}
+.vt-info{font-size:10px;color:var(--dim);min-width:90px;text-align:right}
+</style></head><body>
+<div id="loading"><div class="spinner"></div><p>Loading projections…</p></div>
+<div id="dash">
+<div class="hdr"><div><h1>Supply Projections</h1><div class="sub" id="sub"></div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
+<div class="stats" id="stats"></div>
+<div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M6 20V4M18 20v-6"/></svg> Scenario Modeler</div>
+<div class="cc">
+<div class="ctrl" id="controls"></div>
+<div class="scenario-grid" id="scenarioGrid"></div>
+</div>
+<div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg> Depletion Timeline</div>
+<div class="cc"><div class="cw"><canvas id="depletionChart"></canvas></div>
+<div class="legend" id="depLeg"></div></div>
+<div class="two">
+<div class="wide"><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v6.5L4.8 18.3a2 2 0 001.7 2.7h11a2 2 0 001.7-2.7L14 8.5V2"/><path d="M7 15h10"/></svg> Vial Consumption Order</div>
+<div class="cc" id="vialTimeline"></div></div>
+<div class="narrow"><div class="stitle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Clinical Comparison</div>
+<div class="cc" id="clinicalBox"></div></div>
+</div>
+<div class="footer"><div>Supply Projections</div><div id="ftr"></div></div>
+</div>
+<script>
+let DATA=null,charts={};
+let paramEWD=7,paramWaste=15,paramMaxOpen=6;
+function getThemePref(){return localStorage.getItem('tirz-theme')||'auto'}
+function resolveTheme(p){if(p==='light'||p==='dark')return p;return matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
+function applyTheme(){const p=getThemePref(),r=resolveTheme(p);document.documentElement.setAttribute('data-theme',r);const L={auto:'Auto',light:'Light',dark:'Dark'},I={auto:'\u2728',light:'\u2600\uFE0F',dark:'\uD83C\uDF19'};document.getElementById('themeBtn').textContent=I[p]+' '+L[p];if(DATA)render(DATA)}
+function cycleTheme(){const o=['auto','light','dark'],c=getThemePref();localStorage.setItem('tirz-theme',o[(o.indexOf(c)+1)%3]);applyTheme()}
+applyTheme();
+function isDark(){return document.documentElement.getAttribute('data-theme')==='dark'}
+function gc(){return isDark()?'#8b95a5':'#8494a7'}
+function gg(){return isDark()?'#1e2a3a':'#dce1e8'}
+function gt(){return isDark()?'#d0d7de':'#1a2332'}
+function ep2d(ts){if(!ts)return null;return new Date(ts*1000).toISOString().slice(0,10)}
+function fmtD(iso){if(!iso)return'\u2014';const[y,m,d]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return`${M[+m]} ${+d}, ${y}`}
+function fmtShort(iso){if(!iso)return'';const[y,m]=iso.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return M[+m]+" '"+y.slice(2)}
+function destroy(k){if(charts[k]){charts[k].destroy();delete charts[k]}}
+function toRows(t){const ks=Object.keys(t).filter(k=>k!=='id'&&k!=='manualSort');const r=[];for(let i=0;i<(t.id?.length||0);i++){const o={_id:t.id[i]};ks.forEach(k=>o[k]=t[k][i]);if(o.Effective_Weekly_Dose!==undefined&&o.Effective_weekly_dose===undefined)o.Effective_weekly_dose=o.Effective_Weekly_Dose;if(o.Actual_Weekly_Rate!==undefined&&o.Actual_weekly_dose===undefined)o.Actual_weekly_dose=o.Actual_Weekly_Rate;r.push(o)}return r}
+function sc(l,v,s,c){return`<div class="sc"><div class="sc-l">${l}</div><div class="sc-v" style="color:${c}">${v}</div>${s?`<div class="sc-s">${s}</div>`:''}</div>`}
+function ttip(){return{backgroundColor:isDark()?'#1a2332':'#fff',titleColor:isDark()?'#d0d7de':'#1a2332',bodyColor:isDark()?'#8b95a5':'#5a6878',borderColor:isDark()?'#2a3a4a':'#dce1e8',borderWidth:1,cornerRadius:8,padding:10,titleFont:{family:'DM Sans',size:12,weight:600},bodyFont:{family:'DM Sans',size:11}}}
+
+// Clinical Mounjaro schedule (weekly mg)
+const CLINICAL=[2.5,2.5,2.5,2.5,5,5,5,5,7.5,7.5,7.5,7.5,10,10,10,10,12.5,12.5,12.5,12.5,15,15,15,15];
+
+function simulate(ewd,wastePct,maxOpenWeeks,vials){
+  // Sort vials: use In Use first, then by BUD (earliest first), then by size (smallest first for less waste)
+  const sorted=[...vials].sort((a,b)=>{
+    if(a.Status==='In Use'&&b.Status!=='In Use')return-1;
+    if(b.Status==='In Use'&&a.Status!=='In Use')return 1;
+    if((a.bud_ts||0)!==(b.bud_ts||0))return(a.bud_ts||0)-(b.bud_ts||0);
+    return(a.Total_mg||0)-(b.Total_mg||0);
+  });
+  let remaining=0,currentVial=null,vialWeeksOpen=0,totalUsed=0,totalWasted=0;
+  const weeklyData=[];const vialLog=[];
+  const queue=[...sorted];
+  for(let w=0;w<200;w++){
+    // Need a vial?
+    if(!currentVial||remaining<=0||vialWeeksOpen>=maxOpenWeeks){
+      if(currentVial&&remaining>0){totalWasted+=remaining;vialLog.push({...currentVial,wasted:Math.round(remaining*10)/10,weeksUsed:vialWeeksOpen})}
+      if(queue.length===0){weeklyData.push({week:w,stock:0,cum:totalUsed,wasted:totalWasted});break}
+      currentVial=queue.shift();
+      remaining=currentVial.mg_Remaining||currentVial.Total_mg||0;
+      vialWeeksOpen=0;
+    }
+    const draw=Math.min(ewd,remaining);
+    remaining-=draw;totalUsed+=draw;vialWeeksOpen++;
+    const totalStock=remaining+queue.reduce((s,v)=>s+(v.mg_Remaining||v.Total_mg||0),0);
+    weeklyData.push({week:w,stock:Math.round(totalStock*10)/10,cum:Math.round(totalUsed*10)/10,wasted:Math.round(totalWasted*10)/10});
+    if(totalStock<=0&&remaining<=0){
+      if(currentVial)vialLog.push({...currentVial,wasted:0,weeksUsed:vialWeeksOpen});
+      break;
+    }
+  }
+  return{weeklyData,totalUsed:Math.round(totalUsed*10)/10,totalWasted:Math.round(totalWasted*10)/10,weeks:weeklyData.length,vialLog};
+}
+
+function buildControls(){
+  document.getElementById('controls').innerHTML=`
+    <div class="ctrl-row"><span class="ctrl-label">Weekly dose</span><input type="range" min="2.5" max="15" step="0.5" value="${paramEWD}" id="slEWD" oninput="paramEWD=+this.value;document.getElementById('vEWD').textContent=this.value+'mg';updateProjections()"><span class="ctrl-val" id="vEWD">${paramEWD}mg</span></div>
+    <div class="ctrl-row"><span class="ctrl-label">Max weeks open</span><input type="range" min="2" max="20" step="1" value="${paramMaxOpen}" id="slOpen" oninput="paramMaxOpen=+this.value;document.getElementById('vOpen').textContent=this.value+'wk';updateProjections()"><span class="ctrl-val" id="vOpen">${paramMaxOpen}wk</span></div>
+  `;
+}
+
+function updateProjections(){if(DATA)renderProjections(DATA)}
+
+function renderProjections(data){
+  const{vials}=data;
+  const active=vials.filter(v=>v.Status==='Unopened'||v.Status==='In Use');
+  const totalMg=active.reduce((s,v)=>s+(v.mg_Remaining||0),0);
+
+  // Scenarios
+  const scenarios=[
+    {name:'Current rate',ewd:data.currentEWD,maxOpen:paramMaxOpen,color:'#5a82b5',dash:[]},
+    {name:'Custom',ewd:paramEWD,maxOpen:paramMaxOpen,color:'#c4785a',dash:[]},
+    {name:'Maintenance (5mg/wk)',ewd:5,maxOpen:paramMaxOpen,color:'#5a9fc4',dash:[6,3]},
+    {name:'Clinical max (15mg/wk)',ewd:15,maxOpen:paramMaxOpen,color:'#c45a5a',dash:[4,4]},
+  ];
+  // Dedupe if custom matches current
+  const unique=scenarios.filter((s,i)=>i===0||s.ewd!==scenarios[0].ewd);
+
+  const results=unique.map(s=>{const r=simulate(s.ewd,0,s.maxOpen,active);return{...s,...r}});
+
+  // Scenario cards
+  let sg='';results.forEach(r=>{
+    const months=Math.round(r.weeks/4.33);
+    const depDate=new Date();depDate.setDate(depDate.getDate()+r.weeks*7);
+    const depStr=depDate.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    const wastePct=r.totalWasted>0?Math.round(r.totalWasted/(r.totalUsed+r.totalWasted)*100):0;
+    sg+=`<div class="scenario-card${r.ewd===paramEWD?' active':''}">
+      <div class="scenario-name" style="color:${r.color}">${r.name}</div>
+      <div class="scenario-detail">
+        <strong>${r.ewd}mg/week</strong><br>
+        ${r.weeks} weeks (${months} months)<br>
+        Through ~${depStr}<br>
+        ${r.totalWasted>0?`${r.totalWasted}mg wasted (${wastePct}%)<br>`:''}
+        ${r.totalUsed}mg consumed
+      </div></div>`;
+  });
+  document.getElementById('scenarioGrid').innerHTML=sg;
+
+  // Depletion chart
+  const maxWeeks=Math.max(...results.map(r=>r.weeks))+4;
+  const labels=[];for(let w=0;w<=maxWeeks;w++){
+    const d=new Date();d.setDate(d.getDate()+w*7);
+    labels.push(w%8===0?fmtShort(d.toISOString().slice(0,10)):'');
+  }
+  const datasets=results.map(r=>({
+    label:r.name+' ('+r.ewd+'mg/wk)',
+    data:Array.from({length:maxWeeks+1},(_, w)=>{const pt=r.weeklyData.find(d=>d.week===w);return pt?pt.stock:null}),
+    borderColor:r.color,borderWidth:2,borderDash:r.dash,
+    pointRadius:0,pointHitRadius:6,tension:.2,
+    fill:false,spanGaps:true,
+  }));
+  destroy('depletion');
+  charts.depletion=new Chart(document.getElementById('depletionChart'),{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>{const w=c.dataIndex;const d=new Date();d.setDate(d.getDate()+w*7);return c.dataset.label+': '+c.parsed.y+'mg ('+fmtShort(d.toISOString().slice(0,10))+')'}}}},scales:{x:{ticks:{color:gc(),font:{size:10},maxRotation:0},grid:{color:gg()}},y:{ticks:{color:gc(),font:{size:11},callback:v=>v+'mg'},grid:{color:gg()}}}}});
+  let leg='';results.forEach(r=>{leg+=`<div class="leg-i"><div class="leg-d" style="background:${r.color}"></div>${r.name} (${r.ewd}mg/wk) \u2192 ${r.weeks} weeks</div>`});
+  document.getElementById('depLeg').innerHTML=leg;
+
+  // Vial consumption order for custom scenario
+  const custom=results.find(r=>r.ewd===paramEWD)||results[0];
+  let vt='<div class="vial-timeline">';
+  const maxVialMg=Math.max(...active.map(v=>v.Total_mg||0));
+  active.forEach((v,i)=>{
+    const usedPct=v.Total_mg>0?Math.round(((v.mg_Remaining||0)/maxVialMg)*100):0;
+    const budStr=v.bud_ts?fmtShort(ep2d(v.bud_ts)):'';
+    vt+=`<div class="vt-row"><span class="vt-label">${v.Vial_Label}</span><div class="vt-bar-track"><div class="vt-bar" style="width:${usedPct}%;background:var(--pri)"></div></div><span class="vt-info">${v.mg_Remaining||0}mg \u2022 ${budStr}</span></div>`;
+  });
+  vt+='</div>';
+  document.getElementById('vialTimeline').innerHTML=vt;
+
+  // Clinical comparison
+  const clinicalTotal=CLINICAL.reduce((s,v)=>s+v,0);
+  const yourWeek=Math.min(data.treatmentWeeks,CLINICAL.length);
+  const yourDoseAtSameWeek=data.currentEWD;
+  const clinicalAtSameWeek=yourWeek<CLINICAL.length?CLINICAL[yourWeek-1]:15;
+  let cl=`<div style="display:flex;flex-direction:column;gap:14px">`;
+  cl+=`<div><div style="font-size:11px;color:var(--dim);margin-bottom:3px">FDA Mounjaro schedule</div><div style="font-size:12px;color:var(--dim);line-height:1.7">2.5mg × 4wk → 5mg × 4wk → 7.5mg × 4wk → 10mg × 4wk → 12.5mg × 4wk → 15mg × 4wk</div><div style="font-size:11px;color:var(--dim);margin-top:4px">24-week total: ${clinicalTotal}mg</div></div>`;
+  cl+=`<div style="border-top:1px solid var(--border);padding-top:12px"><div style="font-size:11px;color:var(--dim);margin-bottom:6px">Your actual vs. clinical at week ${yourWeek}</div>`;
+  cl+=`<div style="display:flex;gap:20px">`;
+  cl+=`<div><div style="font-size:20px;font-weight:700;color:var(--pri)">${yourDoseAtSameWeek}mg</div><div style="font-size:10px;color:var(--dim)">Your EWD</div></div>`;
+  cl+=`<div><div style="font-size:20px;font-weight:700;color:var(--dim)">${clinicalAtSameWeek}mg</div><div style="font-size:10px;color:var(--dim)">Mounjaro at wk ${yourWeek}</div></div>`;
+  cl+=`</div></div>`;
+  cl+=`<div style="border-top:1px solid var(--border);padding-top:12px"><div style="font-size:11px;color:var(--dim);margin-bottom:3px">Compounded advantage</div><div style="font-size:12px;color:var(--text);line-height:1.6">Your 876mg stash at clinical pace would last ${Math.round(876/((clinicalTotal/24)))} weeks. At your current ${data.currentEWD}mg/wk, it lasts ${Math.round(876/data.currentEWD)} weeks.</div></div>`;
+  cl+=`</div>`;
+  document.getElementById('clinicalBox').innerHTML=cl;
+}
+
+function render(data){
+  DATA=data;
+  const{people,injs,vials}=data;
+  const charlotte=people.find(p=>p.Name==='Charlotte');
+  if(!charlotte)return;
+  const pid=charlotte._id;
+  const myInjs=injs.filter(i=>i.Person===pid).sort((a,b)=>(a.Date||0)-(b.Date||0));
+  const active=vials.filter(v=>v.Status==='Unopened'||v.Status==='In Use');
+  const totalMg=active.reduce((s,v)=>s+(v.mg_Remaining||0),0);
+
+  // Add bud_ts to vials for sorting
+  active.forEach(v=>{v.bud_ts=v.BUD||0});
+
+  data.currentEWD=charlotte.Current_EWD||7;
+  data.treatmentWeeks=myInjs.length>1?Math.round(((myInjs[myInjs.length-1].Date||0)-(myInjs[0].Date||0))/604800):0;
+  paramEWD=data.currentEWD;
+
+  const weeks=data.currentEWD>0?Math.round(totalMg/data.currentEWD):0;
+  const months=Math.round(weeks/4.33);
+  const depDate=new Date();depDate.setDate(depDate.getDate()+weeks*7);
+
+  document.getElementById('sub').textContent=`${totalMg.toFixed(0)}mg remaining \u2022 ${active.length} vials \u2022 ${data.currentEWD}mg/week current rate`;
+  document.getElementById('stats').innerHTML=[
+    sc('Remaining Stock',totalMg.toFixed(0)+'mg',active.length+' vials ('+active.filter(v=>v.Status==='In Use').length+' open)','var(--pos)'),
+    sc('Current Rate',data.currentEWD+'mg/wk',charlotte.Current_Dose+'mg every '+charlotte.Current_Frequency+'d','var(--pri)'),
+    sc('Runway',weeks+' weeks',months+' months','var(--sec)'),
+    sc('Projected Depletion','~'+depDate.toLocaleDateString('en-US',{month:'short',year:'numeric'}),'At current rate, no waste','var(--dim)'),
+  ].join('');
+
+  buildControls();
+  document.getElementById('slEWD').value=paramEWD;
+  document.getElementById('vEWD').textContent=paramEWD+'mg';
+  renderProjections(data);
+  document.getElementById('ftr').textContent=`${active.length} active vials \u2022 ${totalMg.toFixed(0)}mg`;
+}
+
+grist.ready({requiredAccess:'full'});
+grist.on('message',async()=>{
+  try{
+    const[ppl,inj,vi]=await Promise.all([grist.docApi.fetchTable('People'),grist.docApi.fetchTable('Injections'),grist.docApi.fetchTable('Vials')]);
+    const data={people:toRows(ppl),injs:toRows(inj),vials:toRows(vi)};
+    document.getElementById('loading').style.display='none';
+    document.getElementById('dash').style.display='block';
+    render(data);
+  }catch(e){document.getElementById('loading').innerHTML=`<p style="color:var(--neg)">${e.message}</p>`}
+});
+</script></body></html>
