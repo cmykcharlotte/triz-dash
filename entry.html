@@ -6,15 +6,15 @@
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#4a6fa5;--sec:#7a9e7e;--pos:#6bc78f;--neg:#d17b6a;--text:#e2e8f0;--dim:#7a8494;--muted:#5a6474;--input-bg:#1e2a3a;--input-border:#2a3448}
-[data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1e293b;--dim:#7a8494;--muted:#9ca3af;--input-bg:#f0f2f5;--input-border:#c5cdd8}
+:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#4a6fa5;--sec:#7a9e7e;--pos:#6bc78f;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--input-bg:#1e2a3a;--input-border:#2a3a4a}
+[data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1a2332;--dim:#5a6878;--muted:#8494a7;--input-bg:#f0f2f5;--input-border:#c5cdd8}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px 24px 40px;transition:background .3s,color .3s}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px 28px 48px;transition:background .3s,color .3s}
 #loading{display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:12px}
 .spinner{width:28px;height:28px;border:2.5px solid var(--border);border-top-color:var(--sec);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}#loading p{color:var(--dim);font-size:13px}#dash{display:none}
 .hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
-h1{font-size:20px;font-weight:700;letter-spacing:-.3px}.sub{font-size:12px;color:var(--dim);margin-top:3px}
+h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color:var(--dim);margin-top:4px}
 .theme-btn{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:12px;color:var(--dim);font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px}.theme-btn:hover{border-color:var(--pri);color:var(--text)}
 .form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:background .3s,border-color .3s}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
