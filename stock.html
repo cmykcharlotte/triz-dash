@@ -2,12 +2,12 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Stock overview</title>
+<title>Stock Overview</title>
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#4a6fa5;--sec:#7a9e7e;--pos:#6bc78f;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--grid:#1e2a3a}
+:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#5a82b5;--sec:#5d9e6e;--pos:#4db877;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--grid:#1e2a3a}
 [data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1a2332;--dim:#5a6878;--muted:#8494a7;--grid:#dce1e8}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px 28px 48px;transition:background .3s,color .3s}
@@ -21,7 +21,8 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 .sc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;flex:1 1 0;min-width:140;transition:background .3s,border-color .3s}
 .sc-l{font-size:10px;text-transform:uppercase;letter-spacing:1.1px;color:var(--dim);margin-bottom:6px}
 .sc-v{font-size:26px;font-weight:700;line-height:1.1}.sc-s{font-size:11px;color:var(--muted);margin-top:4px}
-.stitle{margin:28px 0 14px;font-size:15px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.stitle svg{flex-shrink:0;opacity:.6}
+.stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
 .cc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;transition:background .3s,border-color .3s}
 .cw{position:relative;width:100%;height:260px}.cw-sm{position:relative;width:100%;height:200px}
 .two{display:flex;gap:14px;flex-wrap:wrap}.two .wide{flex:2 1 380px}.two .narrow{flex:1 1 240px}
@@ -29,7 +30,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}thead tr{border-bottom:
 .mono{font-family:'DM Mono',monospace}
 .dot{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:5px;vertical-align:middle}
 .badge{display:inline-block;padding:3px 7px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase}
-.b-pos{background:rgba(122,158,126,.1);color:var(--sec)}.b-pri{background:rgba(74,111,165,.1);color:var(--pri)}.b-dim{background:rgba(139,149,165,.08);color:var(--dim)}
+.b-pos{background:rgba(93,158,110,.1);color:var(--sec)}.b-pri{background:rgba(90,130,181,.1);color:var(--pri)}.b-dim{background:rgba(139,149,165,.08);color:var(--dim)}
 .legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:8px}
 .leg-i{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--dim)}.leg-d{width:8px;height:8px;border-radius:2px}
 .footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
@@ -37,15 +38,15 @@ table{width:100%;border-collapse:collapse;font-size:13px}thead tr{border-bottom:
 </style></head><body>
 <div id="loading"><div class="spinner"></div><p>Connecting to Grist…</p></div>
 <div id="dash">
-<div class="hdr"><div><h1>Stock overview</h1><div class="sub" id="sub"></div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
+<div class="hdr"><div><h1>Stock Overview</h1><div class="sub" id="sub"></div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
 <div class="stats" id="stats"></div>
-<div class="two"><div class="wide"><div class="stitle">Stock by pharmacy</div><div class="cc"><div class="cw"><canvas id="stockChart"></canvas></div></div></div><div class="narrow"><div class="stitle">Vial status</div><div class="cc" style="text-align:center"><div class="cw-sm"><canvas id="statusChart"></canvas></div><div class="legend" id="statusLeg"></div></div></div></div>
-<div class="two" style="margin-top:0"><div class="wide"><div class="stitle">Cost breakdown</div><div class="cc" id="costBox"></div></div><div class="narrow"><div class="stitle">Notes</div><div class="cc" id="budBox"></div></div></div>
-<div class="stitle">Stock detail</div><div class="cc" style="padding:0;overflow:hidden"><div style="overflow-x:auto"><table id="stockTable"><thead><tr><th>Vial</th><th>Pharmacy</th><th>Owner</th><th>mg</th><th>Used</th><th>Remaining</th><th>Status</th><th>BUD</th></tr></thead><tbody></tbody></table></div></div>
-<div class="footer"><div>Stock overview</div><div id="ftr"></div></div>
+<div class="two"><div class="wide"><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Stock by Pharmacy</div><div class="cc"><div class="cw"><canvas id="stockChart"></canvas></div></div></div><div class="narrow"><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M12 3v7l-6 8.5a2 2 0 001.7 3h8.6a2 2 0 001.7-3L12 10V3"/></svg> Vial Status</div><div class="cc" style="text-align:center"><div class="cw-sm"><canvas id="statusChart"></canvas></div><div class="legend" id="statusLeg"></div></div></div></div>
+<div class="two" style="margin-top:0"><div class="wide"><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Cost Breakdown</div><div class="cc" id="costBox"></div></div><div class="narrow"><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> Notes</div><div class="cc" id="budBox"></div></div></div>
+<div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> Stock Detail</div><div class="cc" style="padding:0;overflow:hidden"><div style="overflow-x:auto"><table id="stockTable"><thead><tr><th>Vial</th><th>Pharmacy</th><th>Owner</th><th>mg</th><th>Used</th><th>Remaining</th><th>Status</th><th>BUD</th></tr></thead><tbody></tbody></table></div></div>
+<div class="footer"><div>Stock Overview</div><div id="ftr"></div></div>
 </div>
 <script>
-const PC={Hallandale:'#4a6fa5',BPI:'#5e88b8',Southend:'#7a9e7e',Olympia:'#9ab8a1'},SCC={Finished:'#7a9e7e','In Use':'#4a6fa5',Unopened:'#6b7585'};
+const PC={Hallandale:'#5a82b5',BPI:'#7ba3cc',Southend:'#5d9e6e',Olympia:'#8bbd80'},SCC={Finished:'#5d9e6e','In Use':'#5a82b5',Unopened:'#6b7585'};
 let charts={},DATA=null;
 function getThemePref(){return localStorage.getItem('tirz-theme')||'auto'}
 function resolveTheme(p){if(p==='light'||p==='dark')return p;return matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
@@ -72,15 +73,15 @@ vials.forEach(v=>{const ord=orderMap[v.Order];v._ph=ord?pharmMap[ord.Pharmacy]:n
 const tmgo=orders.reduce((s,o)=>s+(o.Total_mg||0),0),tmu=injs.reduce((s,i)=>s+(i.Amount_mg||0),0),tc=orders.reduce((s,o)=>s+(o.Cost||0),0),toh=tmgo-tmu;
 document.getElementById('sub').textContent=`${vials.length} vials \u2022 ${orders.length} orders \u2022 ${people.length} people`;
 document.getElementById('stats').innerHTML=[
-  sc('Total ordered',tmgo+' mg',orders.length+' orders','var(--dim)'),
-  sc('Total used',tmu.toFixed(1)+' mg',injs.length+' injections','var(--pri)'),
+  sc('Total Ordered',tmgo+' mg',orders.length+' orders','var(--dim)'),
+  sc('Total Used',tmu.toFixed(1)+' mg',injs.length+' injections','var(--pri)'),
   sc('Remaining',toh.toFixed(1)+' mg',vials.filter(v=>v.Status==='Unopened').length+' unopened','var(--sec)'),
-  sc('Total spent',usd(tc),'$'+(tc/tmgo).toFixed(2)+'/mg ordered','var(--text)'),
+  sc('Total Spent',usd(tc),'$'+(tc/tmgo).toFixed(2)+'/mg ordered','var(--text)'),
 ].join('');
 
 const byPh={};vials.forEach(v=>{const pn=v._ph?.Compounding_Pharmacy||'?';if(!byPh[pn])byPh[pn]={used:0,rem:0};byPh[pn].used+=(v.mg_Used||0);byPh[pn].rem+=(v.mg_Remaining||0)});
 destroy('stock');const phn=Object.keys(byPh).sort();
-charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:[{label:'Used',data:phn.map(p=>Math.round(byPh[p].used*10)/10),backgroundColor:'rgba(74,111,165,.35)',borderRadius:4},{label:'Remaining',data:phn.map(p=>Math.round(byPh[p].rem*10)/10),backgroundColor:phn.map(p=>PC[p]||'#666'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
+charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:[{label:'Used',data:phn.map(p=>Math.round(byPh[p].used*10)/10),backgroundColor:'rgba(90,130,181,.35)',borderRadius:4},{label:'Remaining',data:phn.map(p=>Math.round(byPh[p].rem*10)/10),backgroundColor:phn.map(p=>PC[p]||'#666'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
 
 const sc2={Finished:0,'In Use':0,Unopened:0};vials.forEach(v=>{if(sc2.hasOwnProperty(v.Status))sc2[v.Status]++});
 destroy('status');charts.status=new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:Object.keys(sc2),datasets:[{data:Object.values(sc2),backgroundColor:Object.keys(sc2).map(k=>SCC[k]),borderWidth:0,spacing:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{...ttip()}}}});
@@ -90,10 +91,10 @@ document.getElementById('statusLeg').innerHTML=Object.entries(sc2).map(([k,v])=>
 const cpm=tc/tmgo,cpmu=tc/tmu;
 const waste=vials.filter(v=>v.Status==='Finished'&&v.mg_Remaining>0).reduce((s,v)=>s+(v.mg_Remaining||0),0);
 let cb=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">`;
-cb+=`<div><div class="sc-l">Cost per mg ordered</div><div style="font-size:20px;font-weight:700;color:var(--pri);margin:4px 0">$${cpm.toFixed(2)}</div></div>`;
-cb+=`<div><div class="sc-l">Cost per mg used</div><div style="font-size:20px;font-weight:700;color:var(--dim);margin:4px 0">$${cpmu.toFixed(2)}</div><div style="font-size:10px;color:var(--muted)">Higher due to waste</div></div>`;
-cb+=`<div><div class="sc-l">Total waste</div><div style="font-size:20px;font-weight:700;color:var(--dim);margin:4px 0">${waste.toFixed(1)}mg</div><div style="font-size:10px;color:var(--muted)">From ${vials.filter(v=>v.Status==='Finished'&&v.mg_Remaining>0).length} finished vials</div></div>`;
-cb+=`<div><div class="sc-l">Total spent</div><div style="font-size:20px;font-weight:700;color:var(--text);margin:4px 0">${usd(tc)}</div><div style="font-size:10px;color:var(--muted)">${orders.length} orders</div></div>`;
+cb+=`<div><div class="sc-l">Cost per mg Ordered</div><div style="font-size:20px;font-weight:700;color:var(--pri);margin:4px 0">$${cpm.toFixed(2)}</div></div>`;
+cb+=`<div><div class="sc-l">Cost per mg Used</div><div style="font-size:20px;font-weight:700;color:var(--dim);margin:4px 0">$${cpmu.toFixed(2)}</div><div style="font-size:10px;color:var(--muted)">Higher due to waste</div></div>`;
+cb+=`<div><div class="sc-l">Total Waste</div><div style="font-size:20px;font-weight:700;color:var(--dim);margin:4px 0">${waste.toFixed(1)}mg</div><div style="font-size:10px;color:var(--muted)">From ${vials.filter(v=>v.Status==='Finished'&&v.mg_Remaining>0).length} finished vials</div></div>`;
+cb+=`<div><div class="sc-l">Total Spent</div><div style="font-size:20px;font-weight:700;color:var(--text);margin:4px 0">${usd(tc)}</div><div style="font-size:10px;color:var(--muted)">${orders.length} orders</div></div>`;
 cb+=`</div>`;
 document.getElementById('costBox').innerHTML=cb;
 

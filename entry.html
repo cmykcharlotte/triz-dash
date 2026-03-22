@@ -6,7 +6,7 @@
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#4a6fa5;--sec:#7a9e7e;--pos:#6bc78f;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--input-bg:#1e2a3a;--input-border:#2a3a4a}
+:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#5a82b5;--sec:#5d9e6e;--pos:#4db877;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--input-bg:#1e2a3a;--input-border:#2a3a4a}
 [data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1a2332;--dim:#5a6878;--muted:#8494a7;--input-bg:#f0f2f5;--input-border:#c5cdd8}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px 28px 48px;transition:background .3s,color .3s}
@@ -31,8 +31,9 @@ select{cursor:pointer;-webkit-appearance:none;appearance:none}
 .btn-s{background:transparent;border:1px solid var(--border);color:var(--dim)}.btn-s:hover{border-color:var(--pri);color:var(--text)}
 .toast{position:fixed;top:16px;right:16px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none;z-index:100}
 .toast.show{opacity:1;transform:translateY(0)}
-.t-ok{background:#0a3022;color:#6bc78f;border:1px solid #2a5a40}
+.t-ok{background:#0a3022;color:#4db877;border:1px solid #2a5a40}
 .t-err{background:#3a1a18;color:#d17b6a;border:1px solid #5a3030}
+.stitle svg{flex-shrink:0;opacity:.6}
 .stitle{display:flex;align-items:center;gap:8px;margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
 .recent{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:background .3s,border-color .3s}
 table{width:100%;border-collapse:collapse;font-size:12px}thead tr{border-bottom:1px solid var(--border)}th{padding:8px 10px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600}td{padding:7px 10px;border-bottom:1px solid var(--border)}
@@ -62,7 +63,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}thead tr{border-bottom:
 </div>
 <div class="preview" id="preview" style="display:none">
   <div style="font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:8px;font-weight:600">Auto-calculated preview</div>
-  <div class="pv-row"><span class="pv-label">Effective weekly dose (EWD)</span><span class="pv-val" id="pvEWD">—</span></div>
+  <div class="pv-row"><span class="pv-label">Effective Weekly Dose (EWD)</span><span class="pv-val" id="pvEWD">—</span></div>
   <div class="pv-row"><span class="pv-label">Dose per day</span><span class="pv-val" id="pvDPD">—</span></div>
   <div class="pv-row" id="pvActualRow" style="display:none"><span class="pv-label">Actual interval (from last injection)</span><span class="pv-val" id="pvActual">—</span></div>
   <div class="pv-row" id="pvAWDRow" style="display:none"><span class="pv-label">Actual weekly dose (AWD)</span><span class="pv-val" id="pvAWD">—</span></div>
@@ -70,7 +71,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}thead tr{border-bottom:
 </div>
 <div class="btn-row"><button class="btn btn-p" id="submitBtn" onclick="submit()">Add injection</button><button class="btn btn-s" onclick="clearForm()">Clear</button><span id="status" style="font-size:11px;color:var(--dim)"></span></div></div>
 
-<div class="stitle">Recent injections</div>
+<div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> Recent Injections</div>
 <div class="recent"><div style="overflow-x:auto"><table><thead><tr>
 <th>Date</th><th>Person</th><th>Dose</th><th>Freq</th><th>EWD</th><th>AWD</th><th>Interval</th><th>Variance</th><th>Weight</th>
 </tr></thead><tbody id="recentBody"></tbody></table></div></div>

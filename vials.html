@@ -2,11 +2,11 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vial management</title>
+<title>Vial Management</title>
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#4a6fa5;--sec:#7a9e7e;--pos:#6bc78f;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--input-bg:#1e2a3a;--input-border:#2a3a4a}
+:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#5a82b5;--sec:#5d9e6e;--pos:#4db877;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--input-bg:#1e2a3a;--input-border:#2a3a4a}
 [data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1a2332;--dim:#5a6878;--muted:#8494a7;--input-bg:#f0f2f5;--input-border:#c5cdd8}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px 28px 48px;transition:background .3s,color .3s}
@@ -25,9 +25,9 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 .vial-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
 .vial-name{font-size:14px;font-weight:700;color:var(--text)}
 .vial-badge{font-size:9px;font-weight:600;text-transform:uppercase;padding:2px 7px;border-radius:4px}
-.b-active{background:rgba(74,111,165,.12);color:var(--pri)}
+.b-active{background:rgba(90,130,181,.12);color:var(--pri)}
 .b-unopened{background:rgba(122,132,148,.08);color:var(--dim)}
-.b-finished{background:rgba(107,199,143,.1);color:var(--sec)}
+.b-finished{background:rgba(77,184,119,.1);color:var(--sec)}
 .vial-meta{font-size:11px;color:var(--dim);line-height:1.6;margin-bottom:8px}
 .vial-meta span{margin-right:10px}
 .mono{font-family:'DM Mono',monospace}
@@ -37,10 +37,10 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 .vial-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .btn{padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;transition:all .2s}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.btn-finish{background:rgba(122,158,126,.12);color:var(--sec);border:1px solid rgba(122,158,126,.2)}
-.btn-finish:hover:not(:disabled){background:rgba(122,158,126,.22)}
-.btn-open{background:rgba(74,111,165,.12);color:var(--pri);border:1px solid rgba(74,111,165,.2)}
-.btn-open:hover:not(:disabled){background:rgba(74,111,165,.22)}
+.btn-finish{background:rgba(93,158,110,.12);color:var(--sec);border:1px solid rgba(93,158,110,.2)}
+.btn-finish:hover:not(:disabled){background:rgba(93,158,110,.22)}
+.btn-open{background:rgba(90,130,181,.12);color:var(--pri);border:1px solid rgba(90,130,181,.2)}
+.btn-open:hover:not(:disabled){background:rgba(90,130,181,.22)}
 .btn-discard{background:rgba(122,132,148,.08);color:var(--dim);border:1px solid rgba(122,132,148,.15)}
 .btn-discard:hover:not(:disabled){background:rgba(122,132,148,.18);color:var(--text)}
 .toast{position:fixed;top:16px;right:16px;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;opacity:0;transform:translateY(-8px);transition:all .3s;pointer-events:none;z-index:100}
@@ -64,7 +64,7 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 </style></head><body>
 <div id="loading"><div class="spinner"></div><p>Connecting to Grist…</p></div>
 <div id="dash">
-<div class="hdr"><div><h1>Vial management</h1><div class="sub">Open, finish, and discard vials</div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
+<div class="hdr"><div><h1>Vial Management</h1><div class="sub">Open, finish, and discard vials</div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
 <div id="activeSection"></div>
 <div id="unopenedSection"></div>
 <div id="finishedSection"></div>
@@ -75,7 +75,7 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 
 <script>
 let allVials=[],allOrders=[],allPharms=[],allPeople=[];
-const PC={Hallandale:'#4a6fa5',BPI:'#6b8fb5',Southend:'#7a9e7e',Olympia:'#9ab8a1'};
+const PC={Hallandale:'#5a82b5',BPI:'#7ba3cc',Southend:'#5d9e6e',Olympia:'#8bbd80'};
 
 function getThemePref(){return localStorage.getItem('tirz-theme')||'auto'}
 function resolveTheme(p){if(p==='light'||p==='dark')return p;return matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
@@ -129,7 +129,7 @@ function renderAll(){
   document.getElementById('unopenedSection').innerHTML=html;
 
   const showFinished=finished.slice(0,6);
-  html=`<div class="stitle">Recently finished<span class="section-count">(${finished.length} total)</span></div>`;
+  html=`<div class="stitle">Recently Finished<span class="section-count">(${finished.length} total)</span></div>`;
   html+=`<div class="grid-2">`;
   showFinished.forEach(v=>{html+=renderCard(v,'finished')});
   html+=`</div>`;

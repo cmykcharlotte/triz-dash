@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#4a6fa5;--sec:#7a9e7e;--pos:#6bc78f;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--grid:#1e2a3a}
+:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#5a82b5;--sec:#5d9e6e;--pos:#4db877;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--grid:#1e2a3a}
 [data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1a2332;--dim:#5a6878;--muted:#8494a7;--grid:#dce1e8}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px 28px 48px;transition:background .3s,color .3s}
@@ -21,7 +21,8 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 .sc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;flex:1 1 0;min-width:130;transition:background .3s,border-color .3s}
 .sc-l{font-size:10px;text-transform:uppercase;letter-spacing:1.1px;color:var(--dim);margin-bottom:6px}
 .sc-v{font-size:26px;font-weight:700;line-height:1.1}.sc-s{font-size:11px;color:var(--muted);margin-top:4px}
-.stitle{margin:28px 0 14px;font-size:15px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.stitle svg{flex-shrink:0;opacity:.6}
+.stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
 .cc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;transition:background .3s,border-color .3s}
 .cw{position:relative;width:100%;height:260px}.cw-sm{position:relative;width:100%;height:200px}
 .two{display:flex;gap:14px;flex-wrap:wrap}.two .wide{flex:2 1 380px}.two .narrow{flex:1 1 240px}
@@ -38,15 +39,15 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 <div id="dash">
 <div class="hdr"><div><h1>Charlotte's tirzepatide dashboard</h1><div class="sub" id="sub"></div></div><button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
 <div class="stats" id="stats"></div>
-<div class="two"><div class="wide"><div class="stitle">Treatment summary</div><div class="summary" id="summaryBox"></div></div><div class="narrow"><div class="stitle">Dose-vs-weight by tier</div><div class="cc"><div class="cw-sm"><canvas id="tierChart"></canvas></div></div></div></div>
-<div class="stitle">Weight over time</div><div class="cc"><div class="cw"><canvas id="weightChart"></canvas></div></div>
-<div class="stitle">Dose escalation</div><div class="cc"><div class="cw"><canvas id="doseChart"></canvas></div>
-<div class="legend"><div class="leg-i"><div class="leg-d" style="background:var(--pri)"></div>Effective weekly dose</div><div class="leg-i"><div class="leg-d" style="background:var(--sec)"></div>Per-injection dose</div></div></div>
-<div class="three"><div><div class="stitle">Monthly mg used</div><div class="cc"><div class="cw-sm"><canvas id="monthMgChart"></canvas></div></div></div><div><div class="stitle">Monthly weight change</div><div class="cc"><div class="cw-sm"><canvas id="monthWtChart"></canvas></div></div></div><div><div class="stitle">Use by pharmacy</div><div class="cc" style="text-align:center"><div class="cw-sm"><canvas id="pharmChart"></canvas></div><div class="legend" id="pharmLeg"></div></div></div></div>
-<div class="footer"><div>Charlotte's dashboard</div><div id="ftr"></div></div>
+<div class="two"><div class="wide"><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> Treatment Summary</div><div class="summary" id="summaryBox"></div></div><div class="narrow"><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> Dose vs. Weight by Tier</div><div class="cc"><div class="cw-sm"><canvas id="tierChart"></canvas></div></div></div></div>
+<div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="20" height="12" rx="2"/><path d="M6 8V6a6 6 0 0112 0v2"/><circle cx="12" cy="14" r="2"/></svg> Weight Over Time</div><div class="cc"><div class="cw"><canvas id="weightChart"></canvas></div></div>
+<div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2l-6 6M8.5 8.5l-5 5a2.83 2.83 0 004 4l5-5"/><line x1="15" y1="9" x2="9" y2="15"/></svg> Dose Escalation</div><div class="cc"><div class="cw"><canvas id="doseChart"></canvas></div>
+<div class="legend"><div class="leg-i"><div class="leg-d" style="background:var(--pri)"></div>Effective Weekly Dose</div><div class="leg-i"><div class="leg-d" style="background:var(--sec)"></div>Per-Injection Dose</div></div></div>
+<div class="three"><div><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Monthly mg Used</div><div class="cc"><div class="cw-sm"><canvas id="monthMgChart"></canvas></div></div></div><div><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Monthly Weight Change</div><div class="cc"><div class="cw-sm"><canvas id="monthWtChart"></canvas></div></div></div><div><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 1.5l-8 8a5.66 5.66 0 008 8l8-8a5.66 5.66 0 00-8-8z"/><line x1="6" y1="14" x2="14" y2="6"/></svg> Use by Pharmacy</div><div class="cc" style="text-align:center"><div class="cw-sm"><canvas id="pharmChart"></canvas></div><div class="legend" id="pharmLeg"></div></div></div></div>
+<div class="footer"><div>Charlotte's Dashboard</div><div id="ftr"></div></div>
 </div>
 <script>
-const PN='Charlotte',PC={Hallandale:'#4a6fa5',BPI:'#5e88b8',Southend:'#7a9e7e',Olympia:'#9ab8a1'};
+const PN='Charlotte',PC={Hallandale:'#5a82b5',BPI:'#7ba3cc',Southend:'#5d9e6e',Olympia:'#8bbd80'};
 let charts={},DATA=null;
 function getThemePref(){return localStorage.getItem('tirz-theme')||'auto'}
 function resolveTheme(p){if(p==='light'||p==='dark')return p;return matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
@@ -77,9 +78,9 @@ const li=injs[injs.length-1],ld=li?ep2d(li.Date):null;
 const days=person.Start_Date?Math.round((Date.now()/1000-person.Start_Date)/86400):null;
 document.getElementById('sub').textContent=`Data through ${ld?fmtD(ld):'N/A'} \u2022 ${days?days+' days on treatment':''}`;
 document.getElementById('stats').innerHTML=[
-  sc('Weight loss',wl?wl.toFixed(1)+' lbs':'\u2014',wp?wp.toFixed(0)+'% of starting weight':'','var(--pos)'),
-  sc('Current weight',cw?cw.toFixed(1):'\u2014',sw?'Started at '+sw:'','var(--text)'),
-  sc('Effective weekly dose',li&&li.Effective_Weekly_Dose?li.Effective_Weekly_Dose+'mg':'\u2014',li&&li.Dosing_Frequency_Days?li.Amount_mg+'mg every '+li.Dosing_Frequency_Days+' days':'','var(--pri)'),
+  sc('Weight Loss',wl?wl.toFixed(1)+' lbs':'\u2014',wp?wp.toFixed(0)+'% of starting weight':'','var(--pos)'),
+  sc('Current Weight',cw?cw.toFixed(1):'\u2014',sw?'Started at '+sw:'','var(--text)'),
+  sc('Effective Weekly Dose',li&&li.Effective_Weekly_Dose?li.Effective_Weekly_Dose+'mg':'\u2014',li&&li.Dosing_Frequency_Days?li.Amount_mg+'mg every '+li.Dosing_Frequency_Days+' days':'','var(--pri)'),
   sc('Injections',ti,tm.toFixed(1)+'mg total','var(--sec)'),
 ].join('');
 
@@ -88,12 +89,11 @@ const fd=injs.length?ep2d(injs[0].Date):null;
 const ewdH=injs.filter(i=>i.Effective_Weekly_Dose).map(i=>i.Effective_Weekly_Dose);
 const minEWD=ewdH.length?Math.min(...ewdH):0,maxEWD=ewdH.length?Math.max(...ewdH):0;
 const wMin=ww.length?Math.min(...ww.map(w=>w.Weight)):0,wMax=ww.length?Math.max(...ww.map(w=>w.Weight)):0;
-let sh=`<strong>Started</strong> ${fmtD(fd)} at <span class="s-metric">${sw} lbs</span>. `;
-sh+=`After <span class="s-metric">${ti}</span> injections over <span class="s-metric">${days||0}</span> days, currently at <span class="s-metric">${cw?cw.toFixed(1):'?'} lbs</span>`;
-sh+=wl?` — down <span class="s-metric">${wl.toFixed(1)} lbs</span> (${wp?.toFixed(0)}%). `+'\n':'. ';
-sh+=`<br><br><strong>Dosing:</strong> Titrated from <span class="s-metric">${minEWD}mg</span> to <span class="s-metric">${maxEWD}mg</span> effective weekly dose, well below the clinical schedule. `;
-sh+=`Currently dosing at <span class="s-metric">${li?li.Amount_mg:'?'}mg</span> every <span class="s-metric">${li?li.Dosing_Frequency_Days:'?'}</span> days.`;
-sh+=`<br><br><strong>Weight range:</strong> <span class="s-metric">${wMax}</span> \u2192 <span class="s-metric">${wMin}</span> lbs. Average dose per injection: <span class="s-metric">${(tm/ti).toFixed(1)}mg</span>.`;
+let sh=`<span class="s-metric">${sw}</span> → <span class="s-metric">${cw?cw.toFixed(1):'?'} lbs</span>`;
+sh+=wl?` (−<span class="s-metric">${wl.toFixed(1)}</span>, ${wp?.toFixed(0)}%)`:''
+sh+=` over <span class="s-metric">${days||0}</span> days. `;
+sh+=`EWD: <span class="s-metric">${minEWD}</span> → <span class="s-metric">${maxEWD}mg</span>/week. `;
+sh+=`Currently <span class="s-metric">${li?li.Amount_mg:'?'}mg</span> every <span class="s-metric">${li?li.Dosing_Frequency_Days:'?'}</span> days.`;
 document.getElementById('summaryBox').innerHTML=sh;
 
 // Dose-vs-weight tier analysis
@@ -101,24 +101,24 @@ const tiers={};injs.filter(i=>i.EWD_Tier&&i.Weight_Change!=null&&i.Weight_Change
 const tierOrder=['2.5mg','2.8-3.5mg','4.2-4.5mg','5.0-5.5mg','6.0-6.5mg','7.0mg+'];
 const activeTiers=tierOrder.filter(t=>tiers[t]);
 if(activeTiers.length){
-destroy('tier');charts.tier=new Chart(document.getElementById('tierChart'),{type:'bar',data:{labels:activeTiers,datasets:[{label:'Avg weight change',data:activeTiers.map(t=>Math.round(tiers[t].sum/tiers[t].n*10)/10),backgroundColor:activeTiers.map(t=>tiers[t].sum/tiers[t].n<0?'rgba(107,199,143,.5)':'rgba(209,123,106,.5)'),borderColor:activeTiers.map(t=>tiers[t].sum/tiers[t].n<0?'#6bc78f':'#d17b6a'),borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>{const t=activeTiers[c.dataIndex],d=tiers[t];return[c.parsed.y+' lbs avg',d.losses+'/'+d.n+' injections lost weight ('+Math.round(d.losses/d.n*100)+'%)']}}}},scales:{x:{ticks:{color:gc(),font:{size:10}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:10}},grid:{color:gg()}}}}})}
+destroy('tier');charts.tier=new Chart(document.getElementById('tierChart'),{type:'bar',data:{labels:activeTiers,datasets:[{label:'Avg weight change',data:activeTiers.map(t=>Math.round(tiers[t].sum/tiers[t].n*10)/10),backgroundColor:activeTiers.map(t=>tiers[t].sum/tiers[t].n<0?'rgba(77,184,119,.5)':'rgba(209,123,106,.5)'),borderColor:activeTiers.map(t=>tiers[t].sum/tiers[t].n<0?'#4db877':'#d17b6a'),borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>{const t=activeTiers[c.dataIndex],d=tiers[t];return[c.parsed.y+' lbs avg',d.losses+'/'+d.n+' injections lost weight ('+Math.round(d.losses/d.n*100)+'%)']}}}},scales:{x:{ticks:{color:gc(),font:{size:10}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:10}},grid:{color:gg()}}}}})}
 
 // Weight chart
 if(ww.length>2){destroy('weight');const lb=ww.map(d=>fmtS(ep2d(d.Date))),vl=ww.map(d=>d.Weight);
-charts.weight=new Chart(document.getElementById('weightChart'),{type:'line',data:{labels:lb,datasets:[{label:'Weight',data:vl,borderColor:'#7a9e7e',backgroundColor:isDark()?'rgba(122,158,126,.06)':'rgba(122,158,126,.12)',fill:true,tension:.3,pointRadius:0,pointHitRadius:8,borderWidth:2},{label:'Start',data:vl.map(()=>sw),borderColor:'#6b7585',borderDash:[6,4],borderWidth:1,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),filter:i=>i.datasetIndex===0,callbacks:{label:c=>c.parsed.y+' lbs'}}},scales:{x:{ticks:{color:gc(),font:{size:11},maxTicksLimit:10},grid:{color:gg()}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()},suggestedMin:Math.min(...vl)-5,suggestedMax:Math.max(...vl)+5}}}})}
+charts.weight=new Chart(document.getElementById('weightChart'),{type:'line',data:{labels:lb,datasets:[{label:'Weight',data:vl,borderColor:'#5d9e6e',backgroundColor:isDark()?'rgba(93,158,110,.06)':'rgba(93,158,110,.12)',fill:true,tension:.3,pointRadius:0,pointHitRadius:8,borderWidth:2},{label:'Start',data:vl.map(()=>sw),borderColor:'#6b7585',borderDash:[6,4],borderWidth:1,pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),filter:i=>i.datasetIndex===0,callbacks:{label:c=>c.parsed.y+' lbs'}}},scales:{x:{ticks:{color:gc(),font:{size:11},maxTicksLimit:10},grid:{color:gg()}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()},suggestedMin:Math.min(...vl)-5,suggestedMax:Math.max(...vl)+5}}}})}
 
 // Dose escalation
 const dd=injs.filter(i=>i.Effective_Weekly_Dose&&i.Effective_Weekly_Dose>0);
-if(dd.length){destroy('dose');charts.dose=new Chart(document.getElementById('doseChart'),{type:'line',data:{labels:dd.map(d=>fmtS(ep2d(d.Date))),datasets:[{label:'Effective weekly dose',data:dd.map(d=>d.Effective_Weekly_Dose),borderColor:'#4a6fa5',backgroundColor:isDark()?'rgba(74,111,165,.06)':'rgba(74,111,165,.1)',fill:true,stepped:'after',borderWidth:2,pointRadius:0},{label:'Per-injection dose',data:dd.map(d=>d.Amount_mg),borderColor:'#7a9e7e',borderWidth:1.5,borderDash:[4,3],pointRadius:0,tension:.2,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{ticks:{color:gc(),font:{size:11},maxTicksLimit:10},grid:{color:gg()}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}})}
+if(dd.length){destroy('dose');charts.dose=new Chart(document.getElementById('doseChart'),{type:'line',data:{labels:dd.map(d=>fmtS(ep2d(d.Date))),datasets:[{label:'Effective Weekly Dose',data:dd.map(d=>d.Effective_Weekly_Dose),borderColor:'#5a82b5',backgroundColor:isDark()?'rgba(90,130,181,.06)':'rgba(90,130,181,.1)',fill:true,stepped:'after',borderWidth:2,pointRadius:0},{label:'Per-Injection Dose',data:dd.map(d=>d.Amount_mg),borderColor:'#5d9e6e',borderWidth:1.5,borderDash:[4,3],pointRadius:0,tension:.2,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{ticks:{color:gc(),font:{size:11},maxTicksLimit:10},grid:{color:gg()}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}})}
 
 // Monthly mg
 const mo={};injs.forEach(i=>{const d=ep2d(i.Date);if(!d)return;const ym=d.slice(0,7);if(!mo[ym])mo[ym]={mg:0,wFirst:null,wLast:null};mo[ym].mg+=(i.Amount_mg||0);if(i.Weight&&i.Weight>0){if(!mo[ym].wFirst)mo[ym].wFirst=i.Weight;mo[ym].wLast=i.Weight}});
 const mks=Object.keys(mo).sort(),mls=mks.map(k=>{const[y,m]=k.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return M[+m]+" '"+y.slice(2)});
-destroy('monthMg');charts.monthMg=new Chart(document.getElementById('monthMgChart'),{type:'bar',data:{labels:mls,datasets:[{data:mks.map(k=>Math.round(mo[k].mg*10)/10),backgroundColor:'rgba(74,111,165,.5)',borderColor:'#4a6fa5',borderWidth:1,borderRadius:5,maxBarThickness:36}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>c.parsed.y+'mg'}}},scales:{x:{ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
+destroy('monthMg');charts.monthMg=new Chart(document.getElementById('monthMgChart'),{type:'bar',data:{labels:mls,datasets:[{data:mks.map(k=>Math.round(mo[k].mg*10)/10),backgroundColor:'rgba(90,130,181,.5)',borderColor:'#5a82b5',borderWidth:1,borderRadius:5,maxBarThickness:36}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>c.parsed.y+'mg'}}},scales:{x:{ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
 
 // Monthly weight change
 const mwc=mks.map((k,i)=>{if(i===0)return mo[k].wLast&&mo[k].wFirst?Math.round((mo[k].wLast-mo[k].wFirst)*10)/10:null;const prev=mo[mks[i-1]];const curr=mo[k];if(prev?.wLast&&curr?.wLast)return Math.round((curr.wLast-prev.wLast)*10)/10;return null});
-destroy('monthWt');charts.monthWt=new Chart(document.getElementById('monthWtChart'),{type:'bar',data:{labels:mls,datasets:[{data:mwc,backgroundColor:mwc.map(v=>v!=null&&v<=0?'rgba(107,199,143,.5)':'rgba(209,123,106,.5)'),borderColor:mwc.map(v=>v!=null&&v<=0?'#6bc78f':'#d17b6a'),borderWidth:1,borderRadius:4,maxBarThickness:36}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>(c.parsed.y>0?'+':'')+c.parsed.y+' lbs'}}},scales:{x:{ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
+destroy('monthWt');charts.monthWt=new Chart(document.getElementById('monthWtChart'),{type:'bar',data:{labels:mls,datasets:[{data:mwc,backgroundColor:mwc.map(v=>v!=null&&v<=0?'rgba(77,184,119,.5)':'rgba(209,123,106,.5)'),borderColor:mwc.map(v=>v!=null&&v<=0?'#4db877':'#d17b6a'),borderWidth:1,borderRadius:4,maxBarThickness:36}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...ttip(),callbacks:{label:c=>(c.parsed.y>0?'+':'')+c.parsed.y+' lbs'}}},scales:{x:{ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
 
 // Pharmacy use
 const pu={};injs.forEach(i=>{if(!i.Vial)return;const v=allVi.find(v2=>v2._id===i.Vial);if(!v)return;const o=allOrd.find(o2=>o2._id===v.Order);if(!o)return;const ph=pharmMap[o.Pharmacy];if(!ph)return;pu[ph.Compounding_Pharmacy]=(pu[ph.Compounding_Pharmacy]||0)+(i.Amount_mg||0)});

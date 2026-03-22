@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
-:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#4a6fa5;--sec:#7a9e7e;--pos:#6bc78f;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--grid:#1e2a3a}
+:root{--bg:#111826;--card:#172030;--border:#1e2a3a;--pri:#5a82b5;--sec:#5d9e6e;--pos:#4db877;--neg:#d17b6a;--text:#d0d7de;--dim:#8b95a5;--muted:#6b7585;--grid:#1e2a3a}
 [data-theme="light"]{--bg:#f5f7fa;--card:#ffffff;--border:#dce1e8;--text:#1a2332;--dim:#5a6878;--muted:#8494a7;--grid:#dce1e8}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);padding:24px 28px 48px;transition:background .3s,color .3s}
@@ -26,7 +26,8 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
 .sc-l{font-size:10px;text-transform:uppercase;letter-spacing:1.1px;color:var(--dim);margin-bottom:6px}
 .sc-v{font-size:26px;font-weight:700;line-height:1.1}
 .sc-s{font-size:11px;color:var(--muted);margin-top:4px}
-.stitle{margin:28px 0 14px;font-size:15px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.stitle svg{flex-shrink:0;opacity:.6}
+.stitle{display:flex;align-items:center;gap:8px;margin:28px 0 14px;font-size:15px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
 .cc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;transition:background .3s,border-color .3s}
 .cw{position:relative;width:100%;height:200px}
 .two{display:flex;gap:14px;flex-wrap:wrap}.two>.half{flex:1 1 300px}
@@ -39,7 +40,7 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
 .pcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;flex:1 1 300px;transition:background .3s,border-color .3s}
 .pname{font-size:17px;font-weight:700;margin-bottom:3px}
 .pstatus{font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:12px}
-.pstatus.on{background:rgba(107,199,143,.12);color:var(--pos)}
+.pstatus.on{background:rgba(77,184,119,.12);color:var(--pos)}
 .pstatus.off{background:rgba(139,149,165,.1);color:var(--dim)}
 .pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pg-i{padding:6px 0}.pg-l{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin-bottom:3px}
@@ -56,21 +57,21 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}
 <div class="hdr"><div><h1>Tirzepatide tracker</h1><div class="sub" id="sub"></div></div>
 <button class="theme-btn" id="themeBtn" onclick="cycleTheme()"></button></div>
 <div class="stats" id="topStats"></div>
-<div class="stitle">Per-person summary</div>
+<div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> Per-Person Summary</div>
 <div class="two" id="personCards"></div>
 <div class="two" style="margin-top:0">
-<div class="half"><div class="stitle">Usage by person</div><div class="cc"><div class="cw"><canvas id="usageChart"></canvas></div></div></div>
-<div class="half"><div class="stitle">Monthly usage</div><div class="cc"><div class="cw"><canvas id="monthChart"></canvas></div></div></div>
+<div class="half"><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Usage by Person</div><div class="cc"><div class="cw"><canvas id="usageChart"></canvas></div></div></div>
+<div class="half"><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Monthly Usage</div><div class="cc"><div class="cw"><canvas id="monthChart"></canvas></div></div></div>
 </div>
 <div class="three">
-<div><div class="stitle">Stock by pharmacy</div><div class="cc"><div class="cw"><canvas id="stockChart"></canvas></div><div class="legend" id="stockLeg"></div></div></div>
-<div><div class="stitle">Vial status</div><div class="cc" style="text-align:center"><div class="cw"><canvas id="vialChart"></canvas></div><div class="legend" id="vialLeg"></div></div></div>
-<div><div class="stitle">Supply runway</div><div class="cc" id="runwayBox"></div></div>
+<div><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> Stock by Pharmacy</div><div class="cc"><div class="cw"><canvas id="stockChart"></canvas></div><div class="legend" id="stockLeg"></div></div></div>
+<div><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M12 3v7l-6 8.5a2 2 0 001.7 3h8.6a2 2 0 001.7-3L12 10V3"/></svg> Vial Status</div><div class="cc" style="text-align:center"><div class="cw"><canvas id="vialChart"></canvas></div><div class="legend" id="vialLeg"></div></div></div>
+<div><div class="stitle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Supply Runway</div><div class="cc" id="runwayBox"></div></div>
 </div>
-<div class="footer"><div>Overview dashboard</div><div id="ftr"></div></div>
+<div class="footer"><div>Overview Dashboard</div><div id="ftr"></div></div>
 </div>
 <script>
-const PCOL=['#4a6fa5','#7a9e7e'],PC={Hallandale:'#4a6fa5',BPI:'#5e88b8',Southend:'#7a9e7e',Olympia:'#9ab8a1'},SCC={Finished:'#7a9e7e','In Use':'#4a6fa5',Unopened:'#6b7585'};
+const PCOL=['#5a82b5','#5d9e6e'],PC={Hallandale:'#5a82b5',BPI:'#7ba3cc',Southend:'#5d9e6e',Olympia:'#8bbd80'},SCC={Finished:'#5d9e6e','In Use':'#5a82b5',Unopened:'#6b7585'};
 let charts={},DATA=null;
 function getThemePref(){return localStorage.getItem('tirz-theme')||'auto'}
 function resolveTheme(p){if(p==='light'||p==='dark')return p;return matchMedia('(prefers-color-scheme:light)').matches?'light':'dark'}
@@ -95,13 +96,13 @@ const pharmMap={};pharms.forEach(p=>pharmMap[p._id]=p);const orderMap={};orders.
 const tmgo=orders.reduce((s,o)=>s+(o.Total_mg||0),0),tmu=injs.reduce((s,i)=>s+(i.Amount_mg||0),0),toh=tmgo-tmu;
 document.getElementById('sub').textContent=`${people.length} people \u2022 ${orders.length} orders \u2022 ${vials.length} vials \u2022 ${injs.length} injections`;
 document.getElementById('topStats').innerHTML=[
-  sc('Total used',tmu.toFixed(1)+' mg',injs.length+' injections','var(--pri)'),
-  sc('On hand',toh.toFixed(1)+' mg',vials.filter(v=>v.Status==='Unopened').length+' unopened vials','var(--sec)'),
-  sc('Total ordered',tmgo+' mg',orders.length+' orders','var(--dim)'),
+  sc('Total Used',tmu.toFixed(1)+' mg',injs.length+' injections','var(--pri)'),
+  sc('On Hand',toh.toFixed(1)+' mg',vials.filter(v=>v.Status==='Unopened').length+' unopened vials','var(--sec)'),
+  sc('Total Ordered',tmgo+' mg',orders.length+' orders','var(--dim)'),
 ].join('');
 
 let ch='';people.forEach((p,idx)=>{const pi=injs.filter(i=>i.Person===p._id).sort((a,b)=>(a.Date||0)-(b.Date||0));const mu=pi.reduce((s,i)=>s+(i.Amount_mg||0),0);const po=orders.filter(o=>o.Person===p._id);const mo=po.reduce((s,o)=>s+(o.Total_mg||0),0);const ww=pi.filter(i=>i.Weight&&i.Weight>0);const cw=ww.length?ww[ww.length-1].Weight:null;const sw=p.Starting_Weight;const wl=sw&&cw?sw-cw:null;const wp=wl&&sw?(wl/sw*100):null;const li=pi.length?pi[pi.length-1]:null;const ld=li?ep2d(li.Date):null;const fd=pi.length?ep2d(pi[0].Date):null;const ia=li&&li.Date&&(Date.now()/1000-li.Date)<90*86400;
-ch+=`<div class="pcard"><div class="pname" style="color:${PCOL[idx]}">${p.Name}</div><span class="pstatus ${ia?'on':'off'}">${ia?'Active':'Inactive'}</span><div class="pgrid"><div class="pg-i"><div class="pg-l">Injections</div><div class="pg-v" style="color:var(--pri)">${pi.length}</div><div class="pg-s">${fmtD(fd)} \u2192 ${fmtD(ld)}</div></div><div class="pg-i"><div class="pg-l">Total mg used</div><div class="pg-v" style="color:var(--sec)">${mu.toFixed(1)}</div><div class="pg-s">of ${mo}mg ordered</div></div><div class="pg-i"><div class="pg-l">${wl!=null?'Weight loss':'Last dose'}</div><div class="pg-v" style="color:${wl!=null?'var(--pos)':'var(--dim)'}">${wl!=null?wl.toFixed(1)+' lbs':li?li.Amount_mg+'mg':'\u2014'}</div><div class="pg-s">${wp!=null?wp.toFixed(0)+'% of starting':li&&li.Dosing_Frequency_Days?'Every '+li.Dosing_Frequency_Days+' days':'No weight data'}</div></div><div class="pg-i"><div class="pg-l">${li&&li.Effective_Weekly_Dose?'Effective weekly dose':'Duration'}</div><div class="pg-v" style="color:var(--pri)">${li&&li.Effective_Weekly_Dose?li.Effective_Weekly_Dose+'mg':pi.length?Math.round((pi[pi.length-1].Date-pi[0].Date)/86400)+' days':'\u2014'}</div><div class="pg-s">${li&&li.Dosing_Frequency_Days?li.Amount_mg+'mg every '+li.Dosing_Frequency_Days+' days':''}</div></div></div><div class="pbar"><div class="bar-l"><span>${mu.toFixed(0)}mg of ${mo}mg used</span><span>${mo>0?Math.round(mu/mo*100):0}%</span></div><div class="bar-t"><div class="bar-f" style="width:${mo>0?Math.min(mu/mo*100,100):0}%;background:${PCOL[idx]}"></div></div></div></div>`;});
+ch+=`<div class="pcard"><div class="pname" style="color:${PCOL[idx]}">${p.Name}</div><span class="pstatus ${ia?'on':'off'}">${ia?'Active':'Inactive'}</span><div class="pgrid"><div class="pg-i"><div class="pg-l">Injections</div><div class="pg-v" style="color:var(--pri)">${pi.length}</div><div class="pg-s">${fmtD(fd)} \u2192 ${fmtD(ld)}</div></div><div class="pg-i"><div class="pg-l">Total mg Used</div><div class="pg-v" style="color:var(--sec)">${mu.toFixed(1)}</div><div class="pg-s">of ${mo}mg ordered</div></div><div class="pg-i"><div class="pg-l">${wl!=null?'Weight Loss':'Last dose'}</div><div class="pg-v" style="color:${wl!=null?'var(--pos)':'var(--dim)'}">${wl!=null?wl.toFixed(1)+' lbs':li?li.Amount_mg+'mg':'\u2014'}</div><div class="pg-s">${wp!=null?wp.toFixed(0)+'% of starting':li&&li.Dosing_Frequency_Days?'Every '+li.Dosing_Frequency_Days+' days':'No weight data'}</div></div><div class="pg-i"><div class="pg-l">${li&&li.Effective_Weekly_Dose?'Effective Weekly Dose':'Duration'}</div><div class="pg-v" style="color:var(--pri)">${li&&li.Effective_Weekly_Dose?li.Effective_Weekly_Dose+'mg':pi.length?Math.round((pi[pi.length-1].Date-pi[0].Date)/86400)+' days':'\u2014'}</div><div class="pg-s">${li&&li.Dosing_Frequency_Days?li.Amount_mg+'mg every '+li.Dosing_Frequency_Days+' days':''}</div></div></div><div class="pbar"><div class="bar-l"><span>${mu.toFixed(0)}mg of ${mo}mg used</span><span>${mo>0?Math.round(mu/mo*100):0}%</span></div><div class="bar-t"><div class="bar-f" style="width:${mo>0?Math.min(mu/mo*100,100):0}%;background:${PCOL[idx]}"></div></div></div></div>`;});
 document.getElementById('personCards').innerHTML=ch;
 
 // Usage by person
@@ -110,7 +111,7 @@ destroy('usage');charts.usage=new Chart(document.getElementById('usageChart'),{t
 // Stock by pharmacy
 const byPh={};vials.forEach(v=>{const ord=orderMap[v.Order];if(!ord)return;const ph=pharmMap[ord.Pharmacy];if(!ph)return;const pn=ph.Compounding_Pharmacy;if(!byPh[pn])byPh[pn]={used:0,rem:0};byPh[pn].used+=(v.mg_Used||0);byPh[pn].rem+=(v.mg_Remaining||0)});
 destroy('stock');const phn=Object.keys(byPh).sort();
-charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:[{label:'Used',data:phn.map(p=>Math.round(byPh[p].used*10)/10),backgroundColor:'rgba(74,111,165,.35)',borderRadius:4},{label:'Remaining',data:phn.map(p=>Math.round(byPh[p].rem*10)/10),backgroundColor:phn.map(p=>PC[p]||'#666'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
+charts.stock=new Chart(document.getElementById('stockChart'),{type:'bar',data:{labels:phn,datasets:[{label:'Used',data:phn.map(p=>Math.round(byPh[p].used*10)/10),backgroundColor:'rgba(90,130,181,.35)',borderRadius:4},{label:'Remaining',data:phn.map(p=>Math.round(byPh[p].rem*10)/10),backgroundColor:phn.map(p=>PC[p]||'#666'),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
 
 // Vial status
 const sc2={Finished:0,'In Use':0,Unopened:0};vials.forEach(v=>{if(sc2.hasOwnProperty(v.Status))sc2[v.Status]++});
@@ -122,13 +123,13 @@ const mo2={};injs.forEach(i=>{const d=ep2d(i.Date);if(!d)return;const ym=d.slice
 const mk=Object.keys(mo2).sort(),ml=mk.map(k=>{const[y,m]=k.split('-');const M=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return M[+m]+" '"+y.slice(2)});
 destroy('month');charts.month=new Chart(document.getElementById('monthChart'),{type:'bar',data:{labels:ml,datasets:people.map((p,i)=>({label:p.Name,data:mk.map(k=>Math.round((mo2[k]?.[p.Name]||0)*10)/10),backgroundColor:PCOL[i]+'cc',borderColor:PCOL[i],borderWidth:1,borderRadius:3}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:gc(),font:{size:11}}},tooltip:{...ttip(),callbacks:{label:c=>c.dataset.label+': '+c.parsed.y+'mg'}}},scales:{x:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{display:false}},y:{stacked:true,ticks:{color:gc(),font:{size:11}},grid:{color:gg()}}}}});
 
-// Supply runway
+// Supply Runway
 const charlotte=people.find(p=>p.Name==='Charlotte');const cewd=charlotte?.Current_EWD;
 const totalRem=vials.filter(v=>v.Status==='Unopened'||v.Status==='In Use').reduce((s,v)=>s+(v.mg_Remaining||0),0);
 let rh='';
 if(cewd&&cewd>0){const weeks=Math.round(totalRem/cewd);const months=Math.round(weeks/4.33);const depDate=new Date();depDate.setDate(depDate.getDate()+weeks*7);
-rh+=`<div style="margin-bottom:14px"><div class="sc-l">At current dose (${cewd}mg/week)</div><div style="font-size:26px;font-weight:700;color:var(--pri);margin:6px 0">${weeks} weeks</div><div style="font-size:13px;color:var(--dim)">${months} months \u2022 Through ~${depDate.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</div></div>`;
-rh+=`<div style="border-top:1px solid var(--border);padding-top:12px"><div class="sc-l">Remaining stock</div><div style="font-size:20px;font-weight:700;color:var(--sec);margin:4px 0">${totalRem.toFixed(0)}mg</div></div>`;
+rh+=`<div style="margin-bottom:14px"><div class="sc-l">At Current Dose (${cewd}mg/week)</div><div style="font-size:26px;font-weight:700;color:var(--pri);margin:6px 0">${weeks} weeks</div><div style="font-size:13px;color:var(--dim)">${months} months \u2022 Through ~${depDate.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</div></div>`;
+rh+=`<div style="border-top:1px solid var(--border);padding-top:12px"><div class="sc-l">Remaining Stock</div><div style="font-size:20px;font-weight:700;color:var(--sec);margin:4px 0">${totalRem.toFixed(0)}mg</div></div>`;
 }else{rh+=`<div style="font-size:13px;color:var(--dim)">No active dosing data for supply projection.</div>`}
 document.getElementById('runwayBox').innerHTML=rh;
 
