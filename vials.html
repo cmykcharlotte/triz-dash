@@ -36,10 +36,20 @@ h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{font-size:13px;color
 .bar-fill{height:100%;border-radius:4px;transition:width .3s}
 .bar-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--dim)}
 .vial-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.vial-countdown{display:flex;align-items:center;justify-content:space-between;margin:10px 0 4px;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:600}
+.cd-ok{background:rgba(90,159,196,.08);color:var(--pos)}
+.cd-warn{background:rgba(196,120,90,.1);color:var(--sec)}
+.cd-urgent{background:rgba(196,90,90,.12);color:var(--neg);animation:pulse-nag 2s ease-in-out infinite}
+.cd-expired{background:rgba(196,90,90,.18);color:var(--neg);border:1px solid rgba(196,90,90,.3);animation:pulse-nag 1.5s ease-in-out infinite}
+.cd-days{font-size:18px;font-weight:700}
+.cd-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+@keyframes pulse-nag{0%,100%{opacity:1}50%{opacity:.7}}
 .btn{padding:6px 12px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;transition:all .2s}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-finish{background:rgba(196,120,90,.12);color:var(--sec);border:1px solid rgba(196,120,90,.2)}
 .btn-finish:hover:not(:disabled){background:rgba(196,120,90,.22)}
+.btn-finish-urgent{background:rgba(196,90,90,.2);color:var(--neg);border:1px solid rgba(196,90,90,.4);font-size:12px;padding:8px 16px;animation:pulse-nag 2s ease-in-out infinite}
+.btn-finish-urgent:hover:not(:disabled){background:rgba(196,90,90,.35)}
 .btn-open{background:rgba(90,130,181,.12);color:var(--pri);border:1px solid rgba(90,130,181,.2)}
 .btn-open:hover:not(:disabled){background:rgba(90,130,181,.22)}
 .btn-discard{background:rgba(122,132,148,.08);color:var(--dim);border:1px solid rgba(122,132,148,.15)}
@@ -146,8 +156,24 @@ function renderCard(v,section){
   let badge='',actions='';
   if(section==='active'){
     badge=`<span class="vial-badge b-active">In Use</span>`;
-    actions=`<div class="vial-actions">
-      <button class="btn btn-finish" onclick="confirmFinish(${v._id})">Finish</button>
+    // 30-day countdown
+    let cdHtml='';
+    if(v.Date_Opened){
+      const openedTs=v.Date_Opened;
+      const now=Date.now()/1000;
+      const daysOpen=Math.floor((now-openedTs)/86400);
+      const daysLeft=30-daysOpen;
+      let cdClass='cd-ok',cdMsg='';
+      if(daysLeft<=0){cdClass='cd-expired';cdMsg='Past 30-day limit \u2014 finish this vial';}
+      else if(daysLeft<=3){cdClass='cd-urgent';cdMsg=daysLeft+' day'+(daysLeft!==1?'s':'')+' left \u2014 finish soon';}
+      else if(daysLeft<=7){cdClass='cd-warn';cdMsg=daysLeft+' days remaining';}
+      else{cdMsg=daysLeft+' days remaining';}
+      cdHtml=`<div class="vial-countdown ${cdClass}"><div><div class="cd-days">${daysOpen}d open</div><div class="cd-label">of 30 days</div></div><div style="text-align:right"><div style="font-size:11px">${cdMsg}</div><div style="background:var(--border);border-radius:3px;height:4px;width:100px;margin-top:4px;overflow:hidden"><div style="height:100%;border-radius:3px;width:${Math.min(daysOpen/30*100,100)}%;background:${daysLeft<=0?'var(--neg)':daysLeft<=3?'var(--neg)':daysLeft<=7?'var(--sec)':'var(--pos)'}"></div></div></div></div>`;
+    }
+    let finBtnClass='btn btn-finish';
+    if(v.Date_Opened){const dO=Math.floor((Date.now()/1000-v.Date_Opened)/86400);if(30-dO<=3)finBtnClass='btn btn-finish-urgent';}
+    actions=cdHtml+`<div class="vial-actions">
+      <button class="${finBtnClass}" onclick="confirmFinish(${v._id})">${finBtnClass.includes('urgent')?'Finish This Vial':'Finish'}</button>
       <button class="btn btn-discard" onclick="confirmDiscard(${v._id})">Discard</button></div>`;
   }else if(section==='unopened'){
     badge=`<span class="vial-badge b-unopened">Unopened</span>`;
