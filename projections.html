@@ -151,7 +151,7 @@ function simulate(ewd,maxOW,vials){
 function cyclePharm(name){
   var order=['use','first','last','skip'];
   var cur=pharmPriority[name]||'use';
-  pharmPriority[name]=order[(order.indexOf(cur)+1)%3];
+  pharmPriority[name]=order[(order.indexOf(cur)+1)%4];
   if(pharmPriority[name]==='skip'){
     DATA.allActive.filter(function(v){return v._pharmacy===name}).forEach(function(v){vialExcluded.add(v._id)});
   }else{
